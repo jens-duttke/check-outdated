@@ -1,0 +1,46 @@
+{
+	"name": "check-outdated",
+	"version": "1.0.0",
+	"description": "Ensures that your dependencies are up to date, otherwise the process is terminated with status code 1.",
+	"keywords": [
+		"cli",
+		"outdated",
+		"npm",
+		"dependencies",
+		"up-to-date",
+		"code",
+		"error",
+		"pipeline",
+		"publish",
+		"hook"
+	],
+	"author": "Jens Duttke <github@duttke.de>",
+	"license": "MIT",
+	"main": "./check-outdated.js",
+	"bin": {
+		"check-outdated": "./check-outdated.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jens-duttke/check-outdated.git"
+	},
+	"scripts": {
+		"lint": "node node_modules/typescript/bin/tsc --project jsconfig.json && eslint **/*.js",
+		"publish:major": "npm version major",
+		"publish:minor": "npm version minor",
+		"publish:patch": "npm version patch",
+		"preversion": "npm run lint && npm run check-outdated",
+		"postversion": "git push && git push --tags && npm publish",
+		"check-outdated": "node check-outdated.js --ignore-pre-releases"
+	},
+	"engines": {
+		"node": ">=7.10.1"
+	},
+	"devDependencies": {
+		"@types/node": "12.6.8",
+		"@typescript-eslint/eslint-plugin": "1.13.0",
+		"@typescript-eslint/parser": "1.13.0",
+		"eslint": "6.1.0",
+		"typescript": "3.5.3"
+	}
+}
