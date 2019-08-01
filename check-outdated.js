@@ -231,7 +231,7 @@ function writeToStdout (dependencies) {
 		table.push([
 			{
 				text: name,
-				style: (dependency.current === dependency.latest ? styles.RED : styles.YELLOW)
+				style: (dependency.current === dependency.wanted ? styles.YELLOW : styles.RED)
 			},
 			{
 				text: dependency.current,
