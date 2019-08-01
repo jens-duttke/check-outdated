@@ -261,7 +261,7 @@ function writeToStdout (dependencies) {
 		]);
 	}
 
-	process.stdout.write(`${prettifyTable(table)}\n`);
+	process.stdout.write(`${prettifyTable(table)}\n\n`);
 }
 
 /**
