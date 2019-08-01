@@ -17,6 +17,10 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally check globally installed packages
 - Optionally set depth for checking dependency tree
 
+## Example Screenshot
+
+<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated/screenshot.png" width="100%" />
+
 ## Install
 
 ```sh
