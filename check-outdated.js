@@ -85,6 +85,8 @@ async function checkOutdated (args) {
 	}
 
 	if (filteredDependencies.length === 0) {
+		process.stdout.write('All dependencies are up-to-date.\n');
+
 		return 0;
 	}
 
