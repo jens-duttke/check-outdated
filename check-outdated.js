@@ -90,6 +90,13 @@ async function checkOutdated (args) {
 		return 0;
 	}
 
+	if (filteredDependencies.length === 1) {
+		process.stdout.write('1 outdated dependency found:\n\n');
+	}
+	else {
+		process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
+	}
+
 	writeToStdout(filteredDependencies);
 
 	return 1;
