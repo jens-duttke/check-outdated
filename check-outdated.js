@@ -238,13 +238,19 @@ function writeToStdout (dependencies) {
 	];
 
 	for (const [name, dependency] of dependencies) {
+		const [current, latest] = semverDiff(
+			[dependency.current, dependency.latest],
+			[styles.NONE, styles.MAGENTA],
+			[styles.UNDERLINE, styles.UNDERLINE_MAGENTA]
+		);
+
 		table.push([
 			{
 				text: name,
 				style: (dependency.current === dependency.wanted ? styles.YELLOW : styles.RED)
 			},
 			{
-				text: dependency.current,
+				text: current,
 				alignRight: true
 			},
 			{
@@ -253,8 +259,7 @@ function writeToStdout (dependencies) {
 				alignRight: true
 			},
 			{
-				text: dependency.latest,
-				style: styles.MAGENTA,
+				text: latest,
 				alignRight: true
 			},
 			dependency.location.replace(/\\/gu, '/') || `node_modules/${name}`,
@@ -263,6 +268,33 @@ function writeToStdout (dependencies) {
 	}
 
 	process.stdout.write(`${prettifyTable(table)}\n\n`);
+}
+
+/**
+ * Colorize differences between two semantic version numbers
+ *
+ * @param {[string, string]} versions
+ * @param {[string, string]} equalStyles
+ * @param {[string, string]} diffStyles
+ * @returns {[string, string]}
+ */
+function semverDiff (versions, equalStyles, diffStyles) {
+	const splitRegExp = /([.-])/u;
+	const parts1 = versions[0].split(splitRegExp);
+	const parts2 = versions[1].split(splitRegExp);
+
+	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+		if (parts1[i] !== parts2[i]) {
+			if (parts1[i]) { parts1[i] = `${diffStyles[0]}${parts1[i]}`; }
+			if (parts2[i]) { parts2[i] = `${diffStyles[1]}${parts2[i]}`; }
+		}
+		else {
+			parts1[i] = `${equalStyles[0]}${parts1[i]}`;
+			parts2[i] = `${equalStyles[1]}${parts2[i]}`;
+		}
+	}
+
+	return [parts1.join(''), parts2.join('')];
 }
 
 /**
