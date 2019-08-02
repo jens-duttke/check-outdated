@@ -313,6 +313,7 @@ function prettifyTable (table) {
  *
  * @param {number[]} widths
  * @param {(string | TableColumn)[]} row
+ * @returns {number[]}
  */
 function colWidthReducer (widths, row) {
 	return row.map((col, colIndex) => Math.max((typeof col === 'object' ? col.text : col).length, widths[colIndex] || 0));
