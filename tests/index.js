@@ -243,7 +243,9 @@ function assert (message, ok) {
 		const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, `${styles.UNDERLINE}$1${styles.RED}`);
 
 		console.error(`    ${styles.RED}× ${styledMessage}${styles.NONE}`);
-		console.error(`\n      ${styles.GRAY}- Test failed ${(Error().stack || '').split('\n').slice(2, 3).join('').trim()}${styles.NONE}\n`);
+		console.error();
+		console.error(`      ${styles.GRAY}- Test failed ${(Error().stack || '').split('\n').slice(2, 3).join('').trim()}${styles.NONE}`);
+		console.error();
 
 		sum.failed++;
 	}
@@ -258,7 +260,9 @@ function assert (message, ok) {
 async function test (title, argv, dependencies, expectedCallback) {
 	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, `${styles.UNDERLINE}$1${styles.GRAY}`);
 
-	console.log(`\n  ${JSON.stringify(argv)} ${styledTitle}\n`);
+	console.log();
+	console.log(`  ${JSON.stringify(argv)} ${styledTitle}`);
+	console.log();
 
 	let usedCommand;
 
