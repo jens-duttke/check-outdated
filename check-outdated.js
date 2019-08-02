@@ -191,7 +191,8 @@ function help (...additionalLines) {
 				'Max depth for checking dependency tree (equal to the npm outdated-option)'
 			]
 		]),
-		...additionalLines
+		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),
+		''
 	].join('\n');
 }
 
