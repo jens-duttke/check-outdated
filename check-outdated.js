@@ -41,7 +41,8 @@ const styles = {
 	RED: '\x1b[0;31m',
 	GREEN: '\x1b[0;32m',
 	YELLOW: '\x1b[0;33m',
-	MAGENTA: '\x1b[0;35m'
+	MAGENTA: '\x1b[0;35m',
+	UNDERLINE_MAGENTA: '\x1b[4;35m'
 };
 
 // @ts-ignore
