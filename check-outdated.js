@@ -22,6 +22,10 @@ const pkg = require('./package.json');
 */
 
 /**
+ * @typedef {Object.<string, OutdatedDependency>} OutdatedDependencies
+ */
+
+/**
  * @typedef {object} TableColumn
  * @property {string} text
  * @property {string} [style]
@@ -195,7 +199,7 @@ function help (...additionalLines) {
  * Calls `npm outdated` to retrieve information about the outdated dependencies.
  *
  * @param {CLIArguments} options
- * @returns {Promise<OutdatedDependency[]>}
+ * @returns {Promise<OutdatedDependencies>}
  */
 function getOutdatedDependencies (options) {
 	return new Promise((resolve, reject) => {
