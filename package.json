@@ -12,7 +12,9 @@
 		"error",
 		"pipeline",
 		"publish",
-		"hook"
+		"hook",
+		"packages",
+		"modules"
 	],
 	"author": "Jens Duttke <github@duttke.de>",
 	"license": "MIT",
