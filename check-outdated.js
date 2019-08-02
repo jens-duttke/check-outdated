@@ -232,6 +232,7 @@ function writeToStdout (dependencies) {
 			{ style: styles.UNDERLINE, text: 'Current' },
 			{ style: styles.UNDERLINE, text: 'Wanted' },
 			{ style: styles.UNDERLINE, text: 'Latest' },
+			{ style: styles.UNDERLINE, text: 'Type' },
 			{ style: styles.UNDERLINE, text: 'Location' },
 			{ style: styles.UNDERLINE, text: 'Package Type' }
 		]
@@ -262,6 +263,7 @@ function writeToStdout (dependencies) {
 				text: latest,
 				alignRight: true
 			},
+			semverDiffType(dependency.current, dependency.latest) || '',
 			dependency.location.replace(/\\/gu, '/') || `node_modules/${name}`,
 			dependency.type
 		]);
@@ -295,6 +297,55 @@ function semverDiff (versions, equalStyles, diffStyles) {
 	}
 
 	return [parts1.join(''), parts2.join('')];
+}
+
+/**
+ * Returns the type of the difference between two semantic version numbers
+ *
+ * @param {string} v1
+ * @param {string} v2
+ * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined}
+ */
+function semverDiffType (v1, v2) {
+	if (v1 === v2) {
+		return undefined;
+	}
+
+	const semverRegExp = /^(\d+).(\d+).(\d+).*?(?:([-+]).+)?$/u;
+
+	const match1 = v1.match(semverRegExp);
+
+	if (match1 === null) {
+		return undefined;
+	}
+
+	const match2 = v2.match(semverRegExp);
+
+	if (match2 === null) {
+		return undefined;
+	}
+
+	if (parseInt(match1[1], 10) < parseInt(match2[1], 10)) {
+		return 'major';
+	}
+
+	if (parseInt(match1[2], 10) < parseInt(match2[2], 10)) {
+		return 'minor';
+	}
+
+	if (parseInt(match1[3], 10) < parseInt(match2[3], 10)) {
+		return 'patch';
+	}
+
+	if (match2[4] === '-') {
+		return 'prerelease';
+	}
+
+	if (match2[4] === '+') {
+		return 'build';
+	}
+
+	return undefined;
 }
 
 /**
