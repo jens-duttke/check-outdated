@@ -54,7 +54,7 @@ if (require.main === module) {
 	process.title = pkg.name;
 
 	(async () => {
-		process.exit(await checkOutdated(parseArgs(process.argv.slice(2))));
+		process.exit(await checkOutdated(process.argv.slice(2)));
 	})();
 }
 else {
@@ -64,45 +64,55 @@ else {
 /**
  * The main functionality of the tool
  *
- * @param {CLIArguments | string} args
+ * @param {string[]} argv
  * @returns {Promise<number>} A number which shall be the process exit code
  */
-async function checkOutdated (args) {
-	if (typeof args === 'string') {
-		process.stdout.write(args);
+async function checkOutdated (argv) {
+	try {
+		const args = parseArgs(argv);
 
-		return 0;
+		if (typeof args === 'string') {
+			process.stdout.write(args);
+
+			return 1;
+		}
+
+		const outdatedDependencies = await getOutdatedDependencies(args);
+
+		let filteredDependencies = Object.entries(outdatedDependencies)
+			.filter(([, dependency]) => !['git', 'linked', 'remote'].includes(dependency.latest));
+
+		if (args.ignorePackages) {
+			filteredDependencies = filteredDependencies.filter(([name]) => !args.ignorePackages.includes(name));
+		}
+		if (args.ignoreDevDependencies) {
+			filteredDependencies = filteredDependencies.filter(([, dependency]) => dependency.type !== 'devDependencies');
+		}
+		if (args.ignorePreReleases) {
+			filteredDependencies = filteredDependencies.filter(([, dependency]) => !dependency.current.includes('-') && !dependency.latest.includes('-'));
+		}
+
+		if (filteredDependencies.length === 0) {
+			process.stdout.write('All dependencies are up-to-date.\n');
+
+			return 0;
+		}
+
+		if (filteredDependencies.length === 1) {
+			process.stdout.write('1 outdated dependency found:\n\n');
+		}
+		else {
+			process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
+		}
+
+		writeToStdout(filteredDependencies);
 	}
+	catch (error) {
+		// eslint-disable-next-line max-len
+		const out = Object.getOwnPropertyNames(error).map((prop) => (typeof error[prop] === 'string' ? error[prop] : JSON.stringify(error[prop], null, '  ')).replace(/(^|\n)/gu, `$1${styles.MAGENTA}${prop}${styles.NONE} `)).join('\n');
 
-	const outdatedDependencies = await getOutdatedDependencies(args);
-
-	let filteredDependencies = Object.entries(outdatedDependencies)
-		.filter(([, dependency]) => !['git', 'linked', 'remote'].includes(dependency.latest));
-
-	if (args.ignorePackages) {
-		filteredDependencies = filteredDependencies.filter(([name]) => !args.ignorePackages.includes(name));
+		process.stdout.write(`${styles.RED}Error while gathering outdated dependencies:${styles.NONE}\n\n${out}\n`);
 	}
-	if (args.ignoreDevDependencies) {
-		filteredDependencies = filteredDependencies.filter(([, dependency]) => dependency.type !== 'devDependencies');
-	}
-	if (args.ignorePreReleases) {
-		filteredDependencies = filteredDependencies.filter(([, dependency]) => !dependency.current.includes('-') && !dependency.latest.includes('-'));
-	}
-
-	if (filteredDependencies.length === 0) {
-		process.stdout.write('All dependencies are up-to-date.\n');
-
-		return 0;
-	}
-
-	if (filteredDependencies.length === 1) {
-		process.stdout.write('1 outdated dependency found:\n\n');
-	}
-	else {
-		process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
-	}
-
-	writeToStdout(filteredDependencies);
 
 	return 1;
 }
