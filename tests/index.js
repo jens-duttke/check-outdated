@@ -203,7 +203,7 @@ const sum = {
 		assert('`stdout` should contain `"10 outdated dependencies found:"`', stdout.includes('10 outdated dependencies found:'));
 	});
 
-	await test(' should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+	await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 		assert('`command` should be `undefined`', command === undefined);
 		assert('`exitCode` should be `1`', exitCode === 1);
 		assert('`stdout` should contain `"Invalid value of --depth"`', stdout.includes('Invalid value of --depth'));
