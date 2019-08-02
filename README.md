@@ -11,7 +11,7 @@ Ensures that your dependencies are up-to-date, otherwise the process is terminat
 This is an improved version of `npm outdated`, which can be used in build-pipelines, pre-publish scripts (npm) or pre-commit hook (Git) to make sure all the used dependencies are up-to-date.
 
 - Zero dependencies
-- Optionally to ignore pre-releases (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1")
+- Optionally ignore pre-releases (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1")
 - Optionally ignore dev dependencies
 - Optionally ignore specific packages
 - Optionally check globally installed packages
