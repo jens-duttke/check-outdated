@@ -258,7 +258,7 @@ function assert (message, ok) {
  * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback
  */
 async function test (title, argv, dependencies, expectedCallback) {
-	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, `${styles.UNDERLINE}$1${styles.GRAY}`);
+	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, `${styles.UNDERLINE}$1${styles.NONE}`);
 
 	console.log();
 	console.log(`  ${JSON.stringify(argv)} ${styledTitle}`);
