@@ -28,10 +28,11 @@
 	},
 	"scripts": {
 		"lint": "node node_modules/typescript/bin/tsc --project jsconfig.json && eslint **/*.js",
+		"test": "node tests",
 		"publish:major": "npm version major",
 		"publish:minor": "npm version minor",
 		"publish:patch": "npm version patch",
-		"preversion": "npm run lint && npm run check-outdated",
+		"preversion": "npm run lint && npm run test && npm run check-outdated",
 		"postversion": "git push && git push --tags && npm publish",
 		"check-outdated": "node check-outdated.js --ignore-pre-releases"
 	},
