@@ -33,7 +33,7 @@ const pkg = require('./package.json');
  */
 
 /**
- * ANSI Escape sequences for coloring terminal output
+ * ANSI escape sequences for coloring terminal output
  */
 const styles = {
 	NONE: '\x1b[0;0m',
