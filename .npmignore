@@ -1,2 +1,8 @@
+test/
+.editorconfig
+.eslintrc.js
 *.log
+jsconfig.json
 npm-debug.log*
+screenshot.png
+TODO.md
