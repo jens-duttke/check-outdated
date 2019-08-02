@@ -294,13 +294,13 @@ function prettifyTable (table) {
 			}
 
 			if (alignRight) {
-				out.push(' '.repeat(colWidths[col] - text.length));
+				out.push(' '.repeat(colWidths[col] - plainLength(text)));
 			}
 
 			out.push(`${text}${styles.NONE}`);
 
 			if (!alignRight) {
-				out.push(' '.repeat(colWidths[col] - text.length));
+				out.push(' '.repeat(colWidths[col] - plainLength(text)));
 			}
 		}
 	}
@@ -316,5 +316,15 @@ function prettifyTable (table) {
  * @returns {number[]}
  */
 function colWidthReducer (widths, row) {
-	return row.map((col, colIndex) => Math.max((typeof col === 'object' ? col.text : col).length, widths[colIndex] || 0));
+	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), widths[colIndex] || 0));
+}
+
+/**
+ * Get the length of a string without ANSI escape sequences for coloring
+ *
+ * @param {string} str
+ * @returns {number}
+ */
+function plainLength (str) {
+	return str.replace(/\x1b\[.+?m\]?/gu, '').length;
 }
