@@ -218,7 +218,15 @@ function getOutdatedDependencies (options) {
 				return;
 			}
 
-			resolve(JSON.parse(stdout || '{}'));
+			const response = JSON.parse(stdout || '{}');
+
+			if ('error' in response) {
+				reject(response.error);
+
+				return;
+			}
+
+			resolve(response);
 		});
 	});
 }
