@@ -198,7 +198,7 @@ module.exports =  {
 		'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
 		'max-nested-callbacks': 'error',
 		'max-params': ['error', { max: 4 }],
-		'max-statements': ['error', 20, { ignoreTopLevelFunctions: true }],
+		'max-statements': ['error', 40, { ignoreTopLevelFunctions: true }],
 		'max-statements-per-line': ['error', { max: 3 }],
 		'multiline-comment-style': 'off', // doesn't work together with "// @ts-ignore"
 		'multiline-ternary': ['error', 'always-multiline'],
