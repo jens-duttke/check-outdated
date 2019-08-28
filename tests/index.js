@@ -311,7 +311,7 @@ function assertNotHasWord (str, word) {
  * @returns {boolean}
  */
 function hasWord (str, word) {
-	return new RegExp(`(^|[^A-Za-z0-9$-_])${word}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m\]?/gu, ''));
+	return new RegExp(`(^|[^A-Za-z0-9$-_])${word}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m/gu, ''));
 }
 
 /**

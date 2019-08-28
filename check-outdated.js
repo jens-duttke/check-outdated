@@ -432,5 +432,5 @@ function colWidthReducer (widths, row) {
  * @returns {number}
  */
 function plainLength (str) {
-	return str.replace(/\x1b\[.+?m\]?/gu, '').length;
+	return str.replace(/\x1b\[.+?m/gu, '').length;
 }
