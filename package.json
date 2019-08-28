@@ -27,7 +27,7 @@
 		"url": "https://github.com/jens-duttke/check-outdated.git"
 	},
 	"scripts": {
-		"lint": "node node_modules/typescript/bin/tsc --project jsconfig.json && eslint **/*.js",
+		"lint": "node node_modules/typescript/bin/tsc --project jsconfig.json && eslint **/*.js --format unix",
 		"test": "node tests",
 		"publish:major": "npm version major",
 		"publish:minor": "npm version minor",
