@@ -304,7 +304,7 @@ function writeToStdout (dependencies) {
  * @returns {[string, string]}
  */
 function semverDiff (versions, equalStyles, diffStyles) {
-	const splitRegExp = /([.-])/u;
+	const splitRegExp = /([.+-])/u;
 	const parts1 = versions[0].split(splitRegExp);
 	const parts2 = versions[1].split(splitRegExp);
 
