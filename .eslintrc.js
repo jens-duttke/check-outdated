@@ -12,9 +12,11 @@ module.exports =  {
 		es6: true
 	},
 	rules:  {
+		// Faulty @typescript-eslint Rules (see https://github.com/typescript-eslint/typescript-eslint/issues/906)
+		'@typescript-eslint/explicit-function-return-type': 'off',
+
 		// Unused @typescript-eslint Rules
 		'@typescript-eslint/indent': 'off',
-		'@typescript-eslint/no-triple-slash-reference': 'off',
 		'@typescript-eslint/no-use-before-define': 'off',
 		'@typescript-eslint/no-var-requires': 'off',
 
@@ -179,6 +181,7 @@ module.exports =  {
 		'func-name-matching': 'error',
 		'func-names': 'error',
 		'func-style': ['error', 'declaration'],
+		'function-call-argument-newline': ['error', 'consistent'],
 		'function-paren-newline': ['error', 'multiline'],
 		'id-blacklist': 'error',
 		'id-length': ['off', { exceptions: ['i', 'x', 'y', 'z'] }],
