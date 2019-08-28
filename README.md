@@ -1,7 +1,8 @@
 [![npm version](https://badge.fury.io/js/check-outdated.svg)](https://badge.fury.io/js/check-outdated)
-[![Dependency Status](https://img.shields.io/david/jens-duttke/check-outdated.svg)](https://www.npmjs.com/package/check-outdated)
+[![Dependency Status](https://img.shields.io/david/jens-duttke/check-outdated)](https://www.npmjs.com/package/check-outdated)
 [![Known Vulnerabilities](https://snyk.io/test/github/jens-duttke/check-outdated/badge.svg?targetFile=package.json)](https://snyk.io/test/github/jens-duttke/check-outdated?targetFile=package.json)
 [![npm](https://img.shields.io/npm/dm/check-outdated.svg?maxAge=2592000)](https://www.npmjs.com/package/check-outdated)
+[![node](https://img.shields.io/node/v/check-outdated)](https://www.npmjs.com/package/check-outdated)
 [![MIT license](https://img.shields.io/github/license/jens-duttke/check-outdated.svg?style=flat)](https://opensource.org/licenses/MIT)
 
 # check-outdated
