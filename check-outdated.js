@@ -123,7 +123,7 @@ async function checkOutdated (argv) {
  * @returns {string}
  */
 function generateKeyValueList (entries) {
-	return entries.map((key, value) => (typeof value === 'string' ? value : JSON.stringify(value, null, '  ')).replace(/(^|\n)/gu, `$1${key} `)).join('\n');
+	return entries.map(([key, value]) => (typeof value === 'string' ? value : JSON.stringify(value, null, '  ')).replace(/(^|\n)/gu, `$1${key} `)).join('\n');
 }
 
 /**
