@@ -170,7 +170,7 @@ module.exports =  {
 		'array-element-newline': ['error', 'consistent'],
 		'block-spacing': 'error',
 		'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
-		'camelcase': 'error',
+		'camelcase': 'off', /* we are using @typescript-eslint/camelcase instead */
 		'capitalized-comments': 'error',
 		'comma-dangle': ['error', 'never'],
 		'comma-spacing': 'error',
@@ -194,7 +194,7 @@ module.exports =  {
 		'keyword-spacing': 'error',
 		'line-comment-position': 'error',
 		'linebreak-style': 'error',
-		'lines-around-comment': ['error', { beforeBlockComment: true, beforeLineComment: true, allowBlockStart: true, allowObjectStart: true, allowArrayStart: true, allowClassStart: true }],
+		'lines-around-comment': ['off', { beforeBlockComment: true, beforeLineComment: true, allowBlockStart: true, allowObjectStart: true, allowArrayStart: true, allowClassStart: true }], /* @todo disabled till there is an option like "allowFunctionParenthesiseStart" */
 		'lines-between-class-members': 'error',
 		'max-depth': 'error',
 		'max-len': ['error', { code: 160 }],
@@ -202,7 +202,7 @@ module.exports =  {
 		'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
 		'max-nested-callbacks': 'error',
 		'max-params': ['error', { max: 4 }],
-		'max-statements': ['error', 40, { ignoreTopLevelFunctions: true }],
+		'max-statements': ['error', 20],
 		'max-statements-per-line': ['error', { max: 3 }],
 		'multiline-comment-style': 'off', // doesn't work together with "// @ts-ignore"
 		'multiline-ternary': ['error', 'always-multiline'],
