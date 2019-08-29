@@ -1,7 +1,20 @@
 #!/usr/bin/env node
 
 const childProcess = require('child_process');
+
+const colorize = require('./colorize');
 const pkg = require('./package.json');
+
+if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
+	process.title = pkg.name;
+
+	(async () => {
+		process.exit(await checkOutdated(process.argv.slice(2)));
+	})();
+}
+else {
+	module.exports = checkOutdated;
+}
 
 /**
  * The options based on the CLI arguments.
@@ -53,31 +66,6 @@ const pkg = require('./package.json');
  */
 
 /**
- * ANSI escape sequences for coloring terminal output
- */
-const styles = {
-	NONE: '\x1b[0;0m',
-	UNDERLINE: '\x1b[4m',
-	RED: '\x1b[0;31m',
-	GREEN: '\x1b[0;32m',
-	YELLOW: '\x1b[0;33m',
-	MAGENTA: '\x1b[0;35m',
-	UNDERLINE_MAGENTA: '\x1b[4;35m'
-};
-
-// @ts-ignore
-if (require.main === module) {
-	process.title = pkg.name;
-
-	(async () => {
-		process.exit(await checkOutdated(process.argv.slice(2)));
-	})();
-}
-else {
-	module.exports = checkOutdated;
-}
-
-/**
  * The main functionality of the tool
  *
  * @param {string[]} argv
@@ -93,20 +81,8 @@ async function checkOutdated (argv) {
 			return 1;
 		}
 
-		const outdatedDependencies = await getOutdatedDependencies(args);
-
-		let filteredDependencies = Object.entries(outdatedDependencies)
-			.filter(([, dependency]) => !['git', 'linked', 'remote'].includes(dependency.latest));
-
-		if (args.ignorePackages) {
-			filteredDependencies = filteredDependencies.filter(([name]) => !args.ignorePackages.includes(name));
-		}
-		if (args.ignoreDevDependencies) {
-			filteredDependencies = filteredDependencies.filter(([, dependency]) => dependency.type !== 'devDependencies');
-		}
-		if (args.ignorePreReleases) {
-			filteredDependencies = filteredDependencies.filter(([, dependency]) => !dependency.current.includes('-') && !dependency.latest.includes('-'));
-		}
+		const outdatedDependencies = Object.entries(await getOutdatedDependencies(args));
+		const filteredDependencies = getFilteredDependencies(outdatedDependencies, args);
 
 		if (filteredDependencies.length === 0) {
 			process.stdout.write('All dependencies are up-to-date.\n');
@@ -124,20 +100,37 @@ async function checkOutdated (argv) {
 		writeToStdout(filteredDependencies);
 	}
 	catch (error) {
-		// eslint-disable-next-line max-len
-		const out = Object.getOwnPropertyNames(error).map((prop) => (typeof error[prop] === 'string' ? error[prop] : JSON.stringify(error[prop], null, '  ')).replace(/(^|\n)/gu, `$1${styles.MAGENTA}${prop}${styles.NONE} `)).join('\n');
+		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((prop) => [colorize.magenta(prop), error[prop]]));
 
-		process.stdout.write(`${styles.RED}Error while gathering outdated dependencies:${styles.NONE}\n\n${out}\n`);
+		process.stdout.write(`${colorize.red('Error while gathering outdated dependencies:')}\n\n${out}\n`);
 	}
 
 	return 1;
 }
 
 /**
+ * Generates a list from an array with key-value-pairs.
+ * If the `value` is multiline text, each line will be prefixed by the `key`
+ *
+ * @example
+ * code ELIFECYCLE
+ * errno 0
+ * message Some additional
+ * message multiline text.
+ * additionalInfo null
+ *
+ * @param {[string, any][]} entries
+ * @returns {string}
+ */
+function generateKeyValueList (entries) {
+	return entries.map((key, value) => (typeof value === 'string' ? value : JSON.stringify(value, null, '  ')).replace(/(^|\n)/gu, `$1${key} `)).join('\n');
+}
+
+/**
  * Parses the given `argv` array into an object with supported options.
  *
  * @param {string[]} argv
- * @returns {CLIArguments | string} Either a `CLIArguments` object or a `string` if arguments cannot be parsed.
+ * @returns {Options | string} Either a `Options` object or a `string` which should be returned to the user, if arguments cannot be parsed.
  */
 function parseArgs (argv) {
 	const args = {};
@@ -225,7 +218,7 @@ function help (...additionalLines) {
 /**
  * Calls `npm outdated` to retrieve information about the outdated dependencies.
  *
- * @param {CLIArguments} options
+ * @param {Options} options
  * @returns {Promise<OutdatedDependencies>}
  */
 function getOutdatedDependencies (options) {
@@ -258,44 +251,75 @@ function getOutdatedDependencies (options) {
 }
 
 /**
+ * Filters dependencies by the given filter `options`.
+ *
+ * @param {Dependencies} dependencies
+ * @param {Options} options
+ * @returns {Dependencies}
+ */
+function getFilteredDependencies (dependencies, options) {
+	let filteredDependencies = dependencies
+		.filter(([, dependency]) => !['git', 'linked', 'remote'].includes(dependency.latest));
+
+	if (options.ignorePackages) {
+		const ignorePackages = options.ignorePackages;
+
+		filteredDependencies = filteredDependencies.filter(([name]) => !ignorePackages.includes(name));
+	}
+	if (options.ignoreDevDependencies) {
+		filteredDependencies = filteredDependencies.filter(([, dependency]) => dependency.type !== 'devDependencies');
+	}
+	if (options.ignorePreReleases) {
+		filteredDependencies = filteredDependencies.filter(([, dependency]) => !dependency.current.includes('-') && !dependency.latest.includes('-'));
+	}
+
+	return filteredDependencies;
+}
+
+/**
  * Show the version information of outdated dependencies in a styled way on the terminal (stdout)
  *
- * @param {[string, OutdatedDependency][]} dependencies
+ * @param {Dependencies} dependencies
  * @returns {void}
  */
 function writeToStdout (dependencies) {
 	/** @type {Table} */
 	const table = [
 		[
-			{ style: styles.UNDERLINE, text: 'Package' },
-			{ style: styles.UNDERLINE, text: 'Current' },
-			{ style: styles.UNDERLINE, text: 'Wanted' },
-			{ style: styles.UNDERLINE, text: 'Latest' },
-			{ style: styles.UNDERLINE, text: 'Type' },
-			{ style: styles.UNDERLINE, text: 'Location' },
-			{ style: styles.UNDERLINE, text: 'Package Type' }
+			colorize.underline('Package'),
+			{
+				text: colorize.underline('Current'),
+				alignRight: true
+			},
+			{
+				text: colorize.underline('Wanted'),
+				alignRight: true
+			},
+			{
+				text: colorize.underline('Latest'),
+				alignRight: true
+			},
+			colorize.underline('Type'),
+			colorize.underline('Location'),
+			colorize.underline('Package Type')
 		]
 	];
 
 	for (const [name, dependency] of dependencies) {
 		const [current, latest] = semverDiff(
 			[dependency.current, dependency.latest],
-			[styles.NONE, styles.MAGENTA],
-			[styles.UNDERLINE, styles.UNDERLINE_MAGENTA]
+			[colorize, colorize.magenta],
+			[colorize.underline, colorize.magenta.underline]
 		);
 
 		table.push([
-			{
-				text: name,
-				style: (dependency.current === dependency.wanted ? styles.YELLOW : styles.RED)
-			},
+			(dependency.current === dependency.wanted ? colorize.yellow(name) : colorize.red(name)),
 			{
 				text: current,
 				alignRight: true
 			},
 			{
-				text: dependency.wanted,
-				style: styles.GREEN,
+				text: colorize.green(dependency.wanted),
 				alignRight: true
 			},
 			{
@@ -315,8 +339,8 @@ function writeToStdout (dependencies) {
  * Colorize differences between two semantic version numbers
  *
  * @param {[string, string]} versions
- * @param {[string, string]} equalStyles
- * @param {[string, string]} diffStyles
+ * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} equalStyles
+ * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} diffStyles
  * @returns {[string, string]}
  */
 function semverDiff (versions, equalStyles, diffStyles) {
@@ -326,12 +350,12 @@ function semverDiff (versions, equalStyles, diffStyles) {
 
 	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
 		if (parts1[i] !== parts2[i]) {
-			if (parts1[i]) { parts1[i] = `${diffStyles[0]}${parts1[i]}`; }
-			if (parts2[i]) { parts2[i] = `${diffStyles[1]}${parts2[i]}`; }
+			if (parts1[i]) { parts1[i] = diffStyles[0](parts1[i]); }
+			if (parts2[i]) { parts2[i] = diffStyles[1](parts2[i]); }
 		}
 		else {
-			parts1[i] = `${equalStyles[0]}${parts1[i]}`;
-			parts2[i] = `${equalStyles[1]}${parts2[i]}`;
+			parts1[i] = equalStyles[0](parts1[i]);
+			parts2[i] = equalStyles[1](parts2[i]);
 		}
 	}
 
@@ -405,21 +429,17 @@ function prettifyTable (table) {
 
 		for (let col = 0; col < table[row].length; col++) {
 			const content = table[row][col];
-			const { text, style = '', alignRight = false } = (typeof content === 'object' ? content : { text: content });
+			const { text, alignRight = false } = (typeof content === 'object' ? content : { text: content });
 
 			if (col > 0) {
 				out.push('  ');
-			}
-
-			if (style) {
-				out.push(style);
 			}
 
 			if (alignRight) {
 				out.push(' '.repeat(colWidths[col] - plainLength(text)));
 			}
 
-			out.push(`${text}${styles.NONE}`);
+			out.push(text);
 
 			if (!alignRight) {
 				out.push(' '.repeat(colWidths[col] - plainLength(text)));
