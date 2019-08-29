@@ -333,9 +333,11 @@ async function test (title, argv, dependencies, expectedCallback) {
 	let usedCommand;
 
 	const checkOutdated = proxyquire('../check-outdated', {
-		// eslint-disable-next-line @typescript-eslint/camelcase,camelcase
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		child_process: {
 			/**
+			 * Mock of the child_process.exec() function, which is used by `check-outdated` to call `npm outdated`.
+			 *
 			 * @param {string} command
 			 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback
 			 */

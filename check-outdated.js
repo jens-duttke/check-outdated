@@ -4,7 +4,9 @@ const childProcess = require('child_process');
 const pkg = require('./package.json');
 
 /**
- * @typedef {object} CLIArguments
+ * The options based on the CLI arguments.
+ *
+ * @typedef {object} Options
  * @property {string[]} [ignorePackages]
  * @property {boolean} [ignoreDevDependencies]
  * @property {boolean} [ignorePreReleases]
@@ -13,6 +15,8 @@ const pkg = require('./package.json');
  */
 
 /**
+ * One dependency item, returned by `npm outdated --json`.
+ *
  * @typedef {object} OutdatedDependency
  * @property {string} current
  * @property {string} wanted
@@ -22,10 +26,20 @@ const pkg = require('./package.json');
 */
 
 /**
+ * Original npm-outdated object, returned by `npm outdated --json`.
+ *
  * @typedef {Object.<string, OutdatedDependency>} OutdatedDependencies
  */
 
 /**
+ * Array of outdated dependencies.
+ *
+ * @typedef {[string, OutdatedDependency][]} Dependencies
+ */
+
+/**
+ * Table column setup for a tabularly visualization of data.
+ *
  * @typedef {object} TableColumn
  * @property {string} text
  * @property {string} [style]
@@ -33,6 +47,8 @@ const pkg = require('./package.json');
  */
 
 /**
+ * Array contains rows, contain columns, for a tabularly visualization of data.
+ *
  * @typedef {(TableColumn | string)[][]} Table
  */
 
