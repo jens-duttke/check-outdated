@@ -223,6 +223,8 @@ const sum = {
 	console.log(colorize.green(`${sum.passed} passed`));
 	if (sum.failed > 0) {
 		console.log(colorize.red(`${sum.failed} failed`));
+
+		process.exit(-1);
 	}
 })();
 
