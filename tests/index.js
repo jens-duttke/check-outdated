@@ -2,8 +2,15 @@
 
 const assert = require('assert').strict;
 const proxyquire = require('proxyquire').noPreserveCache();
+const tty = require('tty');
 
 let colorize = require('../colorize');
+
+const isTerminal = tty.isatty(1);
+
+if (!isTerminal) {
+	colorize = colorize.disabled;
+}
 
 /** @type {import('../check-outdated').OutdatedDependencies} */
 const DEFAULT_RESPONSE = {
