@@ -226,6 +226,7 @@ const sum = {
 
 		process.exitCode = 1;
 	}
+	console.log();
 })();
 
 /**
