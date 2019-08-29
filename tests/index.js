@@ -224,7 +224,7 @@ const sum = {
 	if (sum.failed > 0) {
 		console.log(colorize.red(`${sum.failed} failed`));
 
-		process.exit(-1);
+		process.exitCode = 1;
 	}
 })();
 
