@@ -3,6 +3,9 @@ module.exports =  {
 	extends:  [
 		'plugin:@typescript-eslint/recommended',
 	],
+	plugins: [
+		'jsdoc'
+	],
 	parserOptions:  {
 		ecmaVersion: 2018,
 		sourceType: 'module',
@@ -20,6 +23,34 @@ module.exports =  {
 		'@typescript-eslint/indent': 'off',
 		'@typescript-eslint/no-use-before-define': 'off',
 		'@typescript-eslint/no-var-requires': 'off',
+
+		// eslint-plugin-jsdoc Rules
+		'jsdoc/check-alignment': 'error',
+        'jsdoc/check-examples': 'off', /* @todo need to be configured to allow text-based examples */
+        'jsdoc/check-indentation': 'error',
+        'jsdoc/check-param-names': 'error',
+        'jsdoc/check-syntax': 'error',
+        'jsdoc/check-tag-names': 'error',
+        'jsdoc/check-types': 'error',
+        'jsdoc/implements-on-classes': 'error',
+        'jsdoc/match-description': 'error',
+        'jsdoc/newline-after-description': 'error',
+        'jsdoc/no-types': 'off',
+        'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never'] }],
+        'jsdoc/require-description-complete-sentence': 'error',
+        'jsdoc/require-description': 'error',
+        'jsdoc/require-example': 'off',
+        'jsdoc/require-hyphen-before-param-description': 'error',
+        'jsdoc/require-jsdoc': 'error',
+        'jsdoc/require-param-description': 'error',
+        'jsdoc/require-param-name': 'error',
+        'jsdoc/require-param-type': 'error',
+        'jsdoc/require-param': 'error',
+        'jsdoc/require-returns-check': 'error',
+        'jsdoc/require-returns-description': 'error',
+        'jsdoc/require-returns-type': 'error',
+        'jsdoc/require-returns': ['error', { forceReturnsWithAsync: true }],
+        'jsdoc/valid-types': 'off', /* Checked by TypeScript */
 
 		// Possible Errors
 		'for-direction': 'error',

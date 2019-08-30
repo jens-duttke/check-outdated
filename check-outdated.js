@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/**
+ * @external NodeModule
+ */
+
 const childProcess = require('child_process');
 
 const colorize = require('./colorize');
@@ -36,12 +40,12 @@ else {
  * @property {string} latest
  * @property {string} location
  * @property {'dependencies' | 'devDependencies'} type
-*/
+ */
 
 /**
  * Original npm-outdated object, returned by `npm outdated --json`.
  *
- * @typedef {Object.<string, OutdatedDependency>} OutdatedDependencies
+ * @typedef {{ [dependencyName: string]: OutdatedDependency; }} OutdatedDependencies
  */
 
 /**
@@ -66,10 +70,10 @@ else {
  */
 
 /**
- * The main functionality of the tool
+ * The main functionality of the tool.
  *
- * @param {string[]} argv
- * @returns {Promise<number>} A number which shall be the process exit code
+ * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
+ * @returns {Promise<number>} A number which shall used as process exit code.
  */
 async function checkOutdated (argv) {
 	try {
@@ -109,8 +113,8 @@ async function checkOutdated (argv) {
 }
 
 /**
- * Generates a list from an array with key-value-pairs.
- * If the `value` is multiline text, each line will be prefixed by the `key`
+ * Generates a list from an array with key/value-pairs.
+ * If the `value` is multiline text, each line will be prefixed by the `key`.
  *
  * @example
  * code ELIFECYCLE
@@ -119,8 +123,8 @@ async function checkOutdated (argv) {
  * message multiline text.
  * additionalInfo null
  *
- * @param {[string, any][]} entries
- * @returns {string}
+ * @param {[string, any][]} entries - Array with subarray containing key/value-pairs.
+ * @returns {string} A multiline string containing representing the array items.
  */
 function generateKeyValueList (entries) {
 	return entries.map(([key, value]) => (typeof value === 'string' ? value : JSON.stringify(value, null, '  ')).replace(/(^|\n)/gu, `$1${key} `)).join('\n');
@@ -129,7 +133,7 @@ function generateKeyValueList (entries) {
 /**
  * Parses the given `argv` array into an object with supported options.
  *
- * @param {string[]} argv
+ * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
  * @returns {Options | string} Either a `Options` object or a `string` which should be returned to the user, if arguments cannot be parsed.
  */
 function parseArgs (argv) {
@@ -173,10 +177,10 @@ function parseArgs (argv) {
 }
 
 /**
- * Returns the help text of the CLI tool
+ * Returns the help text of the CLI tool.
  *
- * @param {string[]} additionalLines
- * @returns {string}
+ * @param {string[]} additionalLines - Additional text (error messages etc.) which shall be shown after the help.
+ * @returns {string} Multiline text containing the whole help text.
  */
 function help (...additionalLines) {
 	return [
@@ -218,8 +222,8 @@ function help (...additionalLines) {
 /**
  * Calls `npm outdated` to retrieve information about the outdated dependencies.
  *
- * @param {Options} options
- * @returns {Promise<OutdatedDependencies>}
+ * @param {Options} options - Options which shall be appened to the `npm outdated` command-line call.
+ * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
  */
 function getOutdatedDependencies (options) {
 	return new Promise((resolve, reject) => {
@@ -253,9 +257,9 @@ function getOutdatedDependencies (options) {
 /**
  * Filters dependencies by the given filter `options`.
  *
- * @param {Dependencies} dependencies
- * @param {Options} options
- * @returns {Dependencies}
+ * @param {Dependencies} dependencies - Array of dependency objects which shall be filtered.
+ * @param {Options} options - Options to configure the filtering.
+ * @returns {Dependencies} Array with of the filtered dependency objects.
  */
 function getFilteredDependencies (dependencies, options) {
 	let filteredDependencies = dependencies
@@ -277,9 +281,9 @@ function getFilteredDependencies (dependencies, options) {
 }
 
 /**
- * Show the version information of outdated dependencies in a styled way on the terminal (stdout)
+ * Show the version information of outdated dependencies in a styled way on the terminal (stdout).
  *
- * @param {Dependencies} dependencies
+ * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
  * @returns {void}
  */
 function writeToStdout (dependencies) {
@@ -336,26 +340,26 @@ function writeToStdout (dependencies) {
 }
 
 /**
- * Colorize differences between two semantic version numbers
+ * Colorize differences in parts of two semantic version numbers.
  *
- * @param {[string, string]} versions
- * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} equalStyles
- * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} diffStyles
- * @returns {[string, string]}
+ * @param {[string, string]} versions - Version numbers to compare.
+ * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} equalColorizers - Styles for the first and second version number, for equal parts.
+ * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} diffColorizers - Styles for the first and second version number, for unequal parts.
+ * @returns {[string, string]} The colorized version numbers, in the same order as the input `versions` array.
  */
-function semverDiff (versions, equalStyles, diffStyles) {
+function semverDiff (versions, equalColorizers, diffColorizers) {
 	const splitRegExp = /([.+-])/u;
 	const parts1 = versions[0].split(splitRegExp);
 	const parts2 = versions[1].split(splitRegExp);
 
 	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
 		if (parts1[i] !== parts2[i]) {
-			if (parts1[i]) { parts1[i] = diffStyles[0](parts1[i]); }
-			if (parts2[i]) { parts2[i] = diffStyles[1](parts2[i]); }
+			if (parts1[i]) { parts1[i] = diffColorizers[0](parts1[i]); }
+			if (parts2[i]) { parts2[i] = diffColorizers[1](parts2[i]); }
 		}
 		else {
-			parts1[i] = equalStyles[0](parts1[i]);
-			parts2[i] = equalStyles[1](parts2[i]);
+			parts1[i] = equalColorizers[0](parts1[i]);
+			parts2[i] = equalColorizers[1](parts2[i]);
 		}
 	}
 
@@ -363,11 +367,11 @@ function semverDiff (versions, equalStyles, diffStyles) {
 }
 
 /**
- * Returns the type of the difference between two semantic version numbers
+ * Returns the type of the difference between two semantic version numbers.
  *
- * @param {string} v1
- * @param {string} v2
- * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined}
+ * @param {string} v1 - First version.
+ * @param {string} v2 - Second version.
+ * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined} The type as `string`, or `undefined` on invalid semver formats.
  */
 function semverDiffType (v1, v2) {
 	if (v1 === v2) {
@@ -412,10 +416,10 @@ function semverDiffType (v1, v2) {
 }
 
 /**
- * Converts a two-dimensional array into an styled table with aligned columns
+ * Converts a two-dimensional array into an styled table with aligned columns.
  *
- * @param {Table} table
- * @returns {string}
+ * @param {Table} table - Two-dimentational array which shall be shown in a table with aligned columns.
+ * @returns {string} Multiline string containing the table.
  */
 function prettifyTable (table) {
 	const out = [];
@@ -451,21 +455,21 @@ function prettifyTable (table) {
 }
 
 /**
- * Used as reducer callback function to find the longest string per column in a `Table`.
+ * Used as `Array.reduce()` callback function to find the longest string per column in a `Table`.
  *
- * @param {number[]} widths
- * @param {(string | TableColumn)[]} row
- * @returns {number[]}
+ * @param {number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
+ * @param {(string | TableColumn)[]} row - A single row containg the columns of a `Table`.
+ * @returns {number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
  */
 function colWidthReducer (widths, row) {
 	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), widths[colIndex] || 0));
 }
 
 /**
- * Get the length of a string without ANSI escape sequences for coloring
+ * Get the length of a string without ANSI escape sequences for coloring.
  *
- * @param {string} str
- * @returns {number}
+ * @param {string} str - Input string containg ANSI escape sequences for coloring.
+ * @returns {number} The text length of `str` without the ANSI escape sequences.
  */
 function plainLength (str) {
 	return str.replace(/\x1b\[.+?m/gu, '').length;

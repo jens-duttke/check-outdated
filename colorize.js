@@ -3,16 +3,16 @@
  */
 
 /**
- * @typedef {Readonly<Colorize> & ColorizeFunction} ColorizeProperty;
+ * @typedef {Readonly<Colorize> & ColorizeFunction} ColorizeProperty
  */
 
 /**
  * @typedef {object} Colorize
  *
- * General
+ * General.
  * @property {ColorizeProperty} disabled
  *
- * Foreground colors
+ * Foreground colors.
  * @property {ColorizeProperty} gray
  * @property {ColorizeProperty} red
  * @property {ColorizeProperty} green
@@ -22,9 +22,16 @@
  * @property {ColorizeProperty} cyan
  * @property {ColorizeProperty} white
  *
- * Text Decoration
+ * Text Decoration.
  * @property {ColorizeProperty} bold
  * @property {ColorizeProperty} underline
+ */
+
+/**
+ * @typedef {object} ColorizeOptions
+ * @property {string} [fgColor]
+ * @property {string} [textDecoration]
+ * @property {boolean} [disabled]
  */
 
 const FOREGROUND_COLORS = {
@@ -47,14 +54,14 @@ const RESET_OFFSET = 20;
 const DEFAULT_FOREGROUND_COLOR = 39;
 
 /**
- * Allows to style strings by using ANSI escape sequences for coloring terminal output
+ * Allows to style strings by using ANSI escape sequences for coloring terminal output.
  *
  * @example
  * colorize({ fgColor: 'magenta', textDecoraton: 'underline' })('text');
  * colorize({}).magenta.underline('text');
  *
- * @param {{ fgColor?: string; textDecoration?: string; disabled?: boolean; }} options
- * @returns {ColorizeProperty}
+ * @param {ColorizeOptions} options - Properties, used to set the initial styles and to manage the internal styles on chaining.
+ * @returns {ColorizeProperty} Function which can be used to colorize the given text, or for chaining.
  */
 function colorize (options) {
 	return Object.defineProperties(
@@ -64,8 +71,8 @@ function colorize (options) {
 		 * @example
 		 * [...].magenta.underline('text');
 		 *
-		 * @param {string} text
-		 * @returns {string}
+		 * @param {string} text - Plain text.
+		 * @returns {string} Input `text` wrapped by ANSI escape sequences.
 		 */
 		(text) => {
 			if (options.disabled || (!options.fgColor && !options.textDecoration)) {

@@ -232,8 +232,8 @@ const sum = {
 /**
  * Handle a specific test.
  *
- * @param {string} message
- * @param {function} assertion
+ * @param {string} message - The message which shall be shown if an assertion fails.
+ * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
  */
 function expect (message, assertion) {
 	try {
@@ -263,11 +263,11 @@ function expect (message, assertion) {
 }
 
 /**
- * Assert that a string contains a specific word.
+ * Assert that a string contains a specific word, considering word boundaries.
  *
- * @param {string} str
- * @param {string} word
- * @returns {void | never}
+ * @param {string} str - The source string.
+ * @param {string} word - A word which shall be part of the `str`.
+ * @returns {void}
  * @throws {assert.AssertionError}
  */
 function assertHasWord (str, word) {
@@ -283,11 +283,11 @@ function assertHasWord (str, word) {
 }
 
 /**
- * Assert that a string does not contains a specific word.
+ * Assert that a string does not contains a specific word, considering word boundaries.
  *
- * @param {string} str
- * @param {string} word
- * @returns {void | never}
+ * @param {string} str - The source string.
+ * @param {string} word - A word which shall not be part of `str`.
+ * @returns {void}
  * @throws {assert.AssertionError}
  */
 function assertNotHasWord (str, word) {
@@ -303,13 +303,13 @@ function assertNotHasWord (str, word) {
 }
 
 /**
- * Returns true if the given string contains a specific word.
+ * Returns true if the given string contains a specific word, considering word boundaries.
  *
  * ANSI escape sequences for coloring in `str` are ignored.
  *
- * @param {string} str
- * @param {string} word
- * @returns {boolean}
+ * @param {string} str - The source string.
+ * @param {string} word - A word which shall be part of `str`.
+ * @returns {boolean} If `str` contains `word`, `true` is returned, otherwise `false`.
  */
 function hasWord (str, word) {
 	return new RegExp(`(^|[^A-Za-z0-9$-_])${word}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m/gu, ''));
@@ -318,11 +318,11 @@ function hasWord (str, word) {
 /**
  * Create a test suite to test a specific call "check-outdated" call.
  *
- * @param {string} title
- * @param {string[]} argv
- * @param {object} dependencies
- * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback
- * @returns {Promise<void>}
+ * @param {string} title - The title of the test suite.
+ * @param {string[]} argv - Arguments which are used for the `check-outdated` call.
+ * @param {object} dependencies - Mock of the `npm outdated --json` response.
+ * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
+ * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
 async function test (title, argv, dependencies, expectedCallback) {
 	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
@@ -339,8 +339,9 @@ async function test (title, argv, dependencies, expectedCallback) {
 			/**
 			 * Mock of the child_process.exec() function, which is used by `check-outdated` to call `npm outdated`.
 			 *
-			 * @param {string} command
-			 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback
+			 * @param {string} command - The command to run.
+			 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback - Called with the output when process terminates.
+			 * @returns {void}
 			 */
 			exec (command, callback) {
 				usedCommand = command;
@@ -361,9 +362,8 @@ async function test (title, argv, dependencies, expectedCallback) {
 
 /**
  * Start capturing the output to process.stdout.
- * Returns a callback function to stop the capturing, which returns the captured output as string.
  *
- * @returns {() => string}
+ * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {
 	const write = process.stdout.write;
