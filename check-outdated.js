@@ -139,6 +139,19 @@ function generateKeyValueList (entries) {
 function parseArgs (argv) {
 	const args = {};
 
+	const unsupportedArgs = argv.filter((arg) => arg.startsWith('-') && ![
+		'--help', '-h',
+		'--ignore-packages',
+		'--depth',
+		'--ignore-pre-releases',
+		'--ignore-dev-dependencies',
+		'--global'
+	].includes(arg));
+
+	if (unsupportedArgs.length > 0) {
+		return help(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`);
+	}
+
 	if (argv.includes('--help') || argv.includes('-h')) {
 		return help();
 	}

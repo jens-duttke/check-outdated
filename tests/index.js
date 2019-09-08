@@ -186,6 +186,18 @@ const sum = {
 		// For testing purpose: console.log(stdout);
 	});
 
+	await test('should return with outdated dependency message, ignoring pre-releases', ['--unknown-argument'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		expect('`command` should be `undefined`', () => assert.equal(command, undefined));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain `"Unknown argument: --unknown-argument"`', () => assertHasWord(stdout, 'Unknown argument: --unknown-argument'));
+	});
+
+	await test('should return with outdated dependency message, ignoring pre-releases', ['--unknown-argument1', '--unknown-argument2'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		expect('`command` should be `undefined`', () => assert.equal(command, undefined));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain `"Unknown arguments: --unknown-argument1, --unknown-argument2"`', () => assertHasWord(stdout, 'Unknown arguments: --unknown-argument1, --unknown-argument2'));
+	});
+
 	await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
