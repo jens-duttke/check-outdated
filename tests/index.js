@@ -132,25 +132,25 @@ const sum = {
 	await test('should catch JSON.parse() error', [], '{ "Incomplete JSON response', (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-		expect('`stdout` should contain "Unexpected end of JSON input"', () => assertHasWord(stdout, 'Unexpected end of JSON input'));
-		expect('`stdout` should contain "{ "Incomplete JSON response"', () => assertHasWord(stdout, '{ "Incomplete JSON response'));
+		expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain `"Unexpected end of JSON input"`', () => assertHasWord(stdout, 'Unexpected end of JSON input'));
+		expect('`stdout` should contain `"{ "Incomplete JSON response"`', () => assertHasWord(stdout, '{ "Incomplete JSON response'));
 	});
 
 	await test('should throw "Unexpected JSON response" error for string response', [], '"string"', (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-		expect('`stdout` should contain "Unexpected JSON response"', () => assertHasWord(stdout, 'Unexpected JSON response'));
-		expect('`stdout` should contain ""string""', () => assertHasWord(stdout, '"string"'));
+		expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain `"Unexpected JSON response"`', () => assertHasWord(stdout, 'Unexpected JSON response'));
+		expect('`stdout` should contain `""string""`', () => assertHasWord(stdout, '"string"'));
 	});
 
 	await test('should catch "Unexpected JSON response" error for null response', [], 'null', (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-		expect('`stdout` should contain "Unexpected JSON response"', () => assertHasWord(stdout, 'Unexpected JSON response'));
-		expect('`stdout` should contain "null', () => assertHasWord(stdout, 'null'));
+		expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain `"Unexpected JSON response"`', () => assertHasWord(stdout, 'Unexpected JSON response'));
+		expect('`stdout` should contain `null`', () => assertHasWord(stdout, 'null'));
 	});
 
 	await test('should return without outdated dependency message for empty response', [], '', (command, exitCode, stdout) => {
