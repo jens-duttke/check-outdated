@@ -355,11 +355,11 @@ function escapeRegExp (str) {
 }
 
 /**
- * Create a test suite to test a specific call "check-outdated" call.
+ * Create a test suite to test a specific "check-outdated" call.
  *
  * @param {string} title - The title of the test suite.
  * @param {string[]} argv - Arguments which are used for the `check-outdated` call.
- * @param {object} dependencies - Mock of the `npm outdated --json` response.
+ * @param {any} dependencies - Mock of the `npm outdated --json` response.
  * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
@@ -372,6 +372,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 
 	let usedCommand;
 
+	/** @type {import('../check-outdated')} */
 	const checkOutdated = proxyquire('../check-outdated', {
 		child_process: {
 			/**

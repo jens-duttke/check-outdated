@@ -283,7 +283,7 @@ module.exports =  {
 		'object-curly-newline': 'error',
 		'object-curly-spacing': ['error', 'always'],
 		'object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],
-		'one-var': ['error', { initialized: 'never', uninitialized: 'always' }],
+		'one-var': ['error', { initialized: 'never', uninitialized: 'never' }],
 		'one-var-declaration-per-line': 'error',
 		'operator-assignment': 'error',
 		'operator-linebreak': 'error',
