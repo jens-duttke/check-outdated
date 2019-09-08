@@ -15,6 +15,22 @@ module.exports =  {
 		node: true,
 		es6: true
 	},
+	overrides: [
+		{
+			files: ['tests/*.js'],
+			rules: {
+				// @typescript-eslint Rules
+				"@typescript-eslint/camelcase": ['error', { allow: ['child_process'] }],
+
+				// Possible Errors
+				'no-console': 'off',
+
+				// Stylistic Issues
+				'max-lines-per-function': ['off'],
+				'max-len': ['off']
+			}
+		}
+	],
 	rules:  {
 		// Faulty @typescript-eslint Rules (see https://github.com/typescript-eslint/typescript-eslint/issues/906)
 		'@typescript-eslint/explicit-function-return-type': 'off',

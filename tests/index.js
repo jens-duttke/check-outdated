@@ -1,5 +1,3 @@
-/* eslint-disable no-console, max-len, max-lines-per-function */
-
 const assert = require('assert').strict;
 const proxyquire = require('proxyquire').noPreserveCache();
 const tty = require('tty');
@@ -334,7 +332,6 @@ async function test (title, argv, dependencies, expectedCallback) {
 	let usedCommand;
 
 	const checkOutdated = proxyquire('../check-outdated', {
-		// eslint-disable-next-line @typescript-eslint/camelcase
 		child_process: {
 			/**
 			 * Mock of the child_process.exec() function, which is used by `check-outdated` to call `npm outdated`.
