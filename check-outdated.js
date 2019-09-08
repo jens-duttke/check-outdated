@@ -38,7 +38,7 @@ else {
  * @property {string} current
  * @property {string} wanted
  * @property {string} latest
- * @property {string} location
+ * @property {string} [location]
  * @property {'dependencies' | 'devDependencies'} type
  */
 
@@ -86,6 +86,9 @@ async function checkOutdated (argv) {
 		}
 
 		const outdatedDependencies = Object.entries(await getOutdatedDependencies(args));
+
+		validateMandatoryProps(outdatedDependencies);
+
 		const filteredDependencies = getFilteredDependencies(outdatedDependencies, args);
 
 		if (filteredDependencies.length === 0) {
@@ -110,6 +113,32 @@ async function checkOutdated (argv) {
 	}
 
 	return 1;
+}
+
+/**
+ * Throws an error if one or more entries in a dependency object is missing mandatory properties.
+ *
+ * @param {[string, any][]} entries - Array with subarray containing key/value-pairs.
+ * @returns {void}
+ * @throws {Error}
+ */
+function validateMandatoryProps (entries) {
+	const messages = [];
+
+	// Check mandatory dependency properties
+	for (const [name, dependency] of entries) {
+		const missingProperties = ['current', 'wanted', 'latest'].filter((propName) => !(propName in dependency));
+
+		if (missingProperties.length > 0) {
+			const propertyPluralisation = (missingProperties.length === 1 ? 'y' : 'ies');
+
+			messages.push(`Missing propert${propertyPluralisation} "${missingProperties.join('", "')}" in response for dependency "${name}".`);
+		}
+	}
+
+	if (messages.length > 0) {
+		throw new Error(messages.join('\n'));
+	}
 }
 
 /**
@@ -140,14 +169,14 @@ function parseArgs (argv) {
 	const args = {};
 
 	const unsupportedArgs = argv.filter((arg) => arg.startsWith('-') && ![
-		'--help', '-h',
+		'--help',
+		'-h',
 		'--ignore-packages',
 		'--depth',
 		'--ignore-pre-releases',
 		'--ignore-dev-dependencies',
 		'--global'
 	].includes(arg));
-
 	if (unsupportedArgs.length > 0) {
 		return help(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`);
 	}
@@ -371,7 +400,7 @@ function writeToStdout (dependencies) {
 				alignRight: true
 			},
 			semverDiffType(dependency.current, dependency.latest) || '',
-			dependency.location.replace(/\\/gu, '/') || `node_modules/${name}`,
+			(dependency.location ? dependency.location.replace(/\\/gu, '/') : `node_modules/${name}`),
 			dependency.type
 		]);
 	}

@@ -165,6 +165,12 @@ const sum = {
 		expect('`stdout` should be `"All dependencies are up-to-date.\n"`', () => assert.equal(stdout, 'All dependencies are up-to-date.\n'));
 	});
 
+	await test('should return with missing properties message', [], { 'missing-properties': {} }, (command, exitCode, stdout) => {
+		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain `"Missing properties "current", "wanted", "latest" in response for dependency "missing-properties"."`', () => assertHasWord(stdout, 'Missing properties "current", "wanted", "latest" in response for dependency "missing-properties".'));
+	});
+
 	await test('should return with outdated dependency message', [], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));

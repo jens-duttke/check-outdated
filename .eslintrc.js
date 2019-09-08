@@ -248,11 +248,11 @@ module.exports =  {
 		'lines-between-class-members': 'error',
 		'max-depth': 'error',
 		'max-len': ['error', { code: 160 }],
-		'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+		'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
 		'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
 		'max-nested-callbacks': 'error',
 		'max-params': ['error', { max: 4 }],
-		'max-statements': ['error', 20],
+		'max-statements': ['error', 30],
 		'max-statements-per-line': ['error', { max: 3 }],
 		'multiline-comment-style': 'off', // doesn't work together with "// @ts-ignore"
 		'multiline-ternary': ['error', 'always-multiline'],
