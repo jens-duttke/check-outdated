@@ -264,11 +264,12 @@ const sum = {
  * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
  */
 function expect (message, assertion) {
+	const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
+
 	try {
 		assertion();
 	}
 	catch (error) {
-		const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
 		const errorType = (error instanceof assert.AssertionError ? 'Test failed' : 'Error in code');
 
 		console.log(`    ${colorize.red(`× ${styledMessage}`)}`);
@@ -282,8 +283,6 @@ function expect (message, assertion) {
 
 		return;
 	}
-
-	const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
 
 	console.log(`    ${colorize.green('√')} ${colorize.gray(styledMessage)}`);
 
