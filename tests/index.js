@@ -129,7 +129,37 @@ const sum = {
 		expect('`stdout` should contain the correct response', () => assert.equal(stdout, '\u001b[31mError while gathering outdated dependencies:\u001b[39m\n\n\u001b[35mcode\u001b[39m TEST\n\u001b[35msummary\u001b[39m Test error\n'));
 	});
 
-	await test('should return without outdated dependency message', [], {}, (command, exitCode, stdout) => {
+	await test('should catch JSON.parse() error', [], '{ "Incomplete JSON response', (command, exitCode, stdout) => {
+		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain "Unexpected end of JSON input"', () => assertHasWord(stdout, 'Unexpected end of JSON input'));
+		expect('`stdout` should contain "{ "Incomplete JSON response"', () => assertHasWord(stdout, '{ "Incomplete JSON response'));
+	});
+
+	await test('should throw "Unexpected JSON response" error for string response', [], '"string"', (command, exitCode, stdout) => {
+		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain "Unexpected JSON response"', () => assertHasWord(stdout, 'Unexpected JSON response'));
+		expect('`stdout` should contain ""string""', () => assertHasWord(stdout, '"string"'));
+	});
+
+	await test('should catch "Unexpected JSON response" error for null response', [], 'null', (command, exitCode, stdout) => {
+		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+		expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+		expect('`stdout` should contain "Error while gathering outdated dependencies:"', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
+		expect('`stdout` should contain "Unexpected JSON response"', () => assertHasWord(stdout, 'Unexpected JSON response'));
+		expect('`stdout` should contain "null', () => assertHasWord(stdout, 'null'));
+	});
+
+	await test('should return without outdated dependency message for empty response', [], '', (command, exitCode, stdout) => {
+		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+		expect('`exitCode` should be `0`', () => assert.equal(exitCode, 0));
+		expect('`stdout` should be `"All dependencies are up-to-date.\n"`', () => assert.equal(stdout, 'All dependencies are up-to-date.\n'));
+	});
+
+	await test('should return without outdated dependency message for empty object response', [], {}, (command, exitCode, stdout) => {
 		expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 		expect('`exitCode` should be `0`', () => assert.equal(exitCode, 0));
 		expect('`stdout` should be `"All dependencies are up-to-date.\n"`', () => assert.equal(stdout, 'All dependencies are up-to-date.\n'));
@@ -310,7 +340,19 @@ function assertNotHasWord (str, word) {
  * @returns {boolean} If `str` contains `word`, `true` is returned, otherwise `false`.
  */
 function hasWord (str, word) {
-	return new RegExp(`(^|[^A-Za-z0-9$-_])${word}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m/gu, ''));
+	return new RegExp(`(^|[^A-Za-z0-9$-_])${escapeRegExp(word)}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m/gu, ''));
+}
+
+/**
+ * Escape string to use it as part of a RegExp pattern.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
+ *
+ * @param {string} str - The source string.
+ * @returns {string} The escaped string.
+ */
+function escapeRegExp (str) {
+	return str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 /**
@@ -343,7 +385,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 			exec (command, callback) {
 				usedCommand = command;
 
-				callback(null, JSON.stringify(dependencies), '');
+				callback(null, (typeof dependencies === 'string' ? dependencies : JSON.stringify(dependencies)), '');
 			}
 		}
 	});

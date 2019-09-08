@@ -241,7 +241,7 @@ function getOutdatedDependencies (options) {
 				return;
 			}
 
-			const response = JSON.parse(stdout || '{}');
+			const response = parseResponse(stdout);
 
 			if ('error' in response) {
 				reject(response.error);
@@ -252,6 +252,33 @@ function getOutdatedDependencies (options) {
 			resolve(response);
 		});
 	});
+}
+
+/**
+ * Parse the stdout of `npm outdated --json` and convert it into an `object`.
+ *
+ * @param {string} stdout - Response of `npm outdated --json`.
+ * @returns {any} The parsed response, or an `object` containing an `error` property.
+ */
+function parseResponse (stdout) {
+	try {
+		const response = JSON.parse(stdout || '{}');
+
+		if (typeof response !== 'object' || response === null) {
+			throw new Error('Unexpected JSON response');
+		}
+
+		return response;
+	}
+	catch (error) {
+		return {
+			error: {
+				message: error.message,
+				stack: error.stack,
+				source: stdout
+			}
+		};
+	}
 }
 
 /**

@@ -27,8 +27,10 @@ module.exports =  {
 				'no-console': 'off',
 
 				// Stylistic Issues
-				'max-lines-per-function': ['off'],
-				'max-len': ['off']
+				'max-len': 'off',
+				'max-lines': 'off',
+				'max-lines-per-function': 'off',
+				'max-statements': 'off'
 			}
 		}
 	],
