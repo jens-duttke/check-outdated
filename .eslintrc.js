@@ -21,7 +21,7 @@ module.exports =  {
 			files: ['tests/*.js'],
 			rules: {
 				// @typescript-eslint Rules
-				"@typescript-eslint/camelcase": ['error', { allow: ['child_process'] }],
+				'@typescript-eslint/camelcase': ['error', { allow: ['child_process'] }],
 
 				// Possible Errors
 				'no-console': 'off',
