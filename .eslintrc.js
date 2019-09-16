@@ -92,6 +92,7 @@ module.exports =  {
 		'no-extra-parens': 'off', /* @todo There should be a option to enforce parens for IIFs */
 		'no-extra-semi': 'error',
 		'no-func-assign': 'error',
+		'no-import-assign': 'error',
 		'no-inner-declarations': 'error',
 		'no-invalid-regexp': 'error',
 		'no-irregular-whitespace': 'error',
@@ -118,6 +119,7 @@ module.exports =  {
 		'consistent-return': 'error',
 		'curly': 'error',
 		'default-case': 'error',
+		'default-param-last': 'error',
 		'dot-location': ['error', 'property'],
 		'dot-notation': 'error',
 		'eqeqeq': 'error',
@@ -178,6 +180,7 @@ module.exports =  {
 		'no-with': 'error',
 		'prefer-named-capture-group': 'off',
 		'prefer-promise-reject-errors': 'error',
+		'prefer-regex-literals': 'error',
 		'radix': 'error',
 		'require-await': 'error',
 		'require-unicode-regexp': 'error',
