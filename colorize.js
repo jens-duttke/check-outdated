@@ -1,4 +1,8 @@
 /**
+ * @file Use ANSI escape sequences for coloring terminal output.
+ */
+
+/**
  * @typedef {(text: string) => string} ColorizeFunction
  */
 

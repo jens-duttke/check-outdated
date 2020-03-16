@@ -1,3 +1,7 @@
+/**
+ * @file Different tests to verify everything works correctly.
+ */
+
 const assert = require('assert').strict;
 const proxyquire = require('proxyquire').noPreserveCache();
 const tty = require('tty');

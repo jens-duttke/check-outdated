@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
 /**
+ * @file The CLI entry point.
+ */
+
+/**
  * @external NodeModule
  */
 
