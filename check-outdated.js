@@ -8,10 +8,209 @@
  * @external NodeModule
  */
 
-const childProcess = require('child_process');
+const parseArgs = require('./helper/args');
+const colorize = require('./helper/colorize');
+const getOutdatedDependencies = require('./helper/dependencies');
+const { getChangelogPath, getPackageJSON } = require('./helper/files');
+const generateKeyValueList = require('./helper/list');
+const { semverDiff, semverDiffType } = require('./helper/semver');
+const prettifyTable = require('./helper/table');
+const { getNpmJSLink, getPackageAuthor, getPackageHomepage, getPackageRepository } = require('./helper/urls');
 
-const colorize = require('./colorize');
 const pkg = require('./package.json');
+
+/**
+ * @typedef {import('./helper/dependencies').NpmOptions} NpmOptions
+ * @typedef {import('./helper/dependencies').OutdatedDependencies} OutdatedDependencies
+ * @typedef {import('./helper/dependencies').OutdatedDependency} OutdatedDependency
+ * @typedef {import('./helper/files').PackageJSON} PackageJSON
+ * @typedef {import('./helper/table').Table} Table
+ * @typedef {import('./helper/table').TableColumn} TableColumn
+ * @typedef {import('./helper/args').AvailableArguments} AvailableArguments
+ */
+
+/**
+ * The options based on the CLI arguments.
+ *
+ * @typedef {object} CheckOutdatedOptions
+ * @property {string[]} [ignorePackages]
+ * @property {boolean} [ignoreDevDependencies]
+ * @property {boolean} [ignorePreReleases]
+ * @property {string[]} [columns]
+ */
+
+/** @typedef {CheckOutdatedOptions & NpmOptions} Options */
+
+/**
+ * Array of outdated dependencies.
+ *
+ * @typedef {OutdatedDependency[]} Dependencies
+ */
+
+/**
+ * The details change can be used to share data between columns.
+ * For example, if the first column reads the package.json, the next column can rely of this data, without to aquire it again.
+ *
+ * @typedef {{ semverDiff?: [string, string]; packageJSON?: PackageJSON; }} DependencyDetailsCache
+ */
+
+/** @type {AvailableArguments} */
+const availableArguments = {
+	'--help': () => help(),
+	'-h': () => help(),
+	'--ignore-packages': (value) => {
+		const ignorePackages = value.split(',');
+
+		if (ignorePackages.length === 1 && (ignorePackages[0] === '' || ignorePackages[0].startsWith('-'))) {
+			return help('Invalid value of --ignore-packages');
+		}
+
+		return { ignorePackages };
+	},
+	'--columns': (value) => {
+		const columns = value.split(',');
+		const availableColumnsNames = Object.keys(availableColumns);
+
+		if (columns.length === 1 && (columns[0] === '' || columns[0].startsWith('-'))) {
+			return help('Invalid value of --columns');
+		}
+
+		const invalidColumn = columns.find((name) => !availableColumnsNames.includes(name));
+		if (invalidColumn) {
+			return help(`Invalid column name "${invalidColumn}" in --columns\nAvailable columns are:\n${availableColumnsNames.join(', ')}`);
+		}
+
+		return { columns };
+	},
+	'--depth': (value) => {
+		const depth = parseInt(value, 10);
+
+		if (!Number.isFinite(depth)) {
+			return help('Invalid value of --depth');
+		}
+
+		return { depth };
+	},
+	'--ignore-pre-releases': {
+		ignorePreReleases: true
+	},
+	'--ignore-dev-dependencies': {
+		ignoreDevDependencies: true
+	},
+	'--global': {
+		global: true
+	}
+};
+
+const defaultColumns = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'changes'];
+
+/**
+ * @typedef {object} Column
+ * @property {TableColumn | string} caption;
+ * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => TableColumn | string} getValue
+ */
+
+/** @type {{ [columnName: string]: Column; }} */
+const availableColumns = {
+	name: {
+		caption: colorize.underline('Package'),
+		getValue: (dependency) => (dependency.current === dependency.wanted ? colorize.yellow(dependency.name) : colorize.red(dependency.name))
+	},
+	current: {
+		caption: {
+			text: colorize.underline('Current'),
+			alignRight: true
+		},
+		getValue: (dependency, detailsCache) => {
+			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
+				[dependency.current, dependency.latest],
+				[colorize, colorize.magenta],
+				[colorize.underline, colorize.magenta.underline]
+			);
+
+			return {
+				text: detailsCache.semverDiff[0],
+				alignRight: true
+			};
+		}
+	},
+	wanted: {
+		caption: {
+			text: colorize.underline('Wanted'),
+			alignRight: true
+		},
+		getValue: (dependency) => ({
+			text: colorize.green(dependency.wanted),
+			alignRight: true
+		})
+	},
+	latest: {
+		caption: {
+			text: colorize.underline('Latest'),
+			alignRight: true
+		},
+		getValue: (dependency, detailsCache) => {
+			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
+				[dependency.current, dependency.latest],
+				[colorize, colorize.magenta],
+				[colorize.underline, colorize.magenta.underline]
+			);
+
+			return {
+				text: detailsCache.semverDiff[1],
+				alignRight: true
+			};
+		}
+	},
+	type: {
+		caption: colorize.underline('Type'),
+		getValue: (dependency) => (semverDiffType(dependency.current, dependency.latest) || '')
+	},
+	location: {
+		caption: colorize.underline('Location'),
+		getValue: (dependency) => dependency.location
+	},
+	packageType: {
+		caption: colorize.underline('Package Type'),
+		getValue: (dependency) => dependency.type
+	},
+	changes: {
+		caption: colorize.underline('Changes'),
+		getValue: (dependency, detailsCache) => {
+			const changelogFile = getChangelogPath(dependency.location);
+
+			if (changelogFile) {
+				return changelogFile;
+			}
+
+			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+
+			return (
+				getPackageRepository(detailsCache.packageJSON, true) ||
+				getPackageHomepage(detailsCache.packageJSON) ||
+				getNpmJSLink(dependency.name)
+			);
+		}
+	},
+	homepage: {
+		caption: colorize.underline('Homepage'),
+		getValue: (dependency, detailsCache) => {
+			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+
+			return (
+				dependency.homepage ||
+				getPackageHomepage(detailsCache.packageJSON) ||
+				getPackageRepository(detailsCache.packageJSON) ||
+				getPackageAuthor(detailsCache.packageJSON) ||
+				getNpmJSLink(dependency.name)
+			);
+		}
+	},
+	npmjs: {
+		caption: colorize.underline('npmjs.com'),
+		getValue: (dependency) => getNpmJSLink(dependency.name)
+	}
+};
 
 if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
@@ -25,74 +224,30 @@ else {
 }
 
 /**
- * The options based on the CLI arguments.
- *
- * @typedef {object} Options
- * @property {string[]} [ignorePackages]
- * @property {boolean} [ignoreDevDependencies]
- * @property {boolean} [ignorePreReleases]
- * @property {boolean} [global]
- * @property {number} [depth]
- */
-
-/**
- * One dependency item, returned by `npm outdated --json`.
- *
- * @typedef {object} OutdatedDependency
- * @property {string} current
- * @property {string} wanted
- * @property {string} latest
- * @property {string} [location]
- * @property {'dependencies' | 'devDependencies'} type
- */
-
-/**
- * Original npm-outdated object, returned by `npm outdated --json`.
- *
- * @typedef {{ [dependencyName: string]: OutdatedDependency; }} OutdatedDependencies
- */
-
-/**
- * Array of outdated dependencies.
- *
- * @typedef {[string, OutdatedDependency][]} Dependencies
- */
-
-/**
- * Table column setup for a tabularly visualization of data.
- *
- * @typedef {object} TableColumn
- * @property {string} text
- * @property {string} [style]
- * @property {boolean} [alignRight]
- */
-
-/**
- * Array contains rows, contain columns, for a tabularly visualization of data.
- *
- * @typedef {(TableColumn | string)[][]} Table
- */
-
-/**
  * The main functionality of the tool.
  *
  * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
  * @returns {Promise<number>} A number which shall used as process exit code.
  */
 async function checkOutdated (argv) {
+	/** @type {Options | string} */
+	let args;
+
 	try {
-		const args = parseArgs(argv);
+		args = /** @type {Options | string} */(parseArgs(argv, availableArguments));
+	}
+	catch ({ message }) {
+		args = help(message);
+	}
 
-		if (typeof args === 'string') {
-			process.stdout.write(args);
+	if (typeof args === 'string') {
+		process.stdout.write(args);
 
-			return 1;
-		}
+		return 1;
+	}
 
-		const outdatedDependencies = Object.entries(await getOutdatedDependencies(args));
-
-		validateMandatoryProps(outdatedDependencies);
-
+	try {
+		const outdatedDependencies = Object.values(await getOutdatedDependencies(args));
 		const filteredDependencies = getFilteredDependencies(outdatedDependencies, args);
 
 		if (filteredDependencies.length === 0) {
@@ -108,7 +263,9 @@ async function checkOutdated (argv) {
 			process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
 		}
 
-		writeToStdout(filteredDependencies);
+		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? defaultColumns : args.columns);
+
+		writeToStdout(visibleColumns, filteredDependencies);
 	}
 	catch (error) {
 		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((prop) => [colorize.magenta(prop), error[prop]]));
@@ -117,109 +274,6 @@ async function checkOutdated (argv) {
 	}
 
 	return 1;
-}
-
-/**
- * Throws an error if one or more entries in a dependency object is missing mandatory properties.
- *
- * @param {[string, any][]} entries - Array with subarray containing key/value-pairs.
- * @returns {void}
- * @throws {Error}
- */
-function validateMandatoryProps (entries) {
-	const messages = [];
-
-	// Check mandatory dependency properties
-	for (const [name, dependency] of entries) {
-		const missingProperties = ['current', 'wanted', 'latest'].filter((propName) => !(propName in dependency));
-
-		if (missingProperties.length > 0) {
-			const propertyPluralisation = (missingProperties.length === 1 ? 'y' : 'ies');
-
-			messages.push(`Missing propert${propertyPluralisation} "${missingProperties.join('", "')}" in response for dependency "${name}".`);
-		}
-	}
-
-	if (messages.length > 0) {
-		throw new Error(messages.join('\n'));
-	}
-}
-
-/**
- * Generates a list from an array with key/value-pairs.
- * If the `value` is multiline text, each line will be prefixed by the `key`.
- *
- * @example
- * code ELIFECYCLE
- * errno 0
- * message Some additional
- * message multiline text.
- * additionalInfo null
- *
- * @param {[string, any][]} entries - Array with subarray containing key/value-pairs.
- * @returns {string} A multiline string containing representing the array items.
- */
-function generateKeyValueList (entries) {
-	return entries.map(([key, value]) => (typeof value === 'string' ? value : JSON.stringify(value, null, '  ')).replace(/^/gmu, `$&${key} `)).join('\n');
-}
-
-/**
- * Parses the given `argv` array into an object with supported options.
- *
- * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
- * @returns {Options | string} Either a `Options` object or a `string` which should be returned to the user, if arguments cannot be parsed.
- */
-function parseArgs (argv) {
-	const args = {};
-
-	const unsupportedArgs = argv.filter((arg) => arg.startsWith('-') && ![
-		'--help',
-		'-h',
-		'--ignore-packages',
-		'--depth',
-		'--ignore-pre-releases',
-		'--ignore-dev-dependencies',
-		'--global'
-	].includes(arg));
-	if (unsupportedArgs.length > 0) {
-		return help(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`);
-	}
-
-	if (argv.includes('--help') || argv.includes('-h')) {
-		return help();
-	}
-
-	const ignorePackagesIdx = argv.indexOf('--ignore-packages');
-	if (ignorePackagesIdx !== -1) {
-		args.ignorePackages = (argv[ignorePackagesIdx + 1] || '').split(',');
-
-		if (args.ignorePackages.length === 1 && (args.ignorePackages[0] === '' || args.ignorePackages[0].startsWith('-'))) {
-			return help('Invalid value of --ignore-packages');
-		}
-	}
-
-	const depthIdx = argv.indexOf('--depth');
-	if (depthIdx !== -1) {
-		args.depth = parseInt(argv[depthIdx + 1], 10);
-
-		if (!Number.isFinite(args.depth)) {
-			return help('Invalid value of --depth');
-		}
-	}
-
-	if (argv.includes('--ignore-pre-releases')) {
-		args.ignorePreReleases = true;
-	}
-
-	if (argv.includes('--ignore-dev-dependencies')) {
-		args.ignoreDevDependencies = true;
-	}
-
-	if (argv.includes('--global')) {
-		args.global = true;
-	}
-
-	return args;
 }
 
 /**
@@ -252,6 +306,15 @@ function help (...additionalLines) {
 				'Ignore the listed packages, even if they are outdated'
 			],
 			[
+				'--columns <comma-separated-list-of-columns>',
+				'Defines which columns should be shown in which order.'
+			],
+			[
+				// Follow-up line for '--columns' description
+				'',
+				`Possible values: ${Object.keys(availableColumns).join(',')}`
+			],
+			[
 				'--global',
 				'Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option)'
 			],
@@ -266,68 +329,6 @@ function help (...additionalLines) {
 }
 
 /**
- * Calls `npm outdated` to retrieve information about the outdated dependencies.
- *
- * @param {Options} options - Options which shall be appened to the `npm outdated` command-line call.
- * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
- */
-function getOutdatedDependencies (options) {
-	return new Promise((resolve, reject) => {
-		childProcess.exec([
-			'npm outdated',
-			'--json',
-			'--long',
-			'--save false',
-			(options.global ? '--global' : ''),
-			(options.depth ? `--depth ${options.depth}` : '')
-		].filter((item) => item).join(' '), (error, stdout) => {
-			if (error && stdout.length === 0) {
-				reject(error);
-
-				return;
-			}
-
-			const response = parseResponse(stdout);
-
-			if ('error' in response) {
-				reject(response.error);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
-}
-
-/**
- * Parse the stdout of `npm outdated --json` and convert it into an `object`.
- *
- * @param {string} stdout - Response of `npm outdated --json`.
- * @returns {any} The parsed response, or an `object` containing an `error` property.
- */
-function parseResponse (stdout) {
-	try {
-		const response = JSON.parse(stdout || '{}');
-
-		if (typeof response !== 'object' || response === null) {
-			throw new Error('Unexpected JSON response');
-		}
-
-		return response;
-	}
-	catch (error) {
-		return {
-			error: {
-				message: error.message,
-				stack: error.stack,
-				source: stdout
-			}
-		};
-	}
-}
-
-/**
  * Filters dependencies by the given filter `options`.
  *
  * @param {Dependencies} dependencies - Array of dependency objects which shall be filtered.
@@ -336,18 +337,18 @@ function parseResponse (stdout) {
  */
 function getFilteredDependencies (dependencies, options) {
 	let filteredDependencies = dependencies
-		.filter(([, dependency]) => !['git', 'linked', 'remote'].includes(dependency.latest));
+		.filter((dependency) => !['git', 'linked', 'remote'].includes(dependency.latest));
 
 	if (options.ignorePackages) {
 		const ignorePackages = options.ignorePackages;
 
-		filteredDependencies = filteredDependencies.filter(([name]) => !ignorePackages.includes(name));
+		filteredDependencies = filteredDependencies.filter(({ name }) => !ignorePackages.includes(name));
 	}
 	if (options.ignoreDevDependencies) {
-		filteredDependencies = filteredDependencies.filter(([, dependency]) => dependency.type !== 'devDependencies');
+		filteredDependencies = filteredDependencies.filter(({ type }) => type !== 'devDependencies');
 	}
 	if (options.ignorePreReleases) {
-		filteredDependencies = filteredDependencies.filter(([, dependency]) => !dependency.current.includes('-') && !dependency.latest.includes('-'));
+		filteredDependencies = filteredDependencies.filter(({ current, latest }) => !current.includes('-') && !latest.includes('-'));
 	}
 
 	return filteredDependencies;
@@ -356,194 +357,22 @@ function getFilteredDependencies (dependencies, options) {
 /**
  * Show the version information of outdated dependencies in a styled way on the terminal (stdout).
  *
+ * @param {string[]} visibleColumns - The columns which should be shown in the given order.
  * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
  * @returns {void}
  */
-function writeToStdout (dependencies) {
+function writeToStdout (visibleColumns, dependencies) {
 	/** @type {Table} */
 	const table = [
-		[
-			colorize.underline('Package'),
-			{
-				text: colorize.underline('Current'),
-				alignRight: true
-			},
-			{
-				text: colorize.underline('Wanted'),
-				alignRight: true
-			},
-			{
-				text: colorize.underline('Latest'),
-				alignRight: true
-			},
-			colorize.underline('Type'),
-			colorize.underline('Location'),
-			colorize.underline('Package Type')
-		]
+		visibleColumns.map((columnName) => availableColumns[columnName].caption)
 	];
 
-	for (const [name, dependency] of dependencies) {
-		const [current, latest] = semverDiff(
-			[dependency.current, dependency.latest],
-			[colorize, colorize.magenta],
-			[colorize.underline, colorize.magenta.underline]
-		);
+	for (const dependency of dependencies) {
+		/** @type {DependencyDetailsCache} */
+		const dependencyDetailsCache = {};
 
-		table.push([
-			(dependency.current === dependency.wanted ? colorize.yellow(name) : colorize.red(name)),
-			{
-				text: current,
-				alignRight: true
-			},
-			{
-				text: colorize.green(dependency.wanted),
-				alignRight: true
-			},
-			{
-				text: latest,
-				alignRight: true
-			},
-			semverDiffType(dependency.current, dependency.latest) || '',
-			(dependency.location ? dependency.location.replace(/\\/gu, '/') : `node_modules/${name}`),
-			dependency.type
-		]);
+		table.push(visibleColumns.map((columnName) => availableColumns[columnName].getValue(dependency, dependencyDetailsCache)));
 	}
 
 	process.stdout.write(`${prettifyTable(table)}\n\n`);
-}
-
-/**
- * Colorize differences in parts of two semantic version numbers.
- *
- * @param {[string, string]} versions - Version numbers to compare.
- * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} equalColorizers - Styles for the first and second version number, for equal parts.
- * @param {[colorize.ColorizeProperty, colorize.ColorizeProperty]} diffColorizers - Styles for the first and second version number, for unequal parts.
- * @returns {[string, string]} The colorized version numbers, in the same order as the input `versions` array.
- */
-function semverDiff (versions, equalColorizers, diffColorizers) {
-	const splitRegExp = /([.+-])/u;
-	const parts1 = versions[0].split(splitRegExp);
-	const parts2 = versions[1].split(splitRegExp);
-
-	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-		if (parts1[i] !== parts2[i]) {
-			if (parts1[i]) { parts1[i] = diffColorizers[0](parts1[i]); }
-			if (parts2[i]) { parts2[i] = diffColorizers[1](parts2[i]); }
-		}
-		else {
-			parts1[i] = equalColorizers[0](parts1[i]);
-			parts2[i] = equalColorizers[1](parts2[i]);
-		}
-	}
-
-	return [parts1.join(''), parts2.join('')];
-}
-
-/**
- * Returns the type of the difference between two semantic version numbers.
- *
- * @param {string} v1 - First version.
- * @param {string} v2 - Second version.
- * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined} The type as `string`, or `undefined` on invalid semver formats.
- */
-function semverDiffType (v1, v2) {
-	if (v1 === v2) {
-		return undefined;
-	}
-
-	const semverRegExp = /^(\d+).(\d+).(\d+).*?(?:([-+]).+)?$/u;
-
-	const match1 = v1.match(semverRegExp);
-
-	if (match1 === null) {
-		return undefined;
-	}
-
-	const match2 = v2.match(semverRegExp);
-
-	if (match2 === null) {
-		return undefined;
-	}
-
-	if (parseInt(match1[1], 10) < parseInt(match2[1], 10)) {
-		return 'major';
-	}
-
-	if (parseInt(match1[2], 10) < parseInt(match2[2], 10)) {
-		return 'minor';
-	}
-
-	if (parseInt(match1[3], 10) < parseInt(match2[3], 10)) {
-		return 'patch';
-	}
-
-	if (match2[4] === '-') {
-		return 'prerelease';
-	}
-
-	if (match2[4] === '+') {
-		return 'build';
-	}
-
-	return undefined;
-}
-
-/**
- * Converts a two-dimensional array into an styled table with aligned columns.
- *
- * @param {Table} table - Two-dimentational array which shall be shown in a table with aligned columns.
- * @returns {string} Multiline string containing the table.
- */
-function prettifyTable (table) {
-	const out = [];
-
-	const colWidths = table.reduce(colWidthReducer, []);
-
-	for (let row = 0; row < table.length; row++) {
-		if (row > 0) {
-			out.push('\n');
-		}
-
-		for (let col = 0; col < table[row].length; col++) {
-			const content = table[row][col];
-			const { text, alignRight = false } = (typeof content === 'object' ? content : { text: content });
-
-			if (col > 0) {
-				out.push('  ');
-			}
-
-			if (alignRight) {
-				out.push(' '.repeat(colWidths[col] - plainLength(text)));
-			}
-
-			out.push(text);
-
-			if (!alignRight) {
-				out.push(' '.repeat(colWidths[col] - plainLength(text)));
-			}
-		}
-	}
-
-	return out.join('');
-}
-
-/**
- * Used as `Array.reduce()` callback function to find the longest string per column in a `Table`.
- *
- * @param {number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
- * @param {(string | TableColumn)[]} row - A single row containg the columns of a `Table`.
- * @returns {number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
- */
-function colWidthReducer (widths, row) {
-	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), widths[colIndex] || 0));
-}
-
-/**
- * Get the length of a string without ANSI escape sequences for coloring.
- *
- * @param {string} str - Input string containg ANSI escape sequences for coloring.
- * @returns {number} The text length of `str` without the ANSI escape sequences.
- */
-function plainLength (str) {
-	return str.replace(/\x1b\[.+?m/gu, '').length;
 }
