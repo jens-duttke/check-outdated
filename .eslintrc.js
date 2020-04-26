@@ -50,7 +50,7 @@ module.exports =  {
 		'jsdoc/check-access': 'error',
 		'jsdoc/check-alignment': 'error',
         'jsdoc/check-examples': 'off', // @todo need to be configured to allow text-based examples
-        'jsdoc/check-indentation': 'error',
+        'jsdoc/check-indentation': ['error', { excludeTags: ['typedef'] }],
         'jsdoc/check-param-names': 'error',
         'jsdoc/check-syntax': 'error',
         'jsdoc/check-tag-names': 'error',
@@ -234,7 +234,7 @@ module.exports =  {
 		'no-process-env': 'error',
 		'no-process-exit': 'off',
 		'no-restricted-modules': 'error',
-		'no-sync': 'error',
+		'no-sync': 'off', // @todo Does it make sense to wrap the async-versions into a Promise? Does this have any benefits?
 
 		// Stylistic Issues
 		'array-bracket-newline': ['error', 'consistent'],
@@ -257,7 +257,7 @@ module.exports =  {
 		'function-call-argument-newline': ['error', 'consistent'],
 		'function-paren-newline': ['error', 'multiline-arguments'],
 		'id-blacklist': 'error',
-		'id-length': ['off', { exceptions: ['i', 'x', 'y', 'z'] }],
+		'id-length': 'error',
 		'id-match': 'error',
 		'implicit-arrow-linebreak': 'error',
 		'indent': 'off', // @typescript-eslint/indent
@@ -269,14 +269,14 @@ module.exports =  {
 		'lines-around-comment': ['off', { beforeBlockComment: true, beforeLineComment: true, allowBlockStart: true, allowObjectStart: true, allowArrayStart: true, allowClassStart: true }], // @todo disabled till there is an option like "allowFunctionParenthesiseStart"
 		'lines-between-class-members': 'error',
 		'max-depth': 'error',
-		'max-len': ['error', { code: 160 }],
-		'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
+		'max-len': ['error', { code: 160, tabWidth: 4, comments: 160, ignoreUrls: true }],
+		'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
 		'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
 		'max-nested-callbacks': 'error',
 		'max-params': ['error', { max: 4 }],
 		'max-statements': ['error', 30],
 		'max-statements-per-line': ['error', { max: 3 }],
-		'multiline-comment-style': 'off', // doesn't work together with "// @ts-ignore"
+		'multiline-comment-style': 'off', // Doesn't work together with "// @ts-ignore"
 		'multiline-ternary': ['error', 'always-multiline'],
 		'new-cap': ['error', { properties: false }],
 		'new-parens': 'error',
@@ -284,7 +284,7 @@ module.exports =  {
 		'no-array-constructor': 'off', // @typescript-eslint/no-array-constructor
 		'no-bitwise': ['error', { allow: ['^', '~', '<<', '>>', '>>>', '|=', '&=', '^=', '<<=', '>>=', '>>>='] }], // Disallow "&" and "|".
 		'no-continue': 'error',
-		'no-inline-comments': 'off', // @todo JSDoc inline comments must be allowed
+		'no-inline-comments': 'off', // JSDoc inline comments must be allowed
 		'no-lonely-if': 'error',
 		'no-mixed-operators': 'error',
 		'no-mixed-spaces-and-tabs': 'error',
