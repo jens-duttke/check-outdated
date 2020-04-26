@@ -59,6 +59,11 @@ Or put it into your `package.json`:
 
 ### Available Columns
 
+By default, the following columns are shown:  
+`name`, `current`, `wanted`, `latest`, `type`, `location`, `packageType`, `changes`
+
+You are able to overwrite the default by using the `--columns` argument.
+
 | Caption | --column value | Description | Example |
 |-|-|-|-|
 | Package | `name` | The name of the package.<br />**Red** means there's a newer version matching your semver requirements, so you should update now.<br />**Yellow** indicates that there's a newer version above your semver requirements (usually new major, or new 0.x minor) so proceed with caution. | typescript |
@@ -71,8 +76,3 @@ Or put it into your `package.json`:
 | Changes | `changes` | **check-outdated** tries to find a direct link to changelog of the package. The following places are considered in the given order:<br />1. **CHANGELOG<span>.</span>md**<br />2. package/package.json > "repository" \*<br />3. package/package.json > "homepage"<br />4. `https://www.npmjs.com/package/{name}`<br />\* GitHub-repository URLs are adjusted, so that they directly link to the **Releases** section. | https<span>:</span>//github<span>.</span>com/Microsoft/TypeScript/releases |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<br />1. package/package.json > "homepage"<br />2. package/package.json > "repository"<br />3. package/package.json > "author"<br />4. `https://www.npmjs.com/package/{name}` | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |
 | npmjs<span>.</span>com | `npmjs` | A link to the package on the npmjs.com website. | https<span>:</span>//www<span>.</span>npmjs<span>.</span>com/package/typescript |
-
-By default, the following columns are shown:  
-`name`, `current`, `wanted`, `latest`, `type`, `location`, `packageType`, `changes`
-
-You are able to overwrite the default by using the `--columns` argument.
