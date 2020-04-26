@@ -48,6 +48,7 @@ const REPOSITORY_URLS = [
 /**
  * Generates a link to the npmjs.com website, based on a dependency name..
  *
+ * @public
  * @param {string} packageName - Options which shall be appened to the `npm outdated` command-line call.
  * @returns {string} The link to the package on the npmjs.com website.
  */
@@ -58,6 +59,7 @@ function getNpmJSLink (packageName) {
 /**
  * Returns the URL of the author from the package.json.
  *
+ * @public
  * @param {PackageJSON} packageJSON - The content of a package.json.
  * @returns {string | undefined} The URL of the author.
  */
@@ -81,6 +83,7 @@ function getPackageAuthor (packageJSON) {
 /**
  * Returns the URL of the homepage from the package.json.
  *
+ * @public
  * @param {PackageJSON} packageJSON - The content of a package.json.
  * @returns {string | undefined} The URL of the homepage.
  */
@@ -95,6 +98,7 @@ function getPackageHomepage (packageJSON) {
 /**
  * Returns the URL of the repository from the package.json.
  *
+ * @public
  * @param {PackageJSON} packageJSON - The content of a package.json.
  * @param {boolean} [linkToChangelog] - If the returned URL should link to the "Releases" page.
  * @returns {string | undefined} The URL of the repository.
@@ -127,6 +131,7 @@ function getPackageRepository (packageJSON, linkToChangelog) {
 /**
  * Tries to determine the URL to the changelog for a specific service `url`.
  *
+ * @private
  * @param {string} url - Service url
  * @returns {string} Either returns an URL to the changelog for a specific service, or it returns `url`.
  */

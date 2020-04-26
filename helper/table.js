@@ -20,6 +20,7 @@
 /**
  * Converts a two-dimensional array into an styled table with aligned columns.
  *
+ * @public
  * @param {Table} table - Two-dimentational array which shall be shown in a table with aligned columns.
  * @returns {string} Multiline string containing the table.
  */
@@ -59,6 +60,7 @@ function prettifyTable (table) {
 /**
  * Used as `Array.reduce()` callback function to find the longest string per column in a `Table`.
  *
+ * @private
  * @param {number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
  * @param {(string | TableColumn)[]} row - A single row containg the columns of a `Table`.
  * @returns {number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
@@ -70,6 +72,7 @@ function colWidthReducer (widths, row) {
 /**
  * Get the length of a string without ANSI escape sequences for coloring.
  *
+ * @private
  * @param {string} str - Input string containg ANSI escape sequences for coloring.
  * @returns {number} The text length of `str` without the ANSI escape sequences.
  */

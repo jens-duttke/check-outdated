@@ -34,6 +34,7 @@ const childProcess = require('child_process');
 /**
  * Calls `npm outdated` to retrieve information about the outdated dependencies.
  *
+ * @public
  * @param {NpmOptions} options - Options which shall be appened to the `npm outdated` command-line call.
  * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
  */
@@ -81,6 +82,7 @@ function getOutdatedDependencies (options) {
 /**
  * Returns an array with error messages if one or more entries in a dependency object is missing mandatory properties.
  *
+ * @private
  * @param {[string, object][]} entries - Array with subarray containing key/value-pairs.
  * @returns {string[]} An array of error messages.
  */
@@ -104,6 +106,7 @@ function validateMandatoryProps (entries) {
 /**
  * Adds missing properties to the dependencies object.
  *
+ * @private
  * @param {{ [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The outdated dependency object
  * @returns {void}
  */
@@ -127,6 +130,7 @@ function prepareResponseObject (dependencies) {
 /**
  * Parse the stdout of `npm outdated --json` and convert it into an `object`.
  *
+ * @private
  * @param {string} stdout - Response of `npm outdated --json`.
  * @returns {any} The parsed response, or an `object` containing an `error` property.
  */

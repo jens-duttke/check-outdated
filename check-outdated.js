@@ -226,6 +226,7 @@ else {
 /**
  * The main functionality of the tool.
  *
+ * @public
  * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
  * @returns {Promise<number>} A number which shall used as process exit code.
  */
@@ -279,6 +280,7 @@ async function checkOutdated (argv) {
 /**
  * Returns the help text of the CLI tool.
  *
+ * @private
  * @param {string[]} additionalLines - Additional text (error messages etc.) which shall be shown after the help.
  * @returns {string} Multiline text containing the whole help text.
  */
@@ -331,6 +333,7 @@ function help (...additionalLines) {
 /**
  * Filters dependencies by the given filter `options`.
  *
+ * @private
  * @param {Dependencies} dependencies - Array of dependency objects which shall be filtered.
  * @param {Options} options - Options to configure the filtering.
  * @returns {Dependencies} Array with of the filtered dependency objects.
@@ -357,6 +360,7 @@ function getFilteredDependencies (dependencies, options) {
 /**
  * Show the version information of outdated dependencies in a styled way on the terminal (stdout).
  *
+ * @private
  * @param {string[]} visibleColumns - The columns which should be shown in the given order.
  * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
  * @returns {void}

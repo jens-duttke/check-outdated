@@ -541,6 +541,7 @@ const sum = {
 /**
  * Handle a specific test.
  *
+ * @private
  * @param {string} message - The message which shall be shown if an assertion fails.
  * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
  */
@@ -580,6 +581,7 @@ function expect (message, assertion) {
 /**
  * Assert that a string contains a specific word, considering word boundaries.
  *
+ * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall be part of the `str`.
  * @returns {void}
@@ -600,6 +602,7 @@ function assertHasWord (str, word) {
 /**
  * Assert that a string does not contains a specific word, considering word boundaries.
  *
+ * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall not be part of `str`.
  * @returns {void}
@@ -622,6 +625,7 @@ function assertNotHasWord (str, word) {
  *
  * ANSI escape sequences for coloring in `str` are ignored.
  *
+ * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall be part of `str`.
  * @returns {boolean} If `str` contains `word`, `true` is returned, otherwise `false`.
@@ -635,6 +639,7 @@ function hasWord (str, word) {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
  *
+ * @private
  * @param {string} str - The source string.
  * @returns {string} The escaped string.
  */
@@ -645,6 +650,7 @@ function escapeRegExp (str) {
 /**
  * Create a test suite to test a specific "check-outdated" call.
  *
+ * @private
  * @param {string} title - The title of the test suite.
  * @param {string[]} argv - Arguments which are used for the `check-outdated` call.
  * @param {any} dependencies - Mock of the `npm outdated --json` response.
@@ -742,6 +748,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 /**
  * Start capturing the output to process.stdout.
  *
+ * @private
  * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {

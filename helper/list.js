@@ -13,6 +13,7 @@
  * message multiline text.
  * additionalInfo null
  *
+ * @public
  * @param {[string, any][]} entries - Array with subarray containing key/value-pairs.
  * @returns {string} A multiline string containing representing the array items.
  */

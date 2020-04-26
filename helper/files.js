@@ -26,6 +26,7 @@ const path = require('path');
 /**
  * Returns the content of the package.json of a given dependency.
  *
+ * @public
  * @param {string} dependencyLocation - The folder where the dependency is located.
  * @returns {PackageJSON} Either the content of the package.json or an empty object.
  */
@@ -43,6 +44,7 @@ function getPackageJSON (dependencyLocation) {
 /**
  * Returns the file path to the CHANGELOG.md of a given dependency.
  *
+ * @public
  * @param {string} dependencyLocation - The folder where the dependency is located.
  * @returns {string | undefined} Either the file path or undefined, if the file does not exist.
  */
@@ -62,6 +64,7 @@ function getChangelogPath (dependencyLocation) {
 /**
  * Returns the relative path to dependency to the current working directory.
  *
+ * @private
  * @param {string} dependencyLocation - The folder where the dependency is located.
  * @returns {string} The path to a dependency.
  */

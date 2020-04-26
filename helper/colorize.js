@@ -64,6 +64,7 @@ const DEFAULT_FOREGROUND_COLOR = 39;
  * colorize({ fgColor: 'magenta', textDecoraton: 'underline' })('text');
  * colorize({}).magenta.underline('text');
  *
+ * @public
  * @param {ColorizeOptions} options - Properties, used to set the initial styles and to manage the internal styles on chaining.
  * @returns {ColorizeProperty} Function which can be used to colorize the given text, or for chaining.
  */

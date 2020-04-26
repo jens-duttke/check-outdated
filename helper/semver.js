@@ -7,6 +7,7 @@
 /**
  * Colorize differences in parts of two semantic version numbers.
  *
+ * @public
  * @param {[string, string]} versions - Version numbers to compare.
  * @param {[ColorizeProperty, ColorizeProperty]} equalColorizers - Styles for the first and second version number, for equal parts.
  * @param {[ColorizeProperty, ColorizeProperty]} diffColorizers - Styles for the first and second version number, for unequal parts.
@@ -34,6 +35,7 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
 /**
  * Returns the type of the difference between two semantic version numbers.
  *
+ * @public
  * @param {string} v1 - First version.
  * @param {string} v2 - Second version.
  * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined} The type as `string`, or `undefined` on invalid semver formats.
