@@ -17,7 +17,8 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally ignore specific packages
 - Optionally check globally installed packages
 - Optionally set depth for checking dependency tree
-- Optionally configure the visible columns
+- Show link to changelogs
+- Configure visible columns
 
 ## Example Screenshot
 
