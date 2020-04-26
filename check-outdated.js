@@ -55,7 +55,7 @@ const pkg = require('./package.json');
  */
 
 /** @type {AvailableArguments} */
-const availableArguments = {
+const AVAILABLE_ARGUMENTS = {
 	'--help': () => help(),
 	'-h': () => help(),
 	'--ignore-packages': (value) => {
@@ -69,7 +69,7 @@ const availableArguments = {
 	},
 	'--columns': (value) => {
 		const columns = value.split(',');
-		const availableColumnsNames = Object.keys(availableColumns);
+		const availableColumnsNames = Object.keys(AVAILABLE_COLUMNS);
 
 		if (columns.length === 1 && (columns[0] === '' || columns[0].startsWith('-'))) {
 			return help('Invalid value of --columns');
@@ -102,7 +102,7 @@ const availableArguments = {
 	}
 };
 
-const defaultColumns = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'changes'];
+const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'changes'];
 
 /**
  * @typedef {object} Column
@@ -111,7 +111,7 @@ const defaultColumns = ['name', 'current', 'wanted', 'latest', 'type', 'location
  */
 
 /** @type {{ [columnName: string]: Column; }} */
-const availableColumns = {
+const AVAILABLE_COLUMNS = {
 	name: {
 		caption: colorize.underline('Package'),
 		getValue: (dependency) => (dependency.current === dependency.wanted ? colorize.yellow(dependency.name) : colorize.red(dependency.name))
@@ -235,7 +235,7 @@ async function checkOutdated (argv) {
 	let args;
 
 	try {
-		args = /** @type {Options | string} */(parseArgs(argv, availableArguments));
+		args = /** @type {Options | string} */(parseArgs(argv, AVAILABLE_ARGUMENTS));
 	}
 	catch ({ message }) {
 		args = help(message);
@@ -264,7 +264,7 @@ async function checkOutdated (argv) {
 			process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
 		}
 
-		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? defaultColumns : args.columns);
+		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? DEFAULT_COLUMNS : args.columns);
 
 		writeToStdout(visibleColumns, filteredDependencies);
 	}
@@ -314,7 +314,7 @@ function help (...additionalLines) {
 			[
 				// Follow-up line for '--columns' description
 				'',
-				`Possible values: ${Object.keys(availableColumns).join(',')}`
+				`Possible values: ${Object.keys(AVAILABLE_COLUMNS).join(',')}`
 			],
 			[
 				'--global',
@@ -368,14 +368,14 @@ function getFilteredDependencies (dependencies, options) {
 function writeToStdout (visibleColumns, dependencies) {
 	/** @type {Table} */
 	const table = [
-		visibleColumns.map((columnName) => availableColumns[columnName].caption)
+		visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].caption)
 	];
 
 	for (const dependency of dependencies) {
 		/** @type {DependencyDetailsCache} */
 		const dependencyDetailsCache = {};
 
-		table.push(visibleColumns.map((columnName) => availableColumns[columnName].getValue(dependency, dependencyDetailsCache)));
+		table.push(visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].getValue(dependency, dependencyDetailsCache)));
 	}
 
 	process.stdout.write(`${prettifyTable(table)}\n\n`);
