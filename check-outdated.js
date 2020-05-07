@@ -177,6 +177,18 @@ const AVAILABLE_COLUMNS = {
 	changes: {
 		caption: colorize.underline('Changes'),
 		getValue: (dependency, detailsCache) => {
+			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+
+			return (
+				getPackageRepository(detailsCache.packageJSON, true) ||
+				getPackageHomepage(detailsCache.packageJSON) ||
+				getNpmJSLink(dependency.name)
+			);
+		}
+	},
+	changesPreferLocal: {
+		caption: colorize.underline('Changes'),
+		getValue: (dependency, detailsCache) => {
 			const changelogFile = getChangelogPath(dependency.location);
 
 			if (changelogFile) {
