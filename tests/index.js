@@ -832,7 +832,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 					const normalizedPath = path.replace(/\\/gu, '/');
 
 					if (!(normalizedPath in EXISTS_MOCK)) {
-						throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`)
+						throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`);
 					}
 
 					return EXISTS_MOCK[normalizedPath];
@@ -857,7 +857,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 					const normalizedPath = path.replace(/\\/gu, '/');
 
 					if (!(normalizedPath in READ_FILE_MOCK)) {
-						throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`)
+						throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`);
 					}
 
 					const content = READ_FILE_MOCK[normalizedPath];
