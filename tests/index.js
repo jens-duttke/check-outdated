@@ -69,6 +69,20 @@ const DEFAULT_RESPONSE = {
 		location: 'node_modules/module-revert',
 		type: 'dependencies'
 	},
+	'module-broken-version': {
+		current: '1.0.0',
+		wanted: '1.0.0',
+		latest: '2.3.4',
+		location: 'node_modules/module-patch',
+		type: 'dependencies'
+	},
+	'@scoped/module-sub-broken-version': {
+		current: '1.0.0',
+		wanted: '1.0.0',
+		latest: '2.3.4',
+		location: 'node_modules/module-patch',
+		type: 'dependencies'
+	},
 	'module-non-semver': {
 		current: 'R1',
 		wanted: 'R1',
@@ -408,7 +422,7 @@ const sum = {
 		await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"27 outdated dependencies found:"`', () => assertHasWord(stdout, '27 outdated dependencies found:'));
+			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
 
 			expect('`stdout` should not contain `"module-prerelease"`', () => assertNotHasWord(stdout, 'module-prerelease'));
 		});
@@ -418,7 +432,7 @@ const sum = {
 		await test('should return with outdated non-dev-dependency message, ignoring dev-dependencies', ['--ignore-dev-dependencies'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"27 outdated dependencies found:"`', () => assertHasWord(stdout, '27 outdated dependencies found:'));
+			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
 
 			expect('`stdout` should not contain `"module-dev-major"`', () => assertNotHasWord(stdout, 'module-dev-major'));
 		});
@@ -428,10 +442,53 @@ const sum = {
 		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"26 outdated dependencies found:"`', () => assertHasWord(stdout, '26 outdated dependencies found:'));
+			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
 
 			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
 			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
+		});
+
+		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+
+			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
+			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
+		});
+
+		await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expect('`stdout` should not contain `"module-broken-version"`', () => assertNotHasWord(stdout, 'module-broken-version'));
+		});
+
+		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expect('`stdout` should contain styled `"module-broken-version"`', () => assertHasWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false));
+			expect('`stdout` should contain `The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
+		});
+
+		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expect('`stdout` should not contain `"@scoped/module-sub-broken-version"`', () => assertNotHasWord(stdout, '@scoped/module-sub-broken-version'));
+		});
+
+		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
+			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expect('`stdout` should contain styled `"@scoped/module-sub-broken-version"`', () => assertHasWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false));
+			expect('`stdout` should contain `The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
 		});
 
 		await test('should return with the help indicating an argument problem', ['--ignore-packages'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
@@ -445,7 +502,7 @@ const sum = {
 		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,changes,changesPreferLocal,homepage,npmjs'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
 
 			expect('`stdout` should contain `"module-major"`', () => assertHasWord(stdout, 'module-major'));
 			expect('`stdout` should contain `"module-minor"`', () => assertHasWord(stdout, 'module-minor'));
@@ -481,7 +538,7 @@ const sum = {
 			expect('`stdout` should contain the correct response', () => assert.equal(
 				stdout.replace(/\x20+(\n|$)/gu, '$1'),
 				[
-					'28 outdated dependencies found:',
+					'30 outdated dependencies found:',
 					'',
 					'\u001b[4mPackage\u001b[24m                                                    \u001b[4mCurrent\u001b[24m  \u001b[4mWanted\u001b[24m         \u001b[4mLatest\u001b[24m  \u001b[4mType\u001b[24m        \u001b[4mLocation\u001b[24m                                                                     \u001b[4mPackage Type\u001b[24m     \u001b[4mChanges\u001b[24m                                                                             \u001b[4mChanges\u001b[24m                                                                             \u001b[4mHomepage\u001b[24m                                                                            \u001b[4mnpmjs.com\u001b[24m',
 					'\u001b[33mmodule-major\u001b[39m                                                 \u001b[4m1\u001b[24m.0.0   \u001b[32m1.0.0\u001b[39m          \u001b[35;4m2\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m  major       node_modules/module-major                                                    dependencies     https://www.npmjs.com/package/module-major                                          https://www.npmjs.com/package/module-major                                          https://www.npmjs.com/package/module-major                                          https://www.npmjs.com/package/module-major',
@@ -491,6 +548,8 @@ const sum = {
 					'\u001b[33mmodule-build\u001b[39m                                                 1.0.0   \u001b[32m1.0.0\u001b[39m    \u001b[35m1\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35;4m+\u001b[39;24m\u001b[35;4mbuild\u001b[39;24m  build       node_modules/module-build                                                    dependencies     https://www.npmjs.com/package/module-build                                          https://www.npmjs.com/package/module-build                                          https://www.npmjs.com/package/module-build                                          https://www.npmjs.com/package/module-build',
 					'\u001b[33mmodule-sub-version\u001b[39m                                           1.0.0   \u001b[32m1.0.0\u001b[39m        \u001b[35m1\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35;4m.\u001b[39;24m\u001b[35;4m1\u001b[39;24m              node_modules/module-sub-version                                              dependencies     https://www.npmjs.com/package/module-sub-version                                    https://www.npmjs.com/package/module-sub-version                                    https://www.npmjs.com/package/module-sub-version                                    https://www.npmjs.com/package/module-sub-version',
 					'\u001b[33mmodule-revert\u001b[39m                                                1.\u001b[4m1\u001b[24m.0   \u001b[32m1.1.0\u001b[39m          \u001b[35m1\u001b[39m\u001b[35m.\u001b[39m\u001b[35;4m0\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m              node_modules/module-revert                                                   dependencies     https://www.npmjs.com/package/module-revert                                         https://www.npmjs.com/package/module-revert                                         https://www.npmjs.com/package/module-revert                                         https://www.npmjs.com/package/module-revert',
+					'\u001b[33mmodule-broken-version\u001b[39m                                        \u001b[4m1\u001b[24m.\u001b[4m0\u001b[24m.\u001b[4m0\u001b[24m   \u001b[32m1.0.0\u001b[39m          \u001b[35;4m2\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35;4m3\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35;4m4\u001b[39;24m  major       node_modules/module-patch                                                    dependencies     https://www.npmjs.com/package/module-broken-version                                 https://www.npmjs.com/package/module-broken-version                                 https://www.npmjs.com/package/module-broken-version                                 https://www.npmjs.com/package/module-broken-version',
+					'\u001b[33m@scoped/module-sub-broken-version\u001b[39m                            \u001b[4m1\u001b[24m.\u001b[4m0\u001b[24m.\u001b[4m0\u001b[24m   \u001b[32m1.0.0\u001b[39m          \u001b[35;4m2\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35;4m3\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35;4m4\u001b[39;24m  major       node_modules/module-patch                                                    dependencies     https://www.npmjs.com/package/%40scoped%2Fmodule-sub-broken-version                 https://www.npmjs.com/package/%40scoped%2Fmodule-sub-broken-version                 https://www.npmjs.com/package/%40scoped%2Fmodule-sub-broken-version                 https://www.npmjs.com/package/%40scoped%2Fmodule-sub-broken-version',
 					'\u001b[33mmodule-non-semver\u001b[39m                                               \u001b[4mR1\u001b[24m      \u001b[32mR1\u001b[39m             \u001b[35;4mR2\u001b[39;24m              node_modules/module-non-semver                                               dependencies     https://www.npmjs.com/package/module-non-semver                                     https://www.npmjs.com/package/module-non-semver                                     https://www.npmjs.com/package/module-non-semver                                     https://www.npmjs.com/package/module-non-semver',
 					'\u001b[31mmodule-diff-wanted\u001b[39m                                           1.\u001b[4m0\u001b[24m.0   \u001b[32m1.1.0\u001b[39m          \u001b[35m1\u001b[39m\u001b[35m.\u001b[39m\u001b[35;4m2\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m  minor       node_modules/module-diff-wanted                                              dependencies     https://www.npmjs.com/package/module-diff-wanted                                    https://www.npmjs.com/package/module-diff-wanted                                    https://www.npmjs.com/package/module-diff-wanted                                    https://www.npmjs.com/package/module-diff-wanted',
 					'\u001b[33mmodule-dev-major\u001b[39m                                             \u001b[4m1\u001b[24m.0.0   \u001b[32m1.0.0\u001b[39m          \u001b[35;4m2\u001b[39;24m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m\u001b[35m.\u001b[39m\u001b[35m0\u001b[39m  major       node_modules/module-dev-major                                                devDependencies  https://www.npmjs.com/package/module-dev-major                                      https://www.npmjs.com/package/module-dev-major                                      https://www.npmjs.com/package/module-dev-major                                      https://www.npmjs.com/package/module-dev-major',
@@ -547,7 +606,7 @@ const sum = {
 		await test('should return with outdated dependency message', ['--global'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
 		});
 	});
 
@@ -556,7 +615,7 @@ const sum = {
 		await test('should return with outdated dependency message', ['--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --depth 10'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
 		});
 
 		await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
@@ -576,7 +635,7 @@ const sum = {
 		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global --depth 10'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"24 outdated dependencies found:"`', () => assertHasWord(stdout, '24 outdated dependencies found:'));
+			expect('`stdout` should contain `"26 outdated dependencies found:"`', () => assertHasWord(stdout, '26 outdated dependencies found:'));
 
 			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
 			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
@@ -641,11 +700,12 @@ function expect (message, assertion) {
  * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall be part of the `str`.
+ * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  * @returns {void}
  * @throws {assert.AssertionError}
  */
-function assertHasWord (str, word) {
-	if (!hasWord(str, word)) {
+function assertHasWord (str, word, ignoreEscapeSequences = true) {
+	if (!hasWord(str, word, ignoreEscapeSequences)) {
 		throw new assert.AssertionError({
 			message: 'Input A expected to include word input B',
 			actual: str,
@@ -662,11 +722,12 @@ function assertHasWord (str, word) {
  * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall not be part of `str`.
+ * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  * @returns {void}
  * @throws {assert.AssertionError}
  */
-function assertNotHasWord (str, word) {
-	if (hasWord(str, word)) {
+function assertNotHasWord (str, word, ignoreEscapeSequences = true) {
+	if (hasWord(str, word, ignoreEscapeSequences)) {
 		throw new assert.AssertionError({
 			message: 'Input A expected to not include word input B',
 			actual: str,
@@ -680,15 +741,14 @@ function assertNotHasWord (str, word) {
 /**
  * Returns true if the given string contains a specific word, considering word boundaries.
  *
- * ANSI escape sequences for coloring in `str` are ignored.
- *
  * @private
  * @param {string} str - The source string.
  * @param {string} word - A word which shall be part of `str`.
+ * @param {boolean} ignoreEscapeSequences - ANSI escape sequences for coloring in `str` shall be ignored.
  * @returns {boolean} If `str` contains `word`, `true` is returned, otherwise `false`.
  */
-function hasWord (str, word) {
-	return new RegExp(`(^|[^A-Za-z0-9$-_])${escapeRegExp(word)}($|[^A-Za-z0-9$-_])`, 'um').test(str.replace(/\x1b\[.+?m/gu, ''));
+function hasWord (str, word, ignoreEscapeSequences) {
+	return new RegExp(`(^|[^A-Za-z0-9$-_])${escapeRegExp(word)}($|[^A-Za-z0-9$-_])`, 'um').test(ignoreEscapeSequences ? str.replace(/\x1b\[.+?m/gu, '') : str);
 }
 
 /**

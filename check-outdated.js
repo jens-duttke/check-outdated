@@ -278,7 +278,9 @@ async function checkOutdated (argv) {
 
 		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? DEFAULT_COLUMNS : args.columns);
 
-		writeToStdout(visibleColumns, filteredDependencies);
+		writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies);
+
+		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
 	}
 	catch (error) {
 		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((prop) => [colorize.magenta(prop), error[prop]]));
@@ -351,13 +353,12 @@ function help (...additionalLines) {
  * @returns {Dependencies} Array with of the filtered dependency objects.
  */
 function getFilteredDependencies (dependencies, options) {
-	let filteredDependencies = dependencies
-		.filter((dependency) => !['git', 'linked', 'remote'].includes(dependency.latest));
+	let filteredDependencies = dependencies.filter((dependency) => !['git', 'linked', 'remote'].includes(dependency.latest));
 
 	if (options.ignorePackages) {
-		const ignorePackages = options.ignorePackages;
+		const ignore = options.ignorePackages;
 
-		filteredDependencies = filteredDependencies.filter(({ name }) => !ignorePackages.includes(name));
+		filteredDependencies = filteredDependencies.filter(({ name, latest }) => !ignore.includes(name) && !ignore.includes(`${name}@${latest}`));
 	}
 	if (options.ignoreDevDependencies) {
 		filteredDependencies = filteredDependencies.filter(({ type }) => type !== 'devDependencies');
@@ -377,7 +378,7 @@ function getFilteredDependencies (dependencies, options) {
  * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
  * @returns {void}
  */
-function writeToStdout (visibleColumns, dependencies) {
+function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
 	/** @type {Table} */
 	const table = [
 		visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].caption)
@@ -391,4 +392,34 @@ function writeToStdout (visibleColumns, dependencies) {
 	}
 
 	process.stdout.write(`${prettifyTable(table)}\n\n`);
+}
+
+/**
+ * Show information about packages which are ignored by `--ignore-packages` with version number, but where the `latest` version differs.
+ *
+ * Example:
+ * Current "module" version: 1.0.0
+ * Latest "module" version: 1.0.2
+ * --ignore-packages module@1.0.1
+ * In this case, the ignore-statement has no effect, because version 1.0.1 is outdated. That means, the ignore-statement can be removed.
+ *
+ * @param {Dependencies} filteredDependencies
+ * @param {Options} args
+ */
+function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, args) {
+	const packageVersionRegExp = /^(.+?)@(.*)$/u;
+
+	if (args.ignorePackages) {
+		for (const ignoredPackage of args.ignorePackages) {
+			const match = packageVersionRegExp.exec(ignoredPackage);
+
+			if (match !== null) {
+				const dependency = filteredDependencies.find(({ name }) => name === match[1]);
+
+				if (dependency) {
+					process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, because the latest version is ${dependency.latest}.\n\n`);
+				}
+			}
+		}
+	}
 }
