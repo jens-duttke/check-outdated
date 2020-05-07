@@ -339,7 +339,7 @@ const sum = {
 	failed: 0
 };
 
-(async () => {
+void (async () => {
 	await describe('-h / --help arguments', async () => {
 		await test('should show help', ['-h'], {}, (command, exitCode, stdout) => {
 			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
@@ -675,10 +675,12 @@ function expect (message, assertion) {
 		console.log(`      ${colorize.gray(`${errorType}: ${error.message.trim().replace(/\n/gu, '\n      ')}`)}`);
 		console.log();
 
-		if (error.expected && error.actual) {
-			console.log(`      ${colorize.red(`- ${error.expected.replace(/\n/gu, '\n      ')}`)}`);
-			console.log(`      ${colorize.green(`+ ${error.actual.replace(/\n/gu, '\n      ')}`)}`);
-			console.log();
+		if (error instanceof assert.AssertionError) {
+			if (error.expected && error.actual) {
+				console.log(`      ${colorize.red(`- ${error.expected.replace(/\n/gu, '\n      ')}`)}`);
+				console.log(`      ${colorize.green(`+ ${error.actual.replace(/\n/gu, '\n      ')}`)}`);
+				console.log();
+			}
 		}
 
 		console.log(`      ${colorize.gray((Error().stack || '').split('\n').slice(2, 3).join('').trim())}`);
@@ -884,6 +886,7 @@ async function test (title, argv, dependencies, expectedCallback) {
  * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	const write = process.stdout.write;
 
 	/** @type {string[]} */

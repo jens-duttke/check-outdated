@@ -51,56 +51,10 @@ const pkg = require('./package.json');
  * The details change can be used to share data between columns.
  * For example, if the first column reads the package.json, the next column can rely of this data, without to aquire it again.
  *
- * @typedef {{ semverDiff?: [string, string]; packageJSON?: PackageJSON; }} DependencyDetailsCache
+ * @typedef {object} DependencyDetailsCache
+ * @property {[string, string]} [semverDiff]
+ * @property {PackageJSON} [packageJSON]
  */
-
-/** @type {AvailableArguments} */
-const AVAILABLE_ARGUMENTS = {
-	'--help': () => help(),
-	'-h': () => help(),
-	'--ignore-packages': (value) => {
-		const ignorePackages = value.split(',');
-
-		if (ignorePackages.length === 1 && (ignorePackages[0] === '' || ignorePackages[0].startsWith('-'))) {
-			return help('Invalid value of --ignore-packages');
-		}
-
-		return { ignorePackages };
-	},
-	'--columns': (value) => {
-		const columns = value.split(',');
-		const availableColumnsNames = Object.keys(AVAILABLE_COLUMNS);
-
-		if (columns.length === 1 && (columns[0] === '' || columns[0].startsWith('-'))) {
-			return help('Invalid value of --columns');
-		}
-
-		const invalidColumn = columns.find((name) => !availableColumnsNames.includes(name));
-		if (invalidColumn) {
-			return help(`Invalid column name "${invalidColumn}" in --columns\nAvailable columns are:\n${availableColumnsNames.join(', ')}`);
-		}
-
-		return { columns };
-	},
-	'--depth': (value) => {
-		const depth = parseInt(value, 10);
-
-		if (!Number.isFinite(depth)) {
-			return help('Invalid value of --depth');
-		}
-
-		return { depth };
-	},
-	'--ignore-pre-releases': {
-		ignorePreReleases: true
-	},
-	'--ignore-dev-dependencies': {
-		ignoreDevDependencies: true
-	},
-	'--global': {
-		global: true
-	}
-};
 
 const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'changes'];
 
@@ -110,7 +64,7 @@ const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'locatio
  * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => TableColumn | string} getValue
  */
 
-/** @type {{ [columnName: string]: Column; }} */
+/** @type {{ readonly [columnName: string]: Column; }} */
 const AVAILABLE_COLUMNS = {
 	name: {
 		caption: colorize.underline('Package'),
@@ -224,10 +178,58 @@ const AVAILABLE_COLUMNS = {
 	}
 };
 
+/** @type {AvailableArguments} */
+const AVAILABLE_ARGUMENTS = {
+	'--help': () => help(),
+	'-h': () => help(),
+	'--ignore-packages': (value) => {
+		const ignorePackages = value.split(',');
+
+		if (ignorePackages.length === 1 && (ignorePackages[0] === '' || ignorePackages[0].startsWith('-'))) {
+			return help('Invalid value of --ignore-packages');
+		}
+
+		return { ignorePackages };
+	},
+	'--columns': (value) => {
+		const columns = value.split(',');
+		const availableColumnsNames = Object.keys(AVAILABLE_COLUMNS);
+
+		if (columns.length === 1 && (columns[0] === '' || columns[0].startsWith('-'))) {
+			return help('Invalid value of --columns');
+		}
+
+		const invalidColumn = columns.find((name) => !availableColumnsNames.includes(name));
+		if (invalidColumn) {
+			return help(`Invalid column name "${invalidColumn}" in --columns\nAvailable columns are:\n${availableColumnsNames.join(', ')}`);
+		}
+
+		return { columns };
+	},
+	'--depth': (value) => {
+		const depth = parseInt(value, 10);
+
+		if (!Number.isFinite(depth)) {
+			return help('Invalid value of --depth');
+		}
+
+		return { depth };
+	},
+	'--ignore-pre-releases': {
+		ignorePreReleases: true
+	},
+	'--ignore-dev-dependencies': {
+		ignoreDevDependencies: true
+	},
+	'--global': {
+		global: true
+	}
+};
+
 if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
 
-	(async () => {
+	void (async () => {
 		process.exit(await checkOutdated(process.argv.slice(2)));
 	})();
 }
@@ -403,22 +405,25 @@ function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
  * --ignore-packages module@1.0.1
  * In this case, the ignore-statement has no effect, because version 1.0.1 is outdated. That means, the ignore-statement can be removed.
  *
- * @param {Dependencies} filteredDependencies
- * @param {Options} args
+ * @param {Dependencies} filteredDependencies - Array of dependency objects, which will be shown in the terminal.
+ * @param {Options} options - The arguments which the user provided
+ * @returns {void}
  */
-function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, args) {
+function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, options) {
 	const packageVersionRegExp = /^(.+?)@(.*)$/u;
 
-	if (args.ignorePackages) {
-		for (const ignoredPackage of args.ignorePackages) {
-			const match = packageVersionRegExp.exec(ignoredPackage);
+	if (!options.ignorePackages) {
+		return;
+	}
 
-			if (match !== null) {
-				const dependency = filteredDependencies.find(({ name }) => name === match[1]);
+	for (const ignoredPackage of options.ignorePackages) {
+		const match = packageVersionRegExp.exec(ignoredPackage);
 
-				if (dependency) {
-					process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, because the latest version is ${dependency.latest}.\n\n`);
-				}
+		if (match !== null) {
+			const dependency = filteredDependencies.find(({ name }) => name === match[1]);
+
+			if (dependency) {
+				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, because the latest version is ${dependency.latest}.\n\n`);
 			}
 		}
 	}

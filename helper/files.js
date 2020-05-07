@@ -9,16 +9,16 @@ const path = require('path');
  * Structure of the package.json.
  *
  * @typedef {{
- *   homepage?: string;
- *   repository?: string | {
- *     type?: string;
- *     url?: string;
- *     directory?: string
+ *   readonly homepage?: string;
+ *   readonly repository?: string | {
+ *     readonly type?: string;
+ *     readonly url?: string;
+ *     readonly directory?: string
  *   };
- *   author?: string | {
- *     name?: string;
- *     email?: string;
- *     url?: string
+ *   readonly author?: string | {
+ *     readonly name?: string;
+ *     readonly email?: string;
+ *     readonly url?: string
  *   };
  * }} PackageJSON
  */

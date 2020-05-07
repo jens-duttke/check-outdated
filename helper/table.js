@@ -61,8 +61,8 @@ function prettifyTable (table) {
  * Used as `Array.reduce()` callback function to find the longest string per column in a `Table`.
  *
  * @private
- * @param {number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
- * @param {(string | TableColumn)[]} row - A single row containg the columns of a `Table`.
+ * @param {readonly number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
+ * @param {readonly (string | TableColumn)[]} row - A single row containg the columns of a `Table`.
  * @returns {number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
  */
 function colWidthReducer (widths, row) {

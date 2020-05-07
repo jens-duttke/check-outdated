@@ -8,9 +8,9 @@
  * Colorize differences in parts of two semantic version numbers.
  *
  * @public
- * @param {[string, string]} versions - Version numbers to compare.
- * @param {[ColorizeProperty, ColorizeProperty]} equalColorizers - Styles for the first and second version number, for equal parts.
- * @param {[ColorizeProperty, ColorizeProperty]} diffColorizers - Styles for the first and second version number, for unequal parts.
+ * @param {readonly [string, string]} versions - Version numbers to compare.
+ * @param {readonly [ColorizeProperty, ColorizeProperty]} equalColorizers - Styles for the first and second version number, for equal parts.
+ * @param {readonly [ColorizeProperty, ColorizeProperty]} diffColorizers - Styles for the first and second version number, for unequal parts.
  * @returns {[string, string]} The colorized version numbers, in the same order as the input `versions` array.
  */
 function semverDiff (versions, equalColorizers, diffColorizers) {

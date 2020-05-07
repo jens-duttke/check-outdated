@@ -20,7 +20,7 @@ function parseArgs (argv, availableArgs) {
 
 	const unsupportedArgs = argv.filter((arg) => arg.startsWith('-') && !Object.keys(availableArgs).includes(arg));
 	if (unsupportedArgs.length > 0) {
-		throw new Error(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`)
+		throw new Error(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`);
 	}
 
 	for (const [name, value] of Object.entries(availableArgs)) {

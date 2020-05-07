@@ -4,7 +4,11 @@
 
 /** @typedef {import('./files').PackageJSON} PackageJSON */
 
-/** @type {{ regExp: RegExp; getRepositoryURL: (match: string[]) => string; getChangelogURL: (match: string[]) => string; }[]} */
+/** @type {readonly {
+ *   readonly regExp: RegExp;
+ *   readonly getRepositoryURL: (match: readonly string[]) => string;
+ *   readonly getChangelogURL: (match: readonly string[]) => string;
+ * }[]} */
 const REPOSITORY_URLS = [
 	{
 		regExp: /^github:(.+)/u,

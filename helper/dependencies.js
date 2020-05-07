@@ -38,7 +38,7 @@ const childProcess = require('child_process');
  * @param {NpmOptions} options - Options which shall be appened to the `npm outdated` command-line call.
  * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
  */
-function getOutdatedDependencies (options) {
+async function getOutdatedDependencies (options) {
 	return new Promise((resolve, reject) => {
 		childProcess.exec([
 			'npm outdated',
@@ -72,9 +72,7 @@ function getOutdatedDependencies (options) {
 				reject(new Error(errorMessages.join('\n')));
 			}
 
-			prepareResponseObject(response);
-
-			resolve(response);
+			resolve(prepareResponseObject(response));
 		});
 	});
 }
@@ -107,13 +105,19 @@ function validateMandatoryProps (entries) {
  * Adds missing properties to the dependencies object.
  *
  * @private
- * @param {{ [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The outdated dependency object
- * @returns {void}
+ * @param {{ readonly [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The partial filled outdated dependency object
+ * @returns {{ [dependencyName: string]: OutdatedDependency; }} The enriched outdated dependency object
  */
 function prepareResponseObject (dependencies) {
-	for (const name of Object.keys(dependencies)) {
+	/** @type {{ [dependencyName: string]: OutdatedDependency; }} */
+	const outdatedDependencies = {};
+
+	for (const [name, dependency] of Object.entries(dependencies)) {
 		// Adding the name, makes it easier to work with the dependency object.
-		dependencies[name].name = name;
+		const outdatedDependency = {
+			...dependency,
+			name
+		};
 
 		/*
 			Sometimes, npn does returns an empty `location` string. So we add it.
@@ -121,10 +125,14 @@ function prepareResponseObject (dependencies) {
 			@see path.relative(process.cwd(), require.resolve(name));
 			@see module.path
 		*/
-		if (!dependencies[name].location) {
-			dependencies[name].location = `node_modules/${name}`;
+		if (!outdatedDependency.location) {
+			outdatedDependency.location = `node_modules/${name}`;
 		}
+
+		outdatedDependencies[name] = /** @type {OutdatedDependency} */(outdatedDependency);
 	}
+
+	return outdatedDependencies;
 }
 
 /**

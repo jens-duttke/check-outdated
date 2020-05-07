@@ -2,6 +2,8 @@
  * @file Use ANSI escape sequences for coloring terminal output.
  */
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 /**
  * @typedef {(text: string) => string} ColorizeFunction
  */
@@ -33,8 +35,8 @@
 
 /**
  * @typedef {object} ColorizeOptions
- * @property {string} [fgColor]
- * @property {string} [textDecoration]
+ * @property {keyof FOREGROUND_COLORS} [fgColor]
+ * @property {keyof TEXT_DECORATIONS} [textDecoration]
  * @property {boolean} [disabled]
  */
 
@@ -107,14 +109,14 @@ function colorize (options) {
 					}
 				}
 			},
-			...Object.keys(FOREGROUND_COLORS).map((key) => ({
+			.../** @type {(keyof FOREGROUND_COLORS)[]} */(Object.keys(FOREGROUND_COLORS)).map((key) => ({
 				[key]: {
 					get () {
 						return colorize({ ...options, fgColor: key });
 					}
 				}
 			})),
-			...Object.keys(TEXT_DECORATIONS).map((key) => ({
+			.../** @type {(keyof TEXT_DECORATIONS)[]} */(Object.keys(TEXT_DECORATIONS)).map((key) => ({
 				[key]: {
 					get () {
 						return colorize({ ...options, textDecoration: key });
