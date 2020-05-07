@@ -38,7 +38,7 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
  * @public
  * @param {string} v1 - First version.
  * @param {string} v2 - Second version.
- * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined} The type as `string`, or `undefined` on invalid semver formats.
+ * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | undefined} The type as `string`, or `undefined` on same version or invalid semver formats.
  */
 function semverDiffType (v1, v2) {
 	if (v1 === v2) {
