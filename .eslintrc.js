@@ -61,7 +61,7 @@ module.exports =  {
         'jsdoc/match-description': 'error',
 		'jsdoc/newline-after-description': 'error',
 		'jsdoc/no-bad-blocks': 'error',
-		'jsdoc/no-defaults': 'error',
+		'jsdoc/no-defaults': 'off',
         'jsdoc/no-types': 'off',
         'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never'] }],
         'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't seems to work correctly
