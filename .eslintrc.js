@@ -9,6 +9,9 @@ module.exports =  {
 	parserOptions:  {
 		ecmaVersion: 2018,
 		sourceType: 'module',
+		project: [
+			'./jsconfig.json'
+		],
 		warnOnUnsupportedTypeScriptVersion: false
 	},
 	env: {
@@ -35,13 +38,183 @@ module.exports =  {
 		}
 	],
 	rules:  {
-		// Faulty @typescript-eslint Rules (see https://github.com/typescript-eslint/typescript-eslint/issues/906)
-		'@typescript-eslint/explicit-function-return-type': 'off',
+		/**
+		 * @typescript-eslint Rules
+		 * @see https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules
+		 */
+		'@typescript-eslint/adjacent-overload-signatures': 'error',
+		'@typescript-eslint/array-type': 'error',
+		'@typescript-eslint/await-thenable': 'error',
+		'@typescript-eslint/ban-ts-ignore': 'off', // @typescript-eslint/ban-ts-comment
+		'@typescript-eslint/ban-ts-comment': ['error', {
+			'ts-expect-error': false
+		}],
+		'@typescript-eslint/ban-types': ['error', {
+			types: {
+				'Function': null,
+				'JSX.ELement': {
+					message: 'Use React.ReactNode instead.',
+					fixWith: 'React.ReactNode'
+				},
+				'Object': {
+					message: 'Use {} instead.',
+					fixWith: '{}'
+				}
+			}
+		}],
+		'@typescript-eslint/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+		'@typescript-eslint/camelcase': 'error',
+		'@typescript-eslint/class-literal-property-style': 'error',
+		'@typescript-eslint/class-name-casing': 'error',
+		'@typescript-eslint/comma-spacing': 'error',
+		'@typescript-eslint/consistent-type-assertions': 'error',
+		'@typescript-eslint/consistent-type-definitions': 'error',
+		'@typescript-eslint/dot-notation': 'error',
+		'@typescript-eslint/explicit-function-return-type': 'off', // Requires type information (@see https://github.com/typescript-eslint/typescript-eslint/issues/906)
+		'@typescript-eslint/explicit-member-accessibility': 'off', // @todo This function should also consider JSDoc @public/@private, but it doesn't do that yet, so create an ticket.
+		'@typescript-eslint/explicit-module-boundary-types': 'error',
+		'@typescript-eslint/func-call-spacing': 'error',
+		'@typescript-eslint/generic-type-naming': ['error', '^[A-Z][a-zA-Z]*$'],
+		'@typescript-eslint/indent': ['error', 'tab', { SwitchCase: 1, VariableDeclarator: 1, MemberExpression: 1, flatTernaryExpressions: true, ignoredNodes: ['ConditionalExpression'] }],
+		'@typescript-eslint/interface-name-prefix': 'error',
+		'@typescript-eslint/member-delimiter-style': ['error', { multiline: { delimiter: 'semi', requireLast: true }, singleline: { delimiter: 'semi', requireLast: true } }],
+		'@typescript-eslint/member-naming': 'error',
+		'@typescript-eslint/member-ordering': ['error', {
+			default: [
+				// Index signature
+				'signature',
 
-		// Unused @typescript-eslint Rules
-		'@typescript-eslint/indent': 'off',
-		'@typescript-eslint/no-use-before-define': 'off',
-		'@typescript-eslint/no-var-requires': 'off',
+				// Fields
+				'public-static-field',
+				'protected-static-field',
+				'private-static-field',
+
+				"public-decorated-field",
+				"protected-decorated-field",
+				"private-decorated-field",
+
+				'public-instance-field',
+				'protected-instance-field',
+				'private-instance-field',
+
+				'public-abstract-field',
+				'protected-abstract-field',
+				'private-abstract-field',
+
+				// Constructors
+				'public-constructor',
+				'protected-constructor',
+				'private-constructor',
+
+				// Methods
+				"public-decorated-method",
+				'public-instance-method',
+				'public-static-method',
+				'public-abstract-method',
+
+				"protected-decorated-method",
+				'protected-instance-method',
+				'protected-static-method',
+				'protected-abstract-method',
+
+				"private-decorated-method",
+				'private-instance-method',
+				'private-static-method',
+				'private-abstract-method'
+			]
+		}],
+		'@typescript-eslint/method-signature-style': ['error', 'method'],
+		'@typescript-eslint/naming-convention': 'off', // Requires type information
+		'@typescript-eslint/no-array-constructor': 'error',
+		'@typescript-eslint/no-base-to-string': 'error',
+		'@typescript-eslint/no-dupe-class-members': 'error',
+		'@typescript-eslint/no-dynamic-delete': 'error',
+		'@typescript-eslint/no-empty-function': 'error',
+		'@typescript-eslint/no-empty-interface': 'off',
+		'@typescript-eslint/no-explicit-any': 'off',
+		'@typescript-eslint/no-extra-non-null-assertion': 'error',
+		'@typescript-eslint/no-extra-parens': ['off', { nestedBinaryExpressions: true, enforceForArrowConditionals: true }], // @todo There should be a option to enforce parens for IIFs + This has to be activated if all other linting errors are resolved
+		'@typescript-eslint/no-extra-semi': 'error',
+		'@typescript-eslint/no-extraneous-class': 'error',
+		'@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
+		'@typescript-eslint/no-for-in-array': 'error',
+		'@typescript-eslint/no-inferrable-types': 'off',
+		'@typescript-eslint/no-invalid-this': 'error',
+		'@typescript-eslint/no-invalid-void-type': 'off', // @todo Disabled till intersections with `never` are allowed @see https://github.com/typescript-eslint/typescript-eslint/issues/1946
+		'@typescript-eslint/no-magic-numbers': ['error', {
+			ignore: [-1, 0, 1, 2, 3],
+			ignoreArrayIndexes: true,
+			enforceConst: true,
+			detectObjects: true
+		}],
+		'@typescript-eslint/no-misused-new': 'error',
+		'@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
+		'@typescript-eslint/no-namespace': 'error',
+		'@typescript-eslint/no-non-null-assertion': 'error',
+		'@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
+		'@typescript-eslint/no-parameter-properties': 'error',
+		'@typescript-eslint/no-require-imports': 'off', // Requires type information
+		'@typescript-eslint/no-this-alias': 'error',
+		'@typescript-eslint/no-throw-literal': 'off', // @todo Doesn't work with NodeJS assert.AssertionError()
+		'@typescript-eslint/no-type-alias': ['error', {
+			allowAliases: 'always',
+			allowCallbacks: 'always',
+			allowConditionalTypes: 'always',
+			allowConstructors: 'always',
+			allowLiterals: 'in-unions-and-intersections',
+			allowMappedTypes: 'always',
+			allowTupleTypes: 'in-unions-and-intersections'
+		}],
+		'@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+		'@typescript-eslint/no-unnecessary-condition': ['off', { ignoreRhs: true }], // @todo Can't handle JSDoc optional properties correctly
+		'@typescript-eslint/no-unnecessary-qualifier': 'error',
+		'@typescript-eslint/no-unnecessary-type-arguments': 'error',
+		'@typescript-eslint/no-unnecessary-type-assertion': 'error',
+		'@typescript-eslint/no-unsafe-assignment': 'off', // @todo Currently doesn't work with JSDoc. @see https://github.com/typescript-eslint/typescript-eslint/issues/1943
+		'@typescript-eslint/no-unsafe-call': 'off', // @todo Deactivated for now. Activate later
+		'@typescript-eslint/no-unsafe-member-access': 'off', // @todo Deactivated for now. Activate later
+		'@typescript-eslint/no-unsafe-return': 'off', // @todo Currently doesn't work with JSDoc. @see https://github.com/typescript-eslint/typescript-eslint/issues/1943
+		'@typescript-eslint/no-untyped-public-signature': 'off', // This does not allow "any" as type, which may be correct. Additionally, the functionality is catched by restrictive jsconfig.json settings
+		'@typescript-eslint/no-unused-expressions': 'error',
+		'@typescript-eslint/no-unused-vars-experimental': 'error',
+		'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+		'@typescript-eslint/no-use-before-define': ['error', { functions: false }],
+		'@typescript-eslint/no-useless-constructor': 'error',
+		'@typescript-eslint/no-var-requires': 'off', // Requires type information
+		'@typescript-eslint/prefer-as-const': 'error',
+		'@typescript-eslint/prefer-for-of': 'error',
+		'@typescript-eslint/prefer-function-type': 'error',
+		'@typescript-eslint/prefer-includes': 'error',
+		'@typescript-eslint/prefer-namespace-keyword': 'error',
+		'@typescript-eslint/prefer-nullish-coalescing': 'off', // @todo `??` is not yet supported by NodeJS. Remove this like, as soon as it is supported.
+		'@typescript-eslint/prefer-optional-chain': 'error',
+		'@typescript-eslint/prefer-readonly': 'error',
+		'@typescript-eslint/prefer-readonly-parameter-types': 'off', // Doesn't work with JSDoc @property definitions
+		'@typescript-eslint/prefer-reduce-type-parameter': 'error',
+		'@typescript-eslint/prefer-regexp-exec': 'error',
+		'@typescript-eslint/prefer-string-starts-ends-with': 'error',
+		'@typescript-eslint/prefer-ts-expect-error': 'error',
+		'@typescript-eslint/promise-function-async': 'error',
+		'@typescript-eslint/quotes': ['error', 'single', { avoidEscape: true }],
+		'@typescript-eslint/require-array-sort-compare': 'error',
+		'@typescript-eslint/require-await': 'off', // Sometimes a function is marked as async to have a consistent interface with other functions in a class, even if this specific function does not contain async code (yet)
+		'@typescript-eslint/restrict-plus-operands': 'error',
+		'@typescript-eslint/restrict-template-expressions': ['error', {
+			allowAny: true,
+			allowBoolean: true,
+			allowNullable: true,
+			allowNumber: true
+		}],
+		'@typescript-eslint/return-await': 'error',
+		'@typescript-eslint/semi': 'error',
+		'@typescript-eslint/space-before-function-paren': 'error',
+		'@typescript-eslint/strict-boolean-expressions': ['off', { allowNullable: true, allowSafe: true, ignoreRhs: true }], // @todo Disabled for now, may be activated later
+		'@typescript-eslint/switch-exhaustiveness-check': 'error',
+		'@typescript-eslint/triple-slash-reference': 'error',
+		'@typescript-eslint/type-annotation-spacing': 'error',
+		'@typescript-eslint/typedef': 'off', // We are using "noImplicitAny" in tsconfig.json instead
+		'@typescript-eslint/unbound-method': 'error',
+		'@typescript-eslint/unified-signatures': 'error',
 
 		/**
 		 * eslint-plugin-jsdoc Rules
@@ -50,7 +223,7 @@ module.exports =  {
 		'jsdoc/check-access': 'error',
 		'jsdoc/check-alignment': 'error',
         'jsdoc/check-examples': 'off', // @todo need to be configured to allow text-based examples
-        'jsdoc/check-indentation': ['error', { excludeTags: ['typedef'] }],
+        'jsdoc/check-indentation': ['off', { excludeTags: ['typedef'] }], // @todo this doesn't work in all cases
         'jsdoc/check-param-names': 'error',
         'jsdoc/check-syntax': 'error',
         'jsdoc/check-tag-names': 'error',
@@ -138,7 +311,7 @@ module.exports =  {
 		'default-case': 'error',
 		'default-param-last': 'error',
 		'dot-location': ['error', 'property'],
-		'dot-notation': 'error',
+		'dot-notation': 'off', // @typescript-eslint/dot-notation
 		'eqeqeq': 'error',
 		'grouped-accessor-pairs': 'error',
 		'guard-for-in': 'error',
@@ -194,7 +367,7 @@ module.exports =  {
 		'no-useless-concat': 'error',
 		'no-useless-escape': 'error',
 		'no-useless-return': 'error',
-		'no-void': 'error',
+		'no-void': 'off', // Conflicts with @typescript-eslint/no-floating-promises
 		'no-warning-comments': 'error',
 		'no-with': 'error',
 		'prefer-named-capture-group': 'off', // ES2018+, not supported in most browsers yet
@@ -325,7 +498,7 @@ module.exports =  {
 		'space-in-parens': 'error',
 		'space-infix-ops': 'error',
 		'space-unary-ops': 'error',
-		'spaced-comment': ['error', 'always', { markers: ['/'], block: { markers: ['!'], balanced: true } }], // @todo Remove '/' as soon as we use import instead of require()
+		'spaced-comment': ['error', 'always', { markers: ['/'], block: { markers: ['!'], balanced: true } }], // @todo Remove '/' as soon as we use `import` instead of `require()`
 		'switch-colon-spacing': 'error',
 		'template-tag-spacing': 'error',
 		'unicode-bom': 'error',
