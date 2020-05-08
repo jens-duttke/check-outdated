@@ -2,6 +2,8 @@
  * @file Different tests to verify everything works correctly.
  */
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 const assert = require('assert').strict;
 const proxyquire = require('proxyquire').noPreserveCache();
 const tty = require('tty');
