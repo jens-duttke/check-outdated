@@ -424,7 +424,8 @@ void (async () => {
 		await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
 			expect('`stdout` should not contain `"module-prerelease"`', () => assertNotHasWord(stdout, 'module-prerelease'));
 		});
@@ -434,7 +435,8 @@ void (async () => {
 		await test('should return with outdated non-dev-dependency message, ignoring dev-dependencies', ['--ignore-dev-dependencies'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
 			expect('`stdout` should not contain `"module-dev-major"`', () => assertNotHasWord(stdout, 'module-dev-major'));
 		});
@@ -444,7 +446,8 @@ void (async () => {
 		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
 
 			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
 			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
@@ -453,7 +456,8 @@ void (async () => {
 		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"28 outdated dependencies found:"`', () => assertHasWord(stdout, '28 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
 
 			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
 			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
@@ -462,7 +466,8 @@ void (async () => {
 		await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
 			expect('`stdout` should not contain `"module-broken-version"`', () => assertNotHasWord(stdout, 'module-broken-version'));
 		});
@@ -470,7 +475,8 @@ void (async () => {
 		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
 			expect('`stdout` should contain styled `"module-broken-version"`', () => assertHasWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false));
 			expect('`stdout` should contain `The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
@@ -479,7 +485,8 @@ void (async () => {
 		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"29 outdated dependencies found:"`', () => assertHasWord(stdout, '29 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
 			expect('`stdout` should not contain `"@scoped/module-sub-broken-version"`', () => assertNotHasWord(stdout, '@scoped/module-sub-broken-version'));
 		});
@@ -487,7 +494,8 @@ void (async () => {
 		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
 			expect('`stdout` should contain styled `"@scoped/module-sub-broken-version"`', () => assertHasWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false));
 			expect('`stdout` should contain `The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
@@ -504,7 +512,8 @@ void (async () => {
 		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,changes,changesPreferLocal,homepage,npmjs'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
 			expect('`stdout` should contain `"module-major"`', () => assertHasWord(stdout, 'module-major'));
 			expect('`stdout` should contain `"module-minor"`', () => assertHasWord(stdout, 'module-minor'));
@@ -608,7 +617,8 @@ void (async () => {
 		await test('should return with outdated dependency message', ['--global'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 		});
 	});
 
@@ -617,7 +627,8 @@ void (async () => {
 		await test('should return with outdated dependency message', ['--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --depth 10'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"30 outdated dependencies found:"`', () => assertHasWord(stdout, '30 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 		});
 
 		await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
@@ -637,7 +648,8 @@ void (async () => {
 		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
 			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global --depth 10'));
 			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"26 outdated dependencies found:"`', () => assertHasWord(stdout, '26 outdated dependencies found:'));
+
+			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 4);
 
 			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
 			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
@@ -655,6 +667,20 @@ void (async () => {
 	}
 	console.log();
 })();
+
+/**
+ * Assert that only the specified number of dependencies is affected by a test suite.
+ *
+ * @param {string} stdout - The process output.
+ * @param {{ [name: string]: Partial<import('../helper/dependencies').OutdatedDependency>; }} dependencies - The dependencies object.
+ * @param {number} noOfAffectedDependencies - Number of dependencies which are effected by the test suite.
+ * @returns {void}
+ */
+function expecteNoOfAffectedDependencies (stdout, dependencies, noOfAffectedDependencies) {
+	const noOfDependenciesLeft = Object.values(dependencies).filter(({ latest }) => latest && !['git', 'linked', 'remote'].includes(latest)).length - noOfAffectedDependencies;
+
+	expect(`\`stdout\` should contain \`"${noOfDependenciesLeft} outdated dependencies found:"\``, () => assertHasWord(stdout, `${noOfDependenciesLeft} outdated dependencies found:`));
+}
 
 /**
  * Handle a specific test.
