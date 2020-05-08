@@ -164,7 +164,7 @@ void (async () => {
 			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 
 			expectVarToHaveWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false);
-			expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
+			expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, the latest version is 2.3.4.');
 		});
 
 		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
@@ -183,7 +183,7 @@ void (async () => {
 			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 
 			expectVarToHaveWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false);
-			expectVarToHaveWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
+			expectVarToHaveWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, the latest version is 2.3.4.');
 		});
 
 		await test('should return with the help indicating an argument problem', ['--ignore-packages'], mockData.defaultResponse, (command, exitCode, stdout) => {

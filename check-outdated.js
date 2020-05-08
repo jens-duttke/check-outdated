@@ -431,7 +431,7 @@ function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, options)
 			const dependency = filteredDependencies.find(({ name }) => name === match[1]);
 
 			if (dependency) {
-				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, because the latest version is ${dependency.latest}.\n\n`);
+				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, the latest version is ${dependency.latest}.\n\n`);
 			}
 		}
 	}
