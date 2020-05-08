@@ -7,30 +7,19 @@ const proxyquire = require('proxyquire').noPreserveCache();
 
 const colorize = require('./colorize');
 
-/**
- * Used to mock the return response for `fs.existsSync()`.
- *
- * @type {{ [path: string]: boolean; }}
- */
-let EXISTS_MOCK = {};
+/** @typedef {import('../index').MockData} MockData */
 
-/**
- * Used to mock the return value for `fs.readFileSync()`.
- *
- * @type {{ [path: string]: string | import('../../helper/files').PackageJSON; }}
- */
-let READ_FILE_MOCK = {};
+/** @type {MockData | undefined} */
+let mockData;
 
 /**
  * Set the mocks used for simulating `fs` methods return values.
  *
  * @public
- * @param {{ [path: string]: boolean; }} existsMock - Mock data for `fs.exists()`.
- * @param {{ [path: string]: string | import('../../helper/files').PackageJSON; }} readFileMock - Mock data for `fs.readFile()`.
+ * @param {MockData} newMockData - Mock data for `fs.exists()`.
  */
-function setMocks (existsMock, readFileMock) {
-	EXISTS_MOCK = existsMock;
-	READ_FILE_MOCK = readFileMock;
+function setMocks (newMockData) {
+	mockData = newMockData;
 }
 
 /**
@@ -44,10 +33,8 @@ function setMocks (existsMock, readFileMock) {
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
 async function test (title, argv, dependencies, expectedCallback) {
-	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
-
 	console.log();
-	console.log(`  ${JSON.stringify(argv)} ${styledTitle}`);
+	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
 	console.log();
 
 	let usedCommand;
@@ -83,13 +70,15 @@ async function test (title, argv, dependencies, expectedCallback) {
 						throw new TypeError('fs.existsSync(): Mock only support strings as path.');
 					}
 
+					if (mockData === undefined) { return false; }
+
 					const normalizedPath = filePath.replace(/\\/gu, '/');
 
-					if (!(normalizedPath in EXISTS_MOCK)) {
+					if (!(normalizedPath in mockData.fsExists)) {
 						throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`);
 					}
 
-					return EXISTS_MOCK[normalizedPath];
+					return mockData.fsExists[normalizedPath];
 				},
 
 				/**
@@ -108,13 +97,15 @@ async function test (title, argv, dependencies, expectedCallback) {
 						throw new Error('fs.readFileSync(): Mock only support "utf8" encoding.');
 					}
 
+					if (mockData === undefined) { return ''; }
+
 					const normalizedPath = filePath.replace(/\\/gu, '/');
 
-					if (!(normalizedPath in READ_FILE_MOCK)) {
+					if (!(normalizedPath in mockData.fsReadFile)) {
 						throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`);
 					}
 
-					const content = READ_FILE_MOCK[normalizedPath];
+					const content = mockData.fsReadFile[normalizedPath];
 
 					return (typeof content === 'string' ? content : JSON.stringify(content));
 				}
@@ -123,9 +114,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 	});
 
 	const unhookCapture = captureStdout();
-
 	const exitCode = await checkOutdated(argv);
-
 	const stdout = unhookCapture();
 
 	expectedCallback(usedCommand, exitCode, stdout);

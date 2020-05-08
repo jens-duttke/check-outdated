@@ -2,7 +2,7 @@
  * @file Different tests to verify everything works correctly.
  */
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable max-lines-per-function, max-len, @typescript-eslint/no-magic-numbers */
 
 const assert = require('assert').strict;
 
@@ -12,327 +12,16 @@ const { expect, expectNoOfAffectedDependencies, expectVarToEqual, expectVarToHav
 const { setMocks, test } = require('./helper/test');
 
 /**
- * Used to mock the response for `npm outdated`.
- *
- * @type {{ [dependencyName: string]: Partial<import('../check-outdated').OutdatedDependency>; }}
+ * @typedef {object} MockData
+ * @property {{ [dependencyName: string]: Partial<import('../check-outdated').OutdatedDependency>; }} defaultResponse
+ * @property {{ [path: string]: boolean; }} fsExists
+ * @property {{ [path: string]: string | import('../helper/files').PackageJSON; }} fsReadFile
  */
-const DEFAULT_RESPONSE = {
-	'module-major': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-major',
-		type: 'dependencies'
-	},
-	'module-minor': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '1.1.0',
-		location: 'node_modules/module-minor',
-		type: 'dependencies'
-	},
-	'module-patch': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '1.0.1',
-		location: 'node_modules/module-patch',
-		type: 'dependencies'
-	},
-	'module-prerelease': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '1.0.0-alpha.1',
-		location: 'node_modules/module-prelease',
-		type: 'dependencies'
-	},
-	'module-build': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '1.0.0+build',
-		location: 'node_modules/module-build',
-		type: 'dependencies'
-	},
-	'module-sub-version': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '1.0.0.1',
-		location: 'node_modules/module-sub-version',
-		type: 'dependencies'
-	},
-	'module-revert': {
-		current: '1.1.0',
-		wanted: '1.1.0',
-		latest: '1.0.0',
-		location: 'node_modules/module-revert',
-		type: 'dependencies'
-	},
-	'module-broken-version': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.3.4',
-		location: 'node_modules/module-patch',
-		type: 'dependencies'
-	},
-	'@scoped/module-sub-broken-version': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.3.4',
-		location: 'node_modules/module-patch',
-		type: 'dependencies'
-	},
-	'module-non-semver': {
-		current: 'R1',
-		wanted: 'R1',
-		latest: 'R2',
-		location: 'node_modules/module-non-semver',
-		type: 'dependencies'
-	},
-	'module-git': {
-		current: 'git',
-		wanted: 'git',
-		latest: 'git',
-		location: 'node_modules/module-git',
-		type: 'dependencies'
-	},
-	'module-linked': {
-		current: 'linked',
-		wanted: 'linked',
-		latest: 'linked',
-		location: 'node_modules/module-linked',
-		type: 'dependencies'
-	},
-	'module-remote': {
-		current: 'remote',
-		wanted: 'remote',
-		latest: 'remote',
-		location: 'node_modules/module-remote',
-		type: 'dependencies'
-	},
-	'module-diff-wanted': {
-		current: '1.0.0',
-		wanted: '1.1.0',
-		latest: '1.2.0',
-		location: 'node_modules/module-diff-wanted',
-		type: 'dependencies'
-	},
-	'module-dev-major': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-dev-major',
-		type: 'devDependencies'
-	},
-	'module-absolute-unix-path': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: '/home/user/node_modules/module-absolute-unix-path',
-		type: 'dependencies'
-	},
-	'module-absolute-windows-path': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'C:\\Users\\user\\AppData\\Roaming\\npm\\node_modules\\module-absolute-windows-path',
-		type: 'dependencies'
-	},
-	'module-with-homepage': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-homepage',
-		type: 'dependencies',
-		homepage: 'https://www.duttke.de'
-	},
-	'module-with-changelog': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-changelog',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-homepage-and-author': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-homepage-and-author',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-repository-and-author': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-repository-and-author',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-github-repository': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-github-repository',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-github-repository2': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-github-repository2',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-github-repository-string': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-github-repository-string',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-gist-repository-string': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-gist-repository-string',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-bitbucket-repository-string': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-bitbucket-repository-string',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-gitlab-repository-string': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-gitlab-repository-string',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-repository-without-url': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-repository-without-url',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-author': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-author',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-author-without-url': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-author-without-url',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-author-string': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-author-string',
-		type: 'dependencies'
-	},
-	'module-with-package-json-with-homepage-and-repository': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/module-with-package-json-with-homepage-and-repository',
-		type: 'dependencies'
-	},
-	'@scoped/module': {
-		current: '1.0.0',
-		wanted: '1.0.0',
-		latest: '2.0.0',
-		location: 'node_modules/@scoped/module',
-		type: 'dependencies'
-	}
-};
 
-/**
- * Used to mock the return response for `fs.existsSync()`.
- *
- * @type {{ [path: string]: boolean; }}
- */
-const EXISTS_MOCK = {
-	'node_modules/module-with-changelog/CHANGELOG.md': true
-};
-
-/**
- * Used to mock the return value for `fs.readFileSync()`.
- *
- * @type {{ [path: string]: string | import('../helper/files').PackageJSON; }}
- */
-const READ_FILE_MOCK = {
-	'node_modules/module-with-package-json-with-homepage-and-author/package.json': {
-		homepage: 'https://www.duttke.de/#homepage',
-		author: 'Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)'
-	},
-	'node_modules/module-with-package-json-with-repository-and-author/package.json': {
-		repository: {
-			type: 'git',
-			url: 'https://www.duttke.de/#git'
-		},
-		author: 'Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)'
-	},
-	'node_modules/module-with-package-json-with-github-repository/package.json': {
-		repository: {
-			type: 'git',
-			url: 'https://github.com/jens-duttke/check-outdated'
-		}
-	},
-	'node_modules/module-with-package-json-with-github-repository2/package.json': {
-		repository: {
-			type: 'git',
-			url: 'git+https://github.com/jens-duttke/check-outdated.git'
-		}
-	},
-	'node_modules/module-with-package-json-with-github-repository-string/package.json': {
-		repository: 'github:user/repo'
-	},
-	'node_modules/module-with-package-json-with-gist-repository-string/package.json': {
-		repository: 'gist:11081aaa281'
-	},
-	'node_modules/module-with-package-json-with-bitbucket-repository-string/package.json': {
-		repository: 'bitbucket:user/repo'
-	},
-	'node_modules/module-with-package-json-with-gitlab-repository-string/package.json': {
-		repository: 'gitlab:user/repo'
-	},
-	'node_modules/module-with-package-json-with-repository-without-url/package.json': {
-		repository: {
-			type: 'git'
-		}
-	},
-	'node_modules/module-with-package-json-with-author/package.json': {
-		author: {
-			name: 'Jens Duttke',
-			email: 'github@duttke.de',
-			url: 'https://www.duttke.de/#author'
-		}
-	},
-	'node_modules/module-with-package-json-with-author-without-url/package.json': {
-		author: {
-			name: 'Jens Duttke',
-			email: 'github@duttke.de'
-		}
-	},
-	'node_modules/module-with-package-json-with-author-string/package.json': {
-		author: 'Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)'
-	},
-	'node_modules/module-with-package-json-with-homepage-and-repository/package.json': {
-		homepage: 'https://www.duttke.de/#homepage',
-		repository: {
-			type: 'git',
-			url: 'https://www.duttke.de/#git'
-		}
-	}
-};
+const mockData = /** @type {MockData} */(require('./mock-data.json'));
 
 void (async () => {
-	setMocks(EXISTS_MOCK, READ_FILE_MOCK);
+	setMocks(mockData);
 
 	await describe('-h / --help arguments', async () => {
 		await test('should show help', ['-h'], {}, (command, exitCode, stdout) => {
@@ -408,14 +97,14 @@ void (async () => {
 	});
 
 	await describe('Invalid arguments', async () => {
-		await test('should return with an "Unknown argument" message, for a single argument', ['--unknown-argument'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with an "Unknown argument" message, for a single argument', ['--unknown-argument'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
 			expectVarToHaveWord(stdout, 'Unknown argument: --unknown-argument');
 		});
 
-		await test('should return with an "Unknown argument"  message, for multiple arguments', ['--unknown-argument1', '--unknown-argument2'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with an "Unknown argument"  message, for multiple arguments', ['--unknown-argument1', '--unknown-argument2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
@@ -424,87 +113,87 @@ void (async () => {
 	});
 
 	await describe('--ignore-dev-dependencies argument', async () => {
-		await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 			expectVarNotToHaveWord(stdout, 'module-prerelease');
 		});
 	});
 
 	await describe('--ignore-dev-dependencies argument', async () => {
-		await test('should return with outdated non-dev-dependency message, ignoring dev-dependencies', ['--ignore-dev-dependencies'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated non-dev-dependency message, ignoring dev-dependencies', ['--ignore-dev-dependencies'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 			expectVarNotToHaveWord(stdout, 'module-dev-major');
 		});
 	});
 
 	await describe('--ignore-packages argument', async () => {
-		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 2);
 
 			expectVarNotToHaveWord(stdout, 'module-major');
 			expectVarNotToHaveWord(stdout, 'module-minor');
 		});
 
-		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 2);
 
 			expectVarNotToHaveWord(stdout, 'module-major');
 			expectVarNotToHaveWord(stdout, 'module-minor');
 		});
 
-		await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 			expectVarNotToHaveWord(stdout, 'module-broken-version');
 		});
 
-		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 
 			expectVarToHaveWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false);
 			expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
 		});
 
-		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 			expectVarNotToHaveWord(stdout, '@scoped/module-sub-broken-version');
 		});
 
-		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.3'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 
 			expectVarToHaveWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false);
 			expectVarToHaveWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
 		});
 
-		await test('should return with the help indicating an argument problem', ['--ignore-packages'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--ignore-packages'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
@@ -513,11 +202,11 @@ void (async () => {
 	});
 
 	await describe('--columns argument', async () => {
-		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,changes,changesPreferLocal,homepage,npmjs'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,changes,changesPreferLocal,homepage,npmjs'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 
 			expect('`stdout` should contain the correct output', () => assert.equal(
 				stdout.replace(/\x20+(\n|$)/gu, '$1'),
@@ -567,14 +256,14 @@ void (async () => {
 			*/
 		});
 
-		await test('should return with outdated dependency message', ['--columns', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message', ['--columns', 'INVALID'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
 			expectVarToHaveWord(stdout, 'Invalid column name "INVALID" in --columns');
 		});
 
-		await test('should return with the help indicating an argument problem', ['--columns', 'name,INVALID1,INVALID2'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--columns', 'name,INVALID1,INVALID2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
@@ -582,7 +271,7 @@ void (async () => {
 			expectVarNotToHaveWord(stdout, 'Invalid column name "INVALID2" in --columns');
 		});
 
-		await test('should return with the help indicating an argument problem', ['--columns'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--columns'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
@@ -591,31 +280,31 @@ void (async () => {
 	});
 
 	await describe('--global argument', async () => {
-		await test('should return with outdated dependency message', ['--global'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message', ['--global'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false --global');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 		});
 	});
 
 	await describe('--depth argument', async () => {
 		// @todo Improve this test by adding modules with deeper node_modules-structure
-		await test('should return with outdated dependency message', ['--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message', ['--depth', '10'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false --depth 10');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 		});
 
-		await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
 			expectVarToHaveWord(stdout, 'Invalid value of --depth');
 		});
 
-		await test('should return with the help indicating an argument problem', ['--depth'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--depth'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 
@@ -624,11 +313,11 @@ void (async () => {
 	});
 
 	await describe('All arguments', async () => {
-		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false --global --depth 10');
 			expectVarToEqual(exitCode, 1);
 
-			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 4);
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 4);
 
 			expectVarNotToHaveWord(stdout, 'module-major');
 			expectVarNotToHaveWord(stdout, 'module-minor');

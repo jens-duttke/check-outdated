@@ -1,0 +1,304 @@
+{
+	"defaultResponse": {
+		"module-major": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-major",
+			"type": "dependencies"
+		},
+		"module-minor": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "1.1.0",
+			"location": "node_modules/module-minor",
+			"type": "dependencies"
+		},
+		"module-patch": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "1.0.1",
+			"location": "node_modules/module-patch",
+			"type": "dependencies"
+		},
+		"module-prerelease": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "1.0.0-alpha.1",
+			"location": "node_modules/module-prelease",
+			"type": "dependencies"
+		},
+		"module-build": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "1.0.0+build",
+			"location": "node_modules/module-build",
+			"type": "dependencies"
+		},
+		"module-sub-version": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "1.0.0.1",
+			"location": "node_modules/module-sub-version",
+			"type": "dependencies"
+		},
+		"module-revert": {
+			"current": "1.1.0",
+			"wanted": "1.1.0",
+			"latest": "1.0.0",
+			"location": "node_modules/module-revert",
+			"type": "dependencies"
+		},
+		"module-broken-version": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.3.4",
+			"location": "node_modules/module-patch",
+			"type": "dependencies"
+		},
+		"@scoped/module-sub-broken-version": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.3.4",
+			"location": "node_modules/module-patch",
+			"type": "dependencies"
+		},
+		"module-non-semver": {
+			"current": "R1",
+			"wanted": "R1",
+			"latest": "R2",
+			"location": "node_modules/module-non-semver",
+			"type": "dependencies"
+		},
+		"module-git": {
+			"current": "git",
+			"wanted": "git",
+			"latest": "git",
+			"location": "node_modules/module-git",
+			"type": "dependencies"
+		},
+		"module-linked": {
+			"current": "linked",
+			"wanted": "linked",
+			"latest": "linked",
+			"location": "node_modules/module-linked",
+			"type": "dependencies"
+		},
+		"module-remote": {
+			"current": "remote",
+			"wanted": "remote",
+			"latest": "remote",
+			"location": "node_modules/module-remote",
+			"type": "dependencies"
+		},
+		"module-diff-wanted": {
+			"current": "1.0.0",
+			"wanted": "1.1.0",
+			"latest": "1.2.0",
+			"location": "node_modules/module-diff-wanted",
+			"type": "dependencies"
+		},
+		"module-dev-major": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-dev-major",
+			"type": "devDependencies"
+		},
+		"module-absolute-unix-path": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "/home/user/node_modules/module-absolute-unix-path",
+			"type": "dependencies"
+		},
+		"module-absolute-windows-path": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "C:\\Users\\user\\AppData\\Roaming\\npm\\node_modules\\module-absolute-windows-path",
+			"type": "dependencies"
+		},
+		"module-with-homepage": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-homepage",
+			"type": "dependencies",
+			"homepage": "https://www.duttke.de"
+		},
+		"module-with-changelog": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-changelog",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-homepage-and-author": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-homepage-and-author",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-repository-and-author": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-repository-and-author",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-github-repository": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-github-repository",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-github-repository2": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-github-repository2",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-github-repository-string": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-github-repository-string",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-gist-repository-string": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-gist-repository-string",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-bitbucket-repository-string": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-bitbucket-repository-string",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-gitlab-repository-string": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-gitlab-repository-string",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-repository-without-url": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-repository-without-url",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-author": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-author",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-author-without-url": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-author-without-url",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-author-string": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-author-string",
+			"type": "dependencies"
+		},
+		"module-with-package-json-with-homepage-and-repository": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-homepage-and-repository",
+			"type": "dependencies"
+		},
+		"@scoped/module": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/@scoped/module",
+			"type": "dependencies"
+		}
+	},
+	"fsExists": {
+		"node_modules/module-with-changelog/CHANGELOG.md": true
+	},
+	"fsReadFile": {
+		"node_modules/module-with-package-json-with-homepage-and-author/package.json": {
+			"homepage": "https://www.duttke.de/#homepage",
+			"author": "Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)"
+		},
+		"node_modules/module-with-package-json-with-repository-and-author/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://www.duttke.de/#git"
+			},
+			"author": "Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)"
+		},
+		"node_modules/module-with-package-json-with-github-repository/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/jens-duttke/check-outdated"
+			}
+		},
+		"node_modules/module-with-package-json-with-github-repository2/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/jens-duttke/check-outdated.git"
+			}
+		},
+		"node_modules/module-with-package-json-with-github-repository-string/package.json": {
+			"repository": "github:user/repo"
+		},
+		"node_modules/module-with-package-json-with-gist-repository-string/package.json": {
+			"repository": "gist:11081aaa281"
+		},
+		"node_modules/module-with-package-json-with-bitbucket-repository-string/package.json": {
+			"repository": "bitbucket:user/repo"
+		},
+		"node_modules/module-with-package-json-with-gitlab-repository-string/package.json": {
+			"repository": "gitlab:user/repo"
+		},
+		"node_modules/module-with-package-json-with-repository-without-url/package.json": {
+			"repository": {
+				"type": "git"
+			}
+		},
+		"node_modules/module-with-package-json-with-author/package.json": {
+			"author": {
+				"name": "Jens Duttke",
+				"email": "github@duttke.de",
+				"url": "https://www.duttke.de/#author"
+			}
+		},
+		"node_modules/module-with-package-json-with-author-without-url/package.json": {
+			"author": {
+				"name": "Jens Duttke",
+				"email": "github@duttke.de"
+			}
+		},
+		"node_modules/module-with-package-json-with-author-string/package.json": {
+			"author": "Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)"
+		},
+		"node_modules/module-with-package-json-with-homepage-and-repository/package.json": {
+			"homepage": "https://www.duttke.de/#homepage",
+			"repository": {
+				"type": "git",
+				"url": "https://www.duttke.de/#git"
+			}
+		}
+	}
+}
