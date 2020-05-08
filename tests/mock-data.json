@@ -63,6 +63,13 @@
 			"location": "node_modules/module-patch",
 			"type": "dependencies"
 		},
+		"module-no-current-version": {
+			"wanted": "4.0.0",
+			"latest": "4.0.0",
+			"location": "",
+			"type": "dependencies"
+		},
+		"module-without-properties": {},
 		"module-non-semver": {
 			"current": "R1",
 			"wanted": "R1",

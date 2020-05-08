@@ -66,39 +66,9 @@ async function getOutdatedDependencies (options) {
 				reject(new TypeError('npm did not respond with an object.'));
 			}
 
-			const errorMessages = validateMandatoryProps(Object.entries(response));
-
-			if (errorMessages.length > 0) {
-				reject(new Error(errorMessages.join('\n')));
-			}
-
 			resolve(prepareResponseObject(response));
 		});
 	});
-}
-
-/**
- * Returns an array with error messages if one or more entries in a dependency object is missing mandatory properties.
- *
- * @private
- * @param {[string, object][]} entries - Array with subarray containing key/value-pairs.
- * @returns {string[]} An array of error messages.
- */
-function validateMandatoryProps (entries) {
-	/** @type {string[]} */
-	const messages = [];
-
-	for (const [name, dependency] of entries) {
-		const missingProperties = ['current', 'wanted', 'latest'].filter((propName) => !(propName in dependency));
-
-		if (missingProperties.length > 0) {
-			const propertyPluralisation = (missingProperties.length === 1 ? 'y' : 'ies');
-
-			messages.push(`Missing propert${propertyPluralisation} "${missingProperties.join('", "')}" in response for dependency "${name}".`);
-		}
-	}
-
-	return messages;
 }
 
 /**
@@ -119,9 +89,15 @@ function prepareResponseObject (dependencies) {
 			name
 		};
 
+		for (const propName of ['current', 'wanted', 'latest', 'type']) {
+			if (!(propName in outdatedDependency)) {
+				outdatedDependency[propName] = '';
+			}
+		}
+
 		/*
-			Sometimes, npn does returns an empty `location` string. So we add it.
-			@todo We should try to resolve the path on the same way as npm do it
+			Sometimes, npm returns an empty `location` string. So we add it.
+			@todo We should try to resolve the path on the same way as npm is doing it
 			@see path.relative(process.cwd(), require.resolve(name));
 			@see module.path
 		*/

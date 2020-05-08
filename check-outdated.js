@@ -76,6 +76,13 @@ const AVAILABLE_COLUMNS = {
 			alignRight: true
 		},
 		getValue: (dependency, detailsCache) => {
+			if (dependency.current === '') {
+				return {
+					text: colorize.gray('unknown'),
+					alignRight: true
+				};
+			}
+
 			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
 				[dependency.current, dependency.latest],
 				[colorize, colorize.magenta],

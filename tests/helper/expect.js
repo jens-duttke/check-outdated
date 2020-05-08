@@ -78,7 +78,7 @@ function expect (message, assertion) {
  */
 function expectNoOfAffectedDependencies (stdout, dependencies, noOfAffectedDependencies) {
 	const dependencyValues = Object.values(dependencies);
-	const noOfDepsLeft = dependencyValues.filter(({ latest }) => latest && !['git', 'linked', 'remote'].includes(latest)).length - noOfAffectedDependencies;
+	const noOfDepsLeft = dependencyValues.filter(({ latest }) => !latest || !['git', 'linked', 'remote'].includes(latest)).length - noOfAffectedDependencies;
 
 	expect(
 		`\`stdout\` should contain \`"${noOfDepsLeft} outdated dependencies found:"\``,
