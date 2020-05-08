@@ -32,13 +32,7 @@ module.exports =  {
 				'@typescript-eslint/camelcase': ['error', { allow: ['child_process'] }],
 
 				// Possible Errors
-				'no-console': 'off',
-
-				// Stylistic Issues
-				'max-len': 'off',
-				'max-lines': 'off',
-				'max-lines-per-function': 'off',
-				'max-statements': 'off'
+				'no-console': 'off'
 			}
 		}
 	],

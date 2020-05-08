@@ -106,7 +106,10 @@ function expectVarToEqual (variable, value) {
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  */
 function expectVarToHaveWord (variable, value, ignoreEscapeSequences) {
-	expect(`\`${getFirstArgument()}\` should contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``, () => assertHasWord(variable, value, ignoreEscapeSequences));
+	expect(
+		`\`${getFirstArgument()}\` should contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``,
+		() => assertHasWord(variable, value, ignoreEscapeSequences)
+	);
 }
 
 /**
@@ -118,7 +121,10 @@ function expectVarToHaveWord (variable, value, ignoreEscapeSequences) {
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  */
 function expectVarNotToHaveWord (variable, value, ignoreEscapeSequences = true) {
-	expect(`\`${getFirstArgument()}\` should not contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``, () => assertNotHasWord(variable, value, ignoreEscapeSequences));
+	expect(
+		`\`${getFirstArgument()}\` should not contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``,
+		() => assertNotHasWord(variable, value, ignoreEscapeSequences)
+	);
 }
 
 /**
