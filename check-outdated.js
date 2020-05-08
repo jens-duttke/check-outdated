@@ -405,6 +405,7 @@ function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
  * --ignore-packages module@1.0.1
  * In this case, the ignore-statement has no effect, because version 1.0.1 is outdated. That means, the ignore-statement can be removed.
  *
+ * @private
  * @param {Dependencies} filteredDependencies - Array of dependency objects, which will be shown in the terminal.
  * @param {Options} options - The arguments which the user provided
  * @returns {void}

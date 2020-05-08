@@ -14,6 +14,11 @@ module.exports =  {
 		],
 		warnOnUnsupportedTypeScriptVersion: false
 	},
+	settings: {
+		jsdoc: {
+			mode: 'typescript'
+		}
+	},
 	env: {
 		node: true,
 		es6: true
@@ -21,7 +26,7 @@ module.exports =  {
 	reportUnusedDisableDirectives: true,
 	overrides: [
 		{
-			files: ['tests/*.js'],
+			files: ['tests/**/*.js'],
 			rules: {
 				// @typescript-eslint Rules
 				'@typescript-eslint/camelcase': ['error', { allow: ['child_process'] }],

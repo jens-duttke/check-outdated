@@ -5,16 +5,11 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 const assert = require('assert').strict;
-const proxyquire = require('proxyquire').noPreserveCache();
-const tty = require('tty');
 
-let colorize = require('../helper/colorize');
-
-const isTerminal = tty.isatty(1);
-
-if (!isTerminal) {
-	colorize = colorize.disabled;
-}
+const colorize = require('./helper/colorize');
+const { describe } = require('./helper/describe');
+const { expect, expectNoOfAffectedDependencies, expectVarToEqual, expectVarToHaveWord, expectVarNotToHaveWord, getExpectResult } = require('./helper/expect');
+const { setMocks, test } = require('./helper/test');
 
 /**
  * Used to mock the response for `npm outdated`.
@@ -336,217 +331,195 @@ const READ_FILE_MOCK = {
 	}
 };
 
-const sum = {
-	passed: 0,
-	failed: 0
-};
-
 void (async () => {
+	setMocks(EXISTS_MOCK, READ_FILE_MOCK);
+
 	await describe('-h / --help arguments', async () => {
 		await test('should show help', ['-h'], {}, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Arguments:"`', () => assertHasWord(stdout, 'Arguments:'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Arguments:');
 		});
 
 		await test('should show help', ['--help'], {}, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Arguments:"`', () => assertHasWord(stdout, 'Arguments:'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Arguments:');
 		});
 	});
 
 	await describe('Invalid npm response', async () => {
 		await test('should catch npm error', [], { error: { code: 'TEST', summary: 'Test error' } }, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain the correct response', () => assert.equal(stdout, '\u001b[31mError while gathering outdated dependencies:\u001b[39m\n\n\u001b[35mcode\u001b[39m TEST\n\u001b[35msummary\u001b[39m Test error\n'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expect('`stdout` should contain the correct output', () => assert.equal(stdout, '\u001b[31mError while gathering outdated dependencies:\u001b[39m\n\n\u001b[35mcode\u001b[39m TEST\n\u001b[35msummary\u001b[39m Test error\n'));
 		});
 
 		await test('should catch JSON.parse() error', [], '{ "Incomplete JSON response', (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-			expect('`stdout` should contain `"Unexpected end of JSON input"`', () => assertHasWord(stdout, 'Unexpected end of JSON input'));
-			expect('`stdout` should contain `"{ "Incomplete JSON response"`', () => assertHasWord(stdout, '{ "Incomplete JSON response'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
+			expectVarToHaveWord(stdout, 'Unexpected end of JSON input');
+			expectVarToHaveWord(stdout, '{ "Incomplete JSON response');
 		});
 
 		await test('should throw "Unexpected JSON response" error for string response', [], '"string"', (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-			expect('`stdout` should contain `"Unexpected JSON response"`', () => assertHasWord(stdout, 'Unexpected JSON response'));
-			expect('`stdout` should contain `""string""`', () => assertHasWord(stdout, '"string"'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
+			expectVarToHaveWord(stdout, 'Unexpected JSON response');
+			expectVarToHaveWord(stdout, '"string"');
 		});
 
 		await test('should catch "Unexpected JSON response" error for null response', [], 'null', (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Error while gathering outdated dependencies:"`', () => assertHasWord(stdout, 'Error while gathering outdated dependencies:'));
-			expect('`stdout` should contain `"Unexpected JSON response"`', () => assertHasWord(stdout, 'Unexpected JSON response'));
-			expect('`stdout` should contain `null`', () => assertHasWord(stdout, 'null'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
+			expectVarToHaveWord(stdout, 'Unexpected JSON response');
+			expectVarToHaveWord(stdout, 'null');
 		});
 
 		await test('should return without outdated dependency message for empty response', [], '', (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `0`', () => assert.equal(exitCode, 0));
-			expect('`stdout` should be `"All dependencies are up-to-date.\n"`', () => assert.equal(stdout, 'All dependencies are up-to-date.\n'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 0);
+
+			expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
 		});
 
 		await test('should return without outdated dependency message for empty object response', [], {}, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `0`', () => assert.equal(exitCode, 0));
-			expect('`stdout` should be `"All dependencies are up-to-date.\n"`', () => assert.equal(stdout, 'All dependencies are up-to-date.\n'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 0);
+
+			expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
 		});
 
 		await test('should return with missing properties message', [], { 'missing-properties': {} }, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Missing properties "current", "wanted", "latest" in response for dependency "missing-properties"."`', () => assertHasWord(stdout, 'Missing properties "current", "wanted", "latest" in response for dependency "missing-properties".'));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Missing properties "current", "wanted", "latest" in response for dependency "missing-properties".');
 		});
 	});
 
 	await describe('Invalid arguments', async () => {
 		await test('should return with an "Unknown argument" message, for a single argument', ['--unknown-argument'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Unknown argument: --unknown-argument"`', () => assertHasWord(stdout, 'Unknown argument: --unknown-argument'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Unknown argument: --unknown-argument');
 		});
 
 		await test('should return with an "Unknown argument"  message, for multiple arguments', ['--unknown-argument1', '--unknown-argument2'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Unknown arguments: --unknown-argument1, --unknown-argument2"`', () => assertHasWord(stdout, 'Unknown arguments: --unknown-argument1, --unknown-argument2'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Unknown arguments: --unknown-argument1, --unknown-argument2');
 		});
 	});
 
 	await describe('--ignore-dev-dependencies argument', async () => {
 		await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
-			expect('`stdout` should not contain `"module-prerelease"`', () => assertNotHasWord(stdout, 'module-prerelease'));
+			expectVarNotToHaveWord(stdout, 'module-prerelease');
 		});
 	});
 
 	await describe('--ignore-dev-dependencies argument', async () => {
 		await test('should return with outdated non-dev-dependency message, ignoring dev-dependencies', ['--ignore-dev-dependencies'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
-			expect('`stdout` should not contain `"module-dev-major"`', () => assertNotHasWord(stdout, 'module-dev-major'));
+			expectVarNotToHaveWord(stdout, 'module-dev-major');
 		});
 	});
 
 	await describe('--ignore-packages argument', async () => {
 		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
 
-			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
-			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
+			expectVarNotToHaveWord(stdout, 'module-major');
+			expectVarNotToHaveWord(stdout, 'module-minor');
 		});
 
 		await test('should return with outdated dependency message, ignoring package `"module-major"` and `"module-minor"`', ['--ignore-packages', 'module-major,module-minor'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 2);
 
-			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
-			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
+			expectVarNotToHaveWord(stdout, 'module-major');
+			expectVarNotToHaveWord(stdout, 'module-minor');
 		});
 
 		await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
-			expect('`stdout` should not contain `"module-broken-version"`', () => assertNotHasWord(stdout, 'module-broken-version'));
+			expectVarNotToHaveWord(stdout, 'module-broken-version');
 		});
 
 		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
-			expect('`stdout` should contain styled `"module-broken-version"`', () => assertHasWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false));
-			expect('`stdout` should contain `The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
+			expectVarToHaveWord(stdout, '\u001b[33mmodule-broken-version\u001b[39m', false);
+			expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
 		});
 
 		await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 1);
 
-			expect('`stdout` should not contain `"@scoped/module-sub-broken-version"`', () => assertNotHasWord(stdout, '@scoped/module-sub-broken-version'));
+			expectVarNotToHaveWord(stdout, '@scoped/module-sub-broken-version');
 		});
 
 		await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.3'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
-			expect('`stdout` should contain styled `"@scoped/module-sub-broken-version"`', () => assertHasWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false));
-			expect('`stdout` should contain `The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.`', () => assertHasWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.'));
+			expectVarToHaveWord(stdout, '\u001b[33m@scoped/module-sub-broken-version\u001b[39m', false);
+			expectVarToHaveWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, because the latest version is 2.3.4.');
 		});
 
 		await test('should return with the help indicating an argument problem', ['--ignore-packages'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --ignore-packages"`', () => assertHasWord(stdout, 'Invalid value of --ignore-packages'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid value of --ignore-packages');
 		});
 	});
 
 	await describe('--columns argument', async () => {
 		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,changes,changesPreferLocal,homepage,npmjs'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 
-			expect('`stdout` should contain `"module-major"`', () => assertHasWord(stdout, 'module-major'));
-			expect('`stdout` should contain `"module-minor"`', () => assertHasWord(stdout, 'module-minor'));
-			expect('`stdout` should contain `"module-patch"`', () => assertHasWord(stdout, 'module-patch'));
-			expect('`stdout` should contain `"module-prerelease"`', () => assertHasWord(stdout, 'module-prerelease'));
-			expect('`stdout` should contain `"module-build"`', () => assertHasWord(stdout, 'module-build'));
-			expect('`stdout` should contain `"module-sub-version"`', () => assertHasWord(stdout, 'module-sub-version'));
-			expect('`stdout` should contain `"module-revert"`', () => assertHasWord(stdout, 'module-revert'));
-			expect('`stdout` should contain `"module-non-semver"`', () => assertHasWord(stdout, 'module-non-semver'));
-			expect('`stdout` should not contain `"module-git"`', () => assertNotHasWord(stdout, 'module-git'));
-			expect('`stdout` should not contain `"module-linked"`', () => assertNotHasWord(stdout, 'module-linked'));
-			expect('`stdout` should not contain `"module-remote"`', () => assertNotHasWord(stdout, 'module-remote'));
-			expect('`stdout` should contain `"module-diff-wanted"`', () => assertHasWord(stdout, 'module-diff-wanted'));
-			expect('`stdout` should contain `"module-dev-major"`', () => assertHasWord(stdout, 'module-dev-major'));
-			expect('`stdout` should contain `"module-absolute-unix-path"`', () => assertHasWord(stdout, 'module-absolute-unix-path'));
-			expect('`stdout` should contain `"module-absolute-windows-path"`', () => assertHasWord(stdout, 'module-absolute-windows-path'));
-			expect('`stdout` should contain `"module-with-changelog"`', () => assertHasWord(stdout, 'module-with-changelog'));
-			expect('`stdout` should contain `"module-with-package-json-with-homepage-and-author"`', () => assertHasWord(stdout, 'module-with-package-json-with-homepage-and-author'));
-			expect('`stdout` should contain `"module-with-package-json-with-repository-and-author"`', () => assertHasWord(stdout, 'module-with-package-json-with-repository-and-author'));
-			expect('`stdout` should contain `"module-with-package-json-with-github-repository"`', () => assertHasWord(stdout, 'module-with-package-json-with-github-repository'));
-			expect('`stdout` should contain `"module-with-package-json-with-github-repository2"`', () => assertHasWord(stdout, 'module-with-package-json-with-github-repository2'));
-			expect('`stdout` should contain `"module-with-package-json-with-github-repository-string"`', () => assertHasWord(stdout, 'module-with-package-json-with-github-repository-string'));
-			expect('`stdout` should contain `"module-with-package-json-with-gist-repository-string"`', () => assertHasWord(stdout, 'module-with-package-json-with-gist-repository-string'));
-			expect('`stdout` should contain `"module-with-package-json-with-bitbucket-repository-string"`', () => assertHasWord(stdout, 'module-with-package-json-with-bitbucket-repository-string'));
-			expect('`stdout` should contain `"module-with-package-json-with-gitlab-repository-string"`', () => assertHasWord(stdout, 'module-with-package-json-with-gitlab-repository-string'));
-			expect('`stdout` should contain `"module-with-package-json-with-repository-without-url"`', () => assertHasWord(stdout, 'module-with-package-json-with-repository-without-url'));
-			expect('`stdout` should contain `"module-with-package-json-with-author"`', () => assertHasWord(stdout, 'module-with-package-json-with-author'));
-			expect('`stdout` should contain `"module-with-package-json-with-author-without-url"`', () => assertHasWord(stdout, 'module-with-package-json-with-author-without-url'));
-			expect('`stdout` should contain `"module-with-package-json-with-author-string"`', () => assertHasWord(stdout, 'module-with-package-json-with-author-string'));
-			expect('`stdout` should contain `"module-with-package-json-with-homepage-and-repository"`', () => assertHasWord(stdout, 'module-with-package-json-with-homepage-and-repository'));
-			expect('`stdout` should contain `"@scoped/module"`', () => assertHasWord(stdout, '@scoped/module'));
-
-			expect('`stdout` should contain the correct response', () => assert.equal(
+			expect('`stdout` should contain the correct output', () => assert.equal(
 				stdout.replace(/\x20+(\n|$)/gu, '$1'),
 				[
 					'30 outdated dependencies found:',
@@ -595,68 +568,76 @@ void (async () => {
 		});
 
 		await test('should return with outdated dependency message', ['--columns', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --depth"`', () => assertHasWord(stdout, 'Invalid column name "INVALID" in --columns'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid column name "INVALID" in --columns');
 		});
 
 		await test('should return with the help indicating an argument problem', ['--columns', 'name,INVALID1,INVALID2'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --depth"`', () => assertHasWord(stdout, 'Invalid column name "INVALID1" in --columns'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid column name "INVALID1" in --columns');
+			expectVarNotToHaveWord(stdout, 'Invalid column name "INVALID2" in --columns');
 		});
 
 		await test('should return with the help indicating an argument problem', ['--columns'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --depth"`', () => assertHasWord(stdout, 'Invalid value of --columns'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid value of --columns');
 		});
 	});
 
 	await describe('--global argument', async () => {
 		await test('should return with outdated dependency message', ['--global'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false --global');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 		});
 	});
 
 	await describe('--depth argument', async () => {
 		// @todo Improve this test by adding modules with deeper node_modules-structure
 		await test('should return with outdated dependency message', ['--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --depth 10'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false --depth 10');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 0);
 		});
 
 		await test('should return with the help indicating an argument problem', ['--depth', 'INVALID'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --depth"`', () => assertHasWord(stdout, 'Invalid value of --depth'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid value of --depth');
 		});
 
 		await test('should return with the help indicating an argument problem', ['--depth'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `undefined`', () => assert.equal(command, undefined));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
-			expect('`stdout` should contain `"Invalid value of --depth"`', () => assertHasWord(stdout, 'Invalid value of --depth'));
+			expectVarToEqual(command, undefined);
+			expectVarToEqual(exitCode, 1);
+
+			expectVarToHaveWord(stdout, 'Invalid value of --depth');
 		});
 	});
 
 	await describe('All arguments', async () => {
 		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], DEFAULT_RESPONSE, (command, exitCode, stdout) => {
-			expect('`command` should be `"npm outdated --json --long --save false"`', () => assert.equal(command, 'npm outdated --json --long --save false --global --depth 10'));
-			expect('`exitCode` should be `1`', () => assert.equal(exitCode, 1));
+			expectVarToEqual(command, 'npm outdated --json --long --save false --global --depth 10');
+			expectVarToEqual(exitCode, 1);
 
-			expecteNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 4);
+			expectNoOfAffectedDependencies(stdout, DEFAULT_RESPONSE, 4);
 
-			expect('`stdout` should not contain `"module-major"`', () => assertNotHasWord(stdout, 'module-major'));
-			expect('`stdout` should not contain `"module-minor"`', () => assertNotHasWord(stdout, 'module-minor'));
-			expect('`stdout` should not contain `"module-prerelease"`', () => assertNotHasWord(stdout, 'module-prerelease'));
-			expect('`stdout` should not contain `"module-dev-major"`', () => assertNotHasWord(stdout, 'module-dev-major'));
+			expectVarNotToHaveWord(stdout, 'module-major');
+			expectVarNotToHaveWord(stdout, 'module-minor');
+			expectVarNotToHaveWord(stdout, 'module-prerelease');
+			expectVarNotToHaveWord(stdout, 'module-dev-major');
 		});
 	});
+
+	const sum = getExpectResult();
 
 	console.log();
 	console.log(colorize.green(`${sum.passed} passed`));
@@ -667,268 +648,3 @@ void (async () => {
 	}
 	console.log();
 })();
-
-/**
- * Assert that only the specified number of dependencies is affected by a test suite.
- *
- * @param {string} stdout - The process output.
- * @param {{ [name: string]: Partial<import('../helper/dependencies').OutdatedDependency>; }} dependencies - The dependencies object.
- * @param {number} noOfAffectedDependencies - Number of dependencies which are effected by the test suite.
- * @returns {void}
- */
-function expecteNoOfAffectedDependencies (stdout, dependencies, noOfAffectedDependencies) {
-	const noOfDependenciesLeft = Object.values(dependencies).filter(({ latest }) => latest && !['git', 'linked', 'remote'].includes(latest)).length - noOfAffectedDependencies;
-
-	expect(`\`stdout\` should contain \`"${noOfDependenciesLeft} outdated dependencies found:"\``, () => assertHasWord(stdout, `${noOfDependenciesLeft} outdated dependencies found:`));
-}
-
-/**
- * Handle a specific test.
- *
- * @private
- * @param {string} message - The message which shall be shown if an assertion fails.
- * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
- */
-function expect (message, assertion) {
-	const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
-
-	try {
-		assertion();
-	}
-	catch (error) {
-		const errorType = (error instanceof assert.AssertionError ? 'Test failed' : 'Error in code');
-
-		console.log(`    ${colorize.red(`× ${styledMessage}`)}`);
-		console.log();
-		console.log(`      ${colorize.gray(`${errorType}: ${error.message.trim().replace(/\n/gu, '\n      ')}`)}`);
-		console.log();
-
-		if (error instanceof assert.AssertionError) {
-			if (error.expected && error.actual) {
-				console.log(`      ${colorize.red(`- ${error.expected.replace(/\n/gu, '\n      ')}`)}`);
-				console.log(`      ${colorize.green(`+ ${error.actual.replace(/\n/gu, '\n      ')}`)}`);
-				console.log();
-			}
-		}
-
-		console.log(`      ${colorize.gray((Error().stack || '').split('\n').slice(2, 3).join('').trim())}`);
-		console.log();
-
-		sum.failed++;
-
-		return;
-	}
-
-	console.log(`    ${colorize.green('√')} ${colorize.gray(styledMessage)}`);
-
-	sum.passed++;
-}
-
-/**
- * Assert that a string contains a specific word, considering word boundaries.
- *
- * @private
- * @param {string} str - The source string.
- * @param {string} word - A word which shall be part of the `str`.
- * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
- * @returns {void}
- * @throws {assert.AssertionError}
- */
-function assertHasWord (str, word, ignoreEscapeSequences = true) {
-	if (!hasWord(str, word, ignoreEscapeSequences)) {
-		throw new assert.AssertionError({
-			message: 'Input A expected to include word input B',
-			actual: str,
-			expected: word,
-			operator: 'assertHasWord',
-			stackStartFn: assertHasWord
-		});
-	}
-}
-
-/**
- * Assert that a string does not contains a specific word, considering word boundaries.
- *
- * @private
- * @param {string} str - The source string.
- * @param {string} word - A word which shall not be part of `str`.
- * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
- * @returns {void}
- * @throws {assert.AssertionError}
- */
-function assertNotHasWord (str, word, ignoreEscapeSequences = true) {
-	if (hasWord(str, word, ignoreEscapeSequences)) {
-		throw new assert.AssertionError({
-			message: 'Input A expected to not include word input B',
-			actual: str,
-			expected: word,
-			operator: 'assertNotHasWord',
-			stackStartFn: assertNotHasWord
-		});
-	}
-}
-
-/**
- * Returns true if the given string contains a specific word, considering word boundaries.
- *
- * @private
- * @param {string} str - The source string.
- * @param {string} word - A word which shall be part of `str`.
- * @param {boolean} ignoreEscapeSequences - ANSI escape sequences for coloring in `str` shall be ignored.
- * @returns {boolean} If `str` contains `word`, `true` is returned, otherwise `false`.
- */
-function hasWord (str, word, ignoreEscapeSequences) {
-	return new RegExp(`(^|[^A-Za-z0-9$-_])${escapeRegExp(word)}($|[^A-Za-z0-9$-_])`, 'um').test(ignoreEscapeSequences ? str.replace(/\x1b\[.+?m/gu, '') : str);
-}
-
-/**
- * Escape string to use it as part of a RegExp pattern.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
- *
- * @private
- * @param {string} str - The source string.
- * @returns {string} The escaped string.
- */
-function escapeRegExp (str) {
-	return str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-}
-
-/**
- * Wrapper to group related test cases.
- *
- * @param {string} title - The title of the group of tests.
- * @param {() => Promise<void>} tests - The function which contains the different test suites.
- * @returns {Promise<void>} The Promise is resolved with `void` as soon as all test suites are finished.
- */
-async function describe (title, tests) {
-	console.log();
-	console.log(`${colorize.cyan(title.replace(/`(.+?)`/gu, colorize.underline('$1')))}`);
-	console.log();
-
-	await tests();
-}
-
-/**
- * Create a test suite to test a specific "check-outdated" call.
- *
- * @private
- * @param {string} title - The title of the test suite.
- * @param {string[]} argv - Arguments which are used for the `check-outdated` call.
- * @param {any} dependencies - Mock of the `npm outdated --json` response.
- * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
- * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
- */
-async function test (title, argv, dependencies, expectedCallback) {
-	const styledTitle = title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
-
-	console.log();
-	console.log(`  ${JSON.stringify(argv)} ${styledTitle}`);
-	console.log();
-
-	let usedCommand;
-
-	/** @type {import('../check-outdated')} */
-	const checkOutdated = proxyquire('../check-outdated', {
-		'./helper/dependencies': proxyquire('../helper/dependencies', {
-			child_process: {
-				/**
-				 * Mock of the child_process.exec() function, which is used by `check-outdated` to call `npm outdated`.
-				 *
-				 * @param {string} command - The command to run.
-				 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback - Called with the output when process terminates.
-				 * @returns {void}
-				 */
-				exec (command, callback) {
-					usedCommand = command;
-
-					callback(null, (typeof dependencies === 'string' ? dependencies : JSON.stringify(dependencies)), '');
-				}
-			}
-		}),
-		'./helper/files': proxyquire('../helper/files', {
-			fs: {
-				/**
-				 * Mock of the fs.existsSync() function, which is used by `check-outdated` to figure out of CHANGELOG.md in the package folder exists.
-				 *
-				 * @param {string | Buffer | URL} path - Filename or file descriptor.
-				 * @returns {boolean} Returns true if the path exists, false otherwise.
-				 */
-				existsSync (path) {
-					if (typeof path !== 'string') {
-						throw new TypeError('fs.existsSync(): Mock only support strings as path.');
-					}
-
-					const normalizedPath = path.replace(/\\/gu, '/');
-
-					if (!(normalizedPath in EXISTS_MOCK)) {
-						throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`);
-					}
-
-					return EXISTS_MOCK[normalizedPath];
-				},
-
-				/**
-				 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files of dependencies.
-				 *
-				 * @param {string | Buffer | URL | number} path - Filename or file descriptor.
-				 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
-				 * @returns {string | Buffer} Returns the contents of the `path`.
-				 */
-				readFileSync (path, options) {
-					if (typeof path !== 'string') {
-						throw new TypeError('fs.readFileSync(): Mock only support strings as path.');
-					}
-
-					if (options !== 'utf8') {
-						throw new Error('fs.readFileSync(): Mock only support "utf8" encoding.');
-					}
-
-					const normalizedPath = path.replace(/\\/gu, '/');
-
-					if (!(normalizedPath in READ_FILE_MOCK)) {
-						throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`);
-					}
-
-					const content = READ_FILE_MOCK[normalizedPath];
-
-					return (typeof content === 'string' ? content : JSON.stringify(content));
-				}
-			}
-		})
-	});
-
-	const unhookCapture = captureStdout();
-
-	const exitCode = await checkOutdated(argv);
-
-	const stdout = unhookCapture();
-
-	expectedCallback(usedCommand, exitCode, stdout);
-}
-
-/**
- * Start capturing the output to process.stdout.
- *
- * @private
- * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
- */
-function captureStdout () {
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	const write = process.stdout.write;
-
-	/** @type {string[]} */
-	const data = [];
-
-	process.stdout.write = (/** @type {string | Uint8Array} */ buffer) => {
-		data.push(buffer.toString());
-
-		return false;
-	};
-
-	return () => {
-		process.stdout.write = write;
-
-		return data.join('');
-	};
-}
