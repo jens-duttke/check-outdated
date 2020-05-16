@@ -11,8 +11,9 @@
 const parseArgs = require('./helper/args');
 const colorize = require('./helper/colorize');
 const getOutdatedDependencies = require('./helper/dependencies');
-const { getChangelogPath, getPackageJSON } = require('./helper/files');
+const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
+const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
 const { getNpmJSLink, getPackageAuthor, getPackageHomepage, getPackageRepository } = require('./helper/urls');
@@ -56,13 +57,16 @@ const pkg = require('./package.json');
  * @property {PackageJSON} [packageJSON]
  */
 
-const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'changes'];
+const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'location', 'packageType', 'reference', 'changes'];
 
 /**
  * @typedef {object} Column
  * @property {TableColumn | string} caption;
  * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => TableColumn | string} getValue
  */
+
+/** @type {{ [filePath: string]: string }} */
+const packageJsonCache = {};
 
 /** @type {{ readonly [columnName: string]: Column; }} */
 const AVAILABLE_COLUMNS = {
@@ -135,10 +139,34 @@ const AVAILABLE_COLUMNS = {
 		caption: colorize.underline('Package Type'),
 		getValue: (dependency) => dependency.type
 	},
+	reference: {
+		caption: colorize.underline('Reference'),
+		getValue: (dependency) => {
+			const filePath = getParentPackageJSONPath(dependency.location);
+			let fileContent = packageJsonCache[filePath] || readFile(filePath);
+
+			if (fileContent !== undefined) {
+				fileContent = fileContent.replace(/\r\n|\r/gu, '\n');
+
+				if (packageJsonCache[filePath] === undefined) {
+					packageJsonCache[filePath] = fileContent;
+				}
+
+				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*?${escapeRegExp(dependency.current)}"`, 'u');
+				const [line, column] = getRegExpPosition(fileContent, needle);
+
+				if (line && column) {
+					return `${filePath}:${line}:${column}`;
+				}
+			}
+
+			return colorize.gray('-');
+		}
+	},
 	changes: {
 		caption: colorize.underline('Changes'),
 		getValue: (dependency, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				getPackageRepository(detailsCache.packageJSON, true) ||
@@ -156,7 +184,7 @@ const AVAILABLE_COLUMNS = {
 				return changelogFile;
 			}
 
-			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				getPackageRepository(detailsCache.packageJSON, true) ||
@@ -168,7 +196,7 @@ const AVAILABLE_COLUMNS = {
 	homepage: {
 		caption: colorize.underline('Homepage'),
 		getValue: (dependency, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				dependency.homepage ||

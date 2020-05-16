@@ -32,6 +32,7 @@ function setMocks (newMockData) {
  * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
+// eslint-disable-next-line max-lines-per-function
 async function test (title, argv, dependencies, expectedCallback) {
 	console.log();
 	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
@@ -82,7 +83,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 				},
 
 				/**
-				 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files of dependencies.
+				 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files.
 				 *
 				 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
 				 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
@@ -107,7 +108,26 @@ async function test (title, argv, dependencies, expectedCallback) {
 
 					const content = mockData.fsReadFile[normalizedPath];
 
-					return (typeof content === 'string' ? content : JSON.stringify(content));
+					return (typeof content === 'string' ? content : JSON.stringify(content, null, '  '));
+				}
+			},
+			path: {
+				/**
+				 * Mock of the path.resolve() function, which is used by `check-outdated` to get the absolute path of the referencing package.json.
+				 *
+				 * @param {string[]} pathSegments - A sequence of paths or path segments.
+				 * @returns {string} Returns an absolute path.
+				 */
+				resolve (...pathSegments) {
+					if (pathSegments.length !== 2) {
+						throw new RangeError('path.resolve(): Mock expects exactly 2 path segments.');
+					}
+
+					if (typeof pathSegments[1] !== 'string') {
+						throw new TypeError('path.resolve(): Mock expects the second path segment to be an string.');
+					}
+
+					return pathSegments[1];
 				}
 			}
 		})

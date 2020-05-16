@@ -23,7 +23,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 
 ## Example Screenshot
 
-<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@abe907d/screenshot.png" width="100%" />
+<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@a7c30a6/screenshot.png" width="100%" />
 
 ## Install
 
@@ -74,6 +74,7 @@ You are able to overwrite the default by using the `--columns` argument.
 | Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor` or `patch` update, in Semantic Versioning. | minor |
 | Location | `location` | Shows where in the dependency tree the package is located. Note that **check-outdated** defaults to a depth of 0, so unless you override that, you'll always be seeing only top-level dependencies that are outdated. | node_modules/typescript |
 | Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. | devDependencies |
+| Reference | `reference` | Contains a link to the line and column of the dependency in the **package.json**.<br />By using a terminal which supports clicking on such links, you can navigate directly the the item. | P:\my-project\package.json:47:3 |
 | Changes | `changes` | **check-outdated** tries to find a direct link to changelog of the package. The following places are considered in the given order:<ol><li>{package}/package.json > "repository" \*</li><li>{package}/package.json > "homepage"</li><li>`https://www.npmjs.com/package/{name}`</li></ol>\* GitHub-repository URLs are adjusted, so that they directly link to the **Releases** section. | https<span>:</span>//github<span>.</span>com/Microsoft/TypeScript/releases |
 | Changes | `changesPreferLocal` | Same as `changes`, but first check for a CHANGELOG<span>.</span>md in the package folder.<br />Keep in mind, you'll only see the changelog of the currently installed version, not of the version which is recommended. | node_modules/fs-extra/CHANGELOG.md |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<ol><li>{package}/package.json > "homepage"</li><li>{package}/package.json > "repository"</li><li>{package}/package.json > "author"</li><li>`https://www.npmjs.com/package/{name}`</li></ol> | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |

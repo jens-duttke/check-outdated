@@ -244,6 +244,16 @@
 		"node_modules/module-with-changelog/CHANGELOG.md": true
 	},
 	"fsReadFile": {
+		"package.json": {
+			"devDependencies": {
+				"module-major": ">1.0.0",
+				"module-minor": ">=1.0.0",
+				"module-patch": "<1.0.0",
+				"module-prerelease": "^1.0.0",
+				"module-build": "~1.0.0",
+				"@scoped/module": "1.0.0"
+			}
+		},
 		"node_modules/module-with-package-json-with-homepage-and-author/package.json": {
 			"homepage": "https://www.duttke.de/#homepage",
 			"author": "Jens Duttke <github@duttke.de> (https://www.duttke.de/#author)"

@@ -30,15 +30,35 @@ const path = require('path');
  * @param {string} dependencyLocation - The folder where the dependency is located.
  * @returns {PackageJSON} Either the content of the package.json or an empty object.
  */
-function getPackageJSON (dependencyLocation) {
+function getDependencyPackageJSON (dependencyLocation) {
 	const filePath = path.join(getRelativeDependencyPath(dependencyLocation), 'package.json');
+	const fileContent = readFile(filePath);
 
-	try {
-		return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+	if (fileContent !== undefined) {
+		try {
+			return JSON.parse(fileContent);
+		}
+		catch (ex) { /* We ignore errors here */ }
 	}
-	catch (ex) {
-		return {};
+
+	return {};
+}
+
+/**
+ * Returns the content of the package.json of a given dependency.
+ *
+ * @public
+ * @param {string} dependencyLocation - The folder where the dependency is located.
+ * @returns {string} Either the content of the package.json or an empty object.
+ */
+function getParentPackageJSONPath (dependencyLocation) {
+	let filePath = path.resolve(process.cwd(), getRelativeDependencyPath(dependencyLocation));
+
+	while (filePath !== '' && path.basename(filePath) !== 'node_modules') {
+		filePath = path.dirname(filePath);
 	}
+
+	return path.join(path.dirname(filePath), 'package.json');
 }
 
 /**
@@ -62,6 +82,22 @@ function getChangelogPath (dependencyLocation) {
 }
 
 /**
+ * Returns the content of a file.
+ *
+ * @public
+ * @param {string} filePath - The path/file name
+ * @returns {string | undefined} The content of the file or `undefined`, if an error occurs.
+ */
+function readFile (filePath) {
+	try {
+		return fs.readFileSync(filePath, 'utf8');
+	}
+	catch (ex) { /* Do nothing here, but return undefined in the next step */ }
+
+	return undefined;
+}
+
+/**
  * Returns the relative path to dependency to the current working directory.
  *
  * @private
@@ -74,5 +110,7 @@ function getRelativeDependencyPath (dependencyLocation) {
 
 module.exports = {
 	getChangelogPath,
-	getPackageJSON
+	getDependencyPackageJSON,
+	getParentPackageJSONPath,
+	readFile
 };
