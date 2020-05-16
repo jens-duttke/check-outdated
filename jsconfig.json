@@ -34,7 +34,10 @@
 		"suppressExcessPropertyErrors": false,
 		"suppressImplicitAnyIndexErrors": true
 	},
-	"exclude": [
-		"node_modules",
+    "include": [
+		"./*.js",
+		"./.eslintrc.js",
+		"./helper/**/*.js",
+		"./tests/**/*.js"
 	]
 }
