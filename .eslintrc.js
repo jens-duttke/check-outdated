@@ -1,12 +1,18 @@
-module.exports =  {
-	parser:  '@typescript-eslint/parser',
-	extends:  [
-		'plugin:@typescript-eslint/recommended',
+/* eslint-disable line-comment-position, max-len, max-lines, @typescript-eslint/no-magic-numbers */
+
+/**
+ * @file ESLint configuration
+ */
+
+module.exports = {
+	parser: '@typescript-eslint/parser',
+	extends: [
+		'plugin:@typescript-eslint/recommended'
 	],
 	plugins: [
 		'jsdoc'
 	],
-	parserOptions:  {
+	parserOptions: {
 		ecmaVersion: 2018,
 		sourceType: 'module',
 		project: [
@@ -28,17 +34,27 @@ module.exports =  {
 		{
 			files: ['tests/**/*.js'],
 			rules: {
-				// @typescript-eslint Rules
+				/**
+				 * "@typescript-eslint" rules
+				 *
+				 * @see https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules
+				 */
 				'@typescript-eslint/camelcase': ['error', { allow: ['child_process'] }],
 
+				/**
+				 * "eslint" rules
+				 *
+				 * @see https://eslint.org/docs/rules/
+				 */
 				// Possible Errors
 				'no-console': 'off'
 			}
 		}
 	],
-	rules:  {
+	rules: {
 		/**
-		 * @typescript-eslint Rules
+		 * "@typescript-eslint" rules
+		 *
 		 * @see https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules
 		 */
 		'@typescript-eslint/adjacent-overload-signatures': 'error',
@@ -88,9 +104,9 @@ module.exports =  {
 				'protected-static-field',
 				'private-static-field',
 
-				"public-decorated-field",
-				"protected-decorated-field",
-				"private-decorated-field",
+				'public-decorated-field',
+				'protected-decorated-field',
+				'private-decorated-field',
 
 				'public-instance-field',
 				'protected-instance-field',
@@ -106,17 +122,17 @@ module.exports =  {
 				'private-constructor',
 
 				// Methods
-				"public-decorated-method",
+				'public-decorated-method',
 				'public-instance-method',
 				'public-static-method',
 				'public-abstract-method',
 
-				"protected-decorated-method",
+				'protected-decorated-method',
 				'protected-instance-method',
 				'protected-static-method',
 				'protected-abstract-method',
 
-				"private-decorated-method",
+				'private-decorated-method',
 				'private-instance-method',
 				'private-static-method',
 				'private-abstract-method'
@@ -216,45 +232,47 @@ module.exports =  {
 		'@typescript-eslint/unified-signatures': 'error',
 
 		/**
-		 * eslint-plugin-jsdoc Rules
+		 * "eslint-plugin-jsdoc" rules
+		 *
 		 * @see https://github.com/gajus/eslint-plugin-jsdoc
 		 */
 		'jsdoc/check-access': 'error',
 		'jsdoc/check-alignment': 'error',
-        'jsdoc/check-examples': 'off', // @todo need to be configured to allow text-based examples
-        'jsdoc/check-indentation': ['off', { excludeTags: ['typedef'] }], // @todo this doesn't work in all cases
-        'jsdoc/check-param-names': 'error',
-        'jsdoc/check-syntax': 'error',
-        'jsdoc/check-tag-names': 'error',
+		'jsdoc/check-examples': 'off', // @todo need to be configured to allow text-based examples
+		'jsdoc/check-indentation': ['off', { excludeTags: ['typedef'] }], // @todo this doesn't work in all cases
+		'jsdoc/check-param-names': 'error',
+		'jsdoc/check-syntax': 'error',
+		'jsdoc/check-tag-names': 'error',
 		'jsdoc/check-types': 'error',
 		'jsdoc/check-values': 'error',
 		'jsdoc/empty-tags': 'error',
-        'jsdoc/implements-on-classes': 'error',
-        'jsdoc/match-description': 'error',
+		'jsdoc/implements-on-classes': 'error',
+		'jsdoc/match-description': 'error',
 		'jsdoc/newline-after-description': 'error',
 		'jsdoc/no-bad-blocks': 'error',
 		'jsdoc/no-defaults': 'off',
-        'jsdoc/no-types': 'off',
-        'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never'] }],
-        'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't seems to work correctly
-        'jsdoc/require-description': 'error',
+		'jsdoc/no-types': 'off',
+		'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never'] }],
+		'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't seems to work correctly
+		'jsdoc/require-description': 'error',
 		'jsdoc/require-example': 'off',
 		'jsdoc/require-file-overview': 'error',
-        'jsdoc/require-hyphen-before-param-description': 'error',
-        'jsdoc/require-jsdoc': 'error',
-        'jsdoc/require-param-description': 'error',
-        'jsdoc/require-param-name': 'error',
-        'jsdoc/require-param-type': 'error',
+		'jsdoc/require-hyphen-before-param-description': 'error',
+		'jsdoc/require-jsdoc': 'error',
+		'jsdoc/require-param-description': 'error',
+		'jsdoc/require-param-name': 'error',
+		'jsdoc/require-param-type': 'error',
 		'jsdoc/require-param': 'error',
 		'jsdoc/require-property': 'error',
-        'jsdoc/require-returns-check': 'error',
-        'jsdoc/require-returns-description': 'error',
-        'jsdoc/require-returns-type': 'error',
-        'jsdoc/require-returns': ['error', { forceReturnsWithAsync: true }],
+		'jsdoc/require-returns-check': 'error',
+		'jsdoc/require-returns-description': 'error',
+		'jsdoc/require-returns-type': 'error',
+		'jsdoc/require-returns': ['error', { forceReturnsWithAsync: true }],
 		'jsdoc/valid-types': 'off', // Checked by TypeScript
 
 		/**
-		 * eslint Rules
+		 * "eslint" rules
+		 *
 		 * @see https://eslint.org/docs/rules/
 		 */
 
@@ -339,7 +357,7 @@ module.exports =  {
 		'no-labels': ['error', { allowLoop: true }],
 		'no-lone-blocks': 'error',
 		'no-loop-func': 'error',
-		'no-magic-numbers': 'off',  // @typescript-eslint/no-magic-numbers
+		'no-magic-numbers': 'off', // @typescript-eslint/no-magic-numbers
 		'no-multi-spaces': 'error',
 		'no-multi-str': 'error',
 		'no-new': 'error',
@@ -442,7 +460,7 @@ module.exports =  {
 		'lines-between-class-members': 'error',
 		'max-depth': 'error',
 		'max-len': ['error', { code: 160, tabWidth: 4, comments: 160, ignoreUrls: true }],
-		'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+		'max-lines': ['error', { max: 350, skipBlankLines: true, skipComments: true }],
 		'max-lines-per-function': ['error', { max: 50, skipBlankLines: true, skipComments: true }],
 		'max-nested-callbacks': 'error',
 		'max-params': ['error', { max: 4 }],
