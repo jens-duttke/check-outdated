@@ -35,13 +35,6 @@ module.exports = {
 			files: ['tests/**/*.js'],
 			rules: {
 				/**
-				 * "@typescript-eslint" rules
-				 *
-				 * @see https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules
-				 */
-				'@typescript-eslint/camelcase': ['error', { allow: ['child_process'] }],
-
-				/**
 				 * "eslint" rules
 				 *
 				 * @see https://eslint.org/docs/rules/
@@ -78,9 +71,7 @@ module.exports = {
 			}
 		}],
 		'@typescript-eslint/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
-		'@typescript-eslint/camelcase': 'error',
 		'@typescript-eslint/class-literal-property-style': 'error',
-		'@typescript-eslint/class-name-casing': 'error',
 		'@typescript-eslint/comma-spacing': 'error',
 		'@typescript-eslint/consistent-type-assertions': 'error',
 		'@typescript-eslint/consistent-type-definitions': 'error',
@@ -89,11 +80,8 @@ module.exports = {
 		'@typescript-eslint/explicit-member-accessibility': 'off', // @todo This function should also consider JSDoc @public/@private, but it doesn't do that yet, so create an ticket.
 		'@typescript-eslint/explicit-module-boundary-types': 'error',
 		'@typescript-eslint/func-call-spacing': 'error',
-		'@typescript-eslint/generic-type-naming': ['error', '^[A-Z][a-zA-Z]*$'],
 		'@typescript-eslint/indent': ['error', 'tab', { SwitchCase: 1, VariableDeclarator: 1, MemberExpression: 1, flatTernaryExpressions: true, ignoredNodes: ['ConditionalExpression'] }],
-		'@typescript-eslint/interface-name-prefix': 'error',
 		'@typescript-eslint/member-delimiter-style': ['error', { multiline: { delimiter: 'semi', requireLast: true }, singleline: { delimiter: 'semi', requireLast: true } }],
-		'@typescript-eslint/member-naming': 'error',
 		'@typescript-eslint/member-ordering': ['error', {
 			default: [
 				// Index signature
@@ -139,9 +127,20 @@ module.exports = {
 			]
 		}],
 		'@typescript-eslint/method-signature-style': ['error', 'method'],
-		'@typescript-eslint/naming-convention': 'off', // Requires type information
+		'@typescript-eslint/naming-convention': [
+			'error',
+
+			// Property
+			{ selector: 'property', format: ['camelCase', 'PascalCase'] },
+			{
+				selector: 'property',
+				filter: '^child_process$',
+				format: null
+			}
+		],
 		'@typescript-eslint/no-array-constructor': 'error',
 		'@typescript-eslint/no-base-to-string': 'error',
+		'@typescript-eslint/no-confusing-non-null-assertion': 'error',
 		'@typescript-eslint/no-dupe-class-members': 'error',
 		'@typescript-eslint/no-dynamic-delete': 'error',
 		'@typescript-eslint/no-empty-function': 'error',
@@ -156,6 +155,7 @@ module.exports = {
 		'@typescript-eslint/no-inferrable-types': 'off',
 		'@typescript-eslint/no-invalid-this': 'error',
 		'@typescript-eslint/no-invalid-void-type': 'off', // @todo Disabled till intersections with `never` are allowed @see https://github.com/typescript-eslint/typescript-eslint/issues/1946
+		'@typescript-eslint/no-loss-of-precision': 'error',
 		'@typescript-eslint/no-magic-numbers': ['error', {
 			ignore: [-1, 0, 1, 2, 3],
 			ignoreArrayIndexes: true,
@@ -181,7 +181,7 @@ module.exports = {
 			allowTupleTypes: 'in-unions-and-intersections'
 		}],
 		'@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
-		'@typescript-eslint/no-unnecessary-condition': ['off', { ignoreRhs: true }], // @todo Can't handle JSDoc optional properties correctly
+		'@typescript-eslint/no-unnecessary-condition': 'off', // @todo Can't handle JSDoc optional properties correctly
 		'@typescript-eslint/no-unnecessary-qualifier': 'error',
 		'@typescript-eslint/no-unnecessary-type-arguments': 'error',
 		'@typescript-eslint/no-unnecessary-type-assertion': 'error',
@@ -217,7 +217,7 @@ module.exports = {
 		'@typescript-eslint/restrict-template-expressions': ['error', {
 			allowAny: true,
 			allowBoolean: true,
-			allowNullable: true,
+			allowNullish: true,
 			allowNumber: true
 		}],
 		'@typescript-eslint/return-await': 'error',
@@ -268,6 +268,7 @@ module.exports = {
 		'jsdoc/require-returns-description': 'error',
 		'jsdoc/require-returns-type': 'error',
 		'jsdoc/require-returns': ['error', { forceReturnsWithAsync: true }],
+		'jsdoc/require-throws': 'error',
 		'jsdoc/valid-types': 'off', // Checked by TypeScript
 
 		/**
@@ -302,8 +303,10 @@ module.exports = {
 		'no-inner-declarations': ['error', 'both'],
 		'no-invalid-regexp': 'error',
 		'no-irregular-whitespace': 'error',
+		'no-loss-of-precision': 'off', // @typescript-eslint/no-loss-of-precision
 		'no-misleading-character-class': 'error',
 		'no-obj-calls': 'error',
+		'no-promise-executor-return': 'error',
 		'no-prototype-builtins': 'error',
 		'no-regex-spaces': 'error',
 		'no-setter-return': 'error',
@@ -311,6 +314,7 @@ module.exports = {
 		'no-template-curly-in-string': 'error',
 		'no-unexpected-multiline': 'error',
 		'no-unreachable': 'error',
+		'no-unreachable-loop': 'error',
 		'no-unsafe-finally': 'error',
 		'no-unsafe-negation': 'error',
 		'require-atomic-updates': 'error',
@@ -432,7 +436,7 @@ module.exports = {
 		'array-element-newline': ['error', 'consistent'],
 		'block-spacing': 'error',
 		'brace-style': 'off', // @typescript-eslint/brace-style
-		'camelcase': 'off', // @typescript-eslint/camelcase
+		'camelcase': 'off', // @typescript-eslint/naming-convention
 		'capitalized-comments': 'error',
 		'comma-dangle': ['error', 'never'],
 		'comma-spacing': 'off', // @typescript-eslint/comma-spacing

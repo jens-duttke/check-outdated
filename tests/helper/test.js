@@ -65,6 +65,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 				 *
 				 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
 				 * @returns {boolean} Returns true if the `filePath` exists, false otherwise.
+				 * @throws Error if no mock data for the file exist.
 				 */
 				existsSync (filePath) {
 					if (typeof filePath !== 'string') {
@@ -88,6 +89,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 				 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
 				 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
 				 * @returns {string | Buffer} Returns the contents of the `filePath`.
+				 * @throws Error if no mock data for the file exist.
 				 */
 				readFileSync (filePath, options) {
 					if (typeof filePath !== 'string') {
@@ -117,6 +119,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 				 *
 				 * @param {string[]} pathSegments - A sequence of paths or path segments.
 				 * @returns {string} Returns an absolute path.
+				 * @throws Error if the number of arguments is not 2, or if if the second argument is not a string.
 				 */
 				resolve (...pathSegments) {
 					if (pathSegments.length !== 2) {
