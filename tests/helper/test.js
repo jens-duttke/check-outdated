@@ -130,6 +130,25 @@ async function test (title, argv, dependencies, expectedCallback) {
 					return pathSegments[1];
 				}
 			}
+		}),
+		'./helper/urls': proxyquire(path.join(process.cwd(), 'helper/urls'), {
+			https: {
+				/**
+				 * Mock of the https.get() function, which is used by `check-outdated` to check if a file exists on a specific server.
+				 *
+				 * @param {{ host: string; path: string; }} options - The command to run.
+				 * @param {(res: { statusCode: number; destroy (): void; }) => void} callback - Called with the output when process terminates.
+				 * @returns {void}
+				 */
+				get (options, callback) {
+					const STATUS_NOT_FOUND = 404;
+
+					callback({
+						statusCode: (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || STATUS_NOT_FOUND,
+						destroy () { /* Do nothing */ }
+					});
+				}
+			}
 		})
 	});
 

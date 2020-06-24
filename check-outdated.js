@@ -62,7 +62,7 @@ const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'type', 'locatio
 /**
  * @typedef {object} Column
  * @property {TableColumn | string} caption;
- * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => TableColumn | string} getValue
+ * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => Promise<TableColumn | string>} getValue
  */
 
 /** @type {{ [filePath: string]: string }} */
@@ -72,14 +72,14 @@ const packageJsonCache = {};
 const AVAILABLE_COLUMNS = {
 	name: {
 		caption: colorize.underline('Package'),
-		getValue: (dependency) => (dependency.current === dependency.wanted ? colorize.yellow(dependency.name) : colorize.red(dependency.name))
+		getValue: async (dependency) => (dependency.current === dependency.wanted ? colorize.yellow(dependency.name) : colorize.red(dependency.name))
 	},
 	current: {
 		caption: {
 			text: colorize.underline('Current'),
 			alignRight: true
 		},
-		getValue: (dependency, detailsCache) => {
+		getValue: async (dependency, detailsCache) => {
 			if (dependency.current === '') {
 				return {
 					text: colorize.gray('unknown'),
@@ -104,7 +104,7 @@ const AVAILABLE_COLUMNS = {
 			text: colorize.underline('Wanted'),
 			alignRight: true
 		},
-		getValue: (dependency) => ({
+		getValue: async (dependency) => ({
 			text: colorize.green(dependency.wanted),
 			alignRight: true
 		})
@@ -114,7 +114,7 @@ const AVAILABLE_COLUMNS = {
 			text: colorize.underline('Latest'),
 			alignRight: true
 		},
-		getValue: (dependency, detailsCache) => {
+		getValue: async (dependency, detailsCache) => {
 			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
 				[dependency.current, dependency.latest],
 				[colorize, colorize.magenta],
@@ -129,19 +129,19 @@ const AVAILABLE_COLUMNS = {
 	},
 	type: {
 		caption: colorize.underline('Type'),
-		getValue: (dependency) => (semverDiffType(dependency.current, dependency.latest) || '')
+		getValue: async (dependency) => (semverDiffType(dependency.current, dependency.latest) || '')
 	},
 	location: {
 		caption: colorize.underline('Location'),
-		getValue: (dependency) => dependency.location
+		getValue: async (dependency) => dependency.location
 	},
 	packageType: {
 		caption: colorize.underline('Package Type'),
-		getValue: (dependency) => dependency.type
+		getValue: async (dependency) => dependency.type
 	},
 	reference: {
 		caption: colorize.underline('Reference'),
-		getValue: (dependency) => {
+		getValue: async (dependency) => {
 			const filePath = getParentPackageJSONPath(dependency.location);
 			let fileContent = packageJsonCache[filePath] || readFile(filePath);
 
@@ -165,11 +165,11 @@ const AVAILABLE_COLUMNS = {
 	},
 	changes: {
 		caption: colorize.underline('Changes'),
-		getValue: (dependency, detailsCache) => {
+		getValue: async (dependency, detailsCache) => {
 			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
-				getPackageRepository(detailsCache.packageJSON, true) ||
+				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
 				getNpmJSLink(dependency.name)
 			);
@@ -177,7 +177,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	changesPreferLocal: {
 		caption: colorize.underline('Changes'),
-		getValue: (dependency, detailsCache) => {
+		getValue: async (dependency, detailsCache) => {
 			const changelogFile = getChangelogPath(dependency.location);
 
 			if (changelogFile) {
@@ -187,7 +187,7 @@ const AVAILABLE_COLUMNS = {
 			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
-				getPackageRepository(detailsCache.packageJSON, true) ||
+				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
 				getNpmJSLink(dependency.name)
 			);
@@ -195,13 +195,13 @@ const AVAILABLE_COLUMNS = {
 	},
 	homepage: {
 		caption: colorize.underline('Homepage'),
-		getValue: (dependency, detailsCache) => {
+		getValue: async (dependency, detailsCache) => {
 			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				dependency.homepage ||
 				getPackageHomepage(detailsCache.packageJSON) ||
-				getPackageRepository(detailsCache.packageJSON) ||
+				await getPackageRepository(detailsCache.packageJSON) ||
 				getPackageAuthor(detailsCache.packageJSON) ||
 				getNpmJSLink(dependency.name)
 			);
@@ -209,7 +209,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	npmjs: {
 		caption: colorize.underline('npmjs.com'),
-		getValue: (dependency) => getNpmJSLink(dependency.name)
+		getValue: async (dependency) => getNpmJSLink(dependency.name)
 	}
 };
 
@@ -315,7 +315,7 @@ async function checkOutdated (argv) {
 
 		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? DEFAULT_COLUMNS : args.columns);
 
-		writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies);
+		await writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies);
 
 		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
 	}
@@ -413,22 +413,24 @@ function getFilteredDependencies (dependencies, options) {
  * @private
  * @param {string[]} visibleColumns - The columns which should be shown in the given order.
  * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
-	/** @type {Table} */
+async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
+	/** @type {((string | TableColumn)[] | Promise<(string | TableColumn)[]>)[]} */
 	const table = [
 		visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].caption)
 	];
 
 	for (const dependency of dependencies) {
-		/** @type {DependencyDetailsCache} */
-		const dependencyDetailsCache = {};
+		table.push((async () => {
+			/** @type {DependencyDetailsCache} */
+			const dependencyDetailsCache = {};
 
-		table.push(visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].getValue(dependency, dependencyDetailsCache)));
+			return Promise.all(visibleColumns.map(async (columnName) => AVAILABLE_COLUMNS[columnName].getValue(dependency, dependencyDetailsCache)));
+		})());
 	}
 
-	process.stdout.write(`${prettifyTable(table)}\n\n`);
+	process.stdout.write(`${prettifyTable(await Promise.all(table))}\n\n`);
 }
 
 /**

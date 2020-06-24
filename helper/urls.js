@@ -2,12 +2,16 @@
  * @file Generate URLs.
  */
 
+const https = require('https');
+
+const STATUS_OK = 200;
+
 /** @typedef {import('./files').PackageJSON} PackageJSON */
 
 /** @type {readonly {
  *   readonly regExp: RegExp;
  *   readonly getRepositoryURL: (match: readonly string[]) => string;
- *   readonly getChangelogURL: (match: readonly string[]) => string;
+ *   readonly getChangelogURL: (match: readonly string[]) => Promise<string> | string;
  * }[]} */
 const REPOSITORY_URLS = [
 	{
@@ -34,18 +38,18 @@ const REPOSITORY_URLS = [
 	{
 		regExp: /^git\+(https?:\/\/.+)\.git$/u,
 		getRepositoryURL: (match) => match[1],
-		getChangelogURL: (match) => getChangelogFromURL(match[1])
+		getChangelogURL: async (match) => getChangelogFromURL(match[1])
 	},
 	{
 		regExp: /^git\+ssh:\/\/git@(.+)\.git$/u,
 		getRepositoryURL: (match) => `https://${match[1]}`,
-		getChangelogURL: (match) => getChangelogFromURL(`https://${match[1]}`)
+		getChangelogURL: async (match) => getChangelogFromURL(`https://${match[1]}`)
 	},
 	// Fallback (should be the last item)
 	{
 		regExp: /^(https?:\/\/.+)/u,
 		getRepositoryURL: (match) => match[1],
-		getChangelogURL: (match) => match[1]
+		getChangelogURL: async (match) => getChangelogFromURL(match[1])
 	}
 ];
 
@@ -105,9 +109,9 @@ function getPackageHomepage (packageJSON) {
  * @public
  * @param {PackageJSON} packageJSON - The content of a package.json.
  * @param {boolean} [linkToChangelog] - If the returned URL should link to the "Releases" page.
- * @returns {string | undefined} The URL of the repository.
+ * @returns {Promise<string | undefined>} The URL of the repository.
  */
-function getPackageRepository (packageJSON, linkToChangelog) {
+async function getPackageRepository (packageJSON, linkToChangelog) {
 	if (packageJSON.repository) {
 		if (typeof packageJSON.repository === 'string') {
 			for (const repo of REPOSITORY_URLS) {
@@ -137,20 +141,57 @@ function getPackageRepository (packageJSON, linkToChangelog) {
  *
  * @private
  * @param {string} url - Service url
- * @returns {string} Either returns an URL to the changelog for a specific service, or it returns `url`.
+ * @returns {Promise<string>} Either returns an URL to the changelog for a specific service, or it returns `url`.
  */
-function getChangelogFromURL (url) {
-	if ((/^https?:\/\/github.com\/[^/]+?\/[^/#?]+$/u).test(url)) {
-		return `${url}/releases`;
+async function getChangelogFromURL (url) {
+	const githubMatch = (/^https?:\/\/github.com\/([^/]+?\/[^/#?]+)/u).exec(url);
+
+	if (githubMatch !== null) {
+		if (await isFileOnGitHub(githubMatch[1], 'CHANGELOG.md')) {
+			return `https://github.com/${githubMatch[1]}/blob/master/CHANGELOG.md`;
+		}
+
+		return `https://github.com/${githubMatch[1]}/releases`;
 	}
-	if ((/^https?:\/\/gist.github.com\/([^/]+?\/)?[^/#?]+$/u).test(url)) {
-		return `${url}/revisions`;
+
+	const gistMatch = (/^https?:\/\/gist.github.com\/([^/]+?\/)?[^/#?]+/u).exec(url);
+
+	if (gistMatch !== null) {
+		return `${gistMatch[0]}/revisions`;
 	}
-	if ((/^https?:\/\/gitlab.com\/[^/]+?\/[^/#?]+$/u).test(url)) {
-		return `${url}/-/releases`;
+
+	const gitlabMatch = (/^https?:\/\/gitlab.com\/[^/]+?\/[^/#?]+/u).exec(url);
+
+	if (gitlabMatch !== null) {
+		return `${gitlabMatch[0]}/-/releases`;
 	}
 
 	return url;
+}
+
+/**
+ * Checks if a specific file exists in a GitHub repository.
+ *
+ * @private
+ * @param {string} repoName - GitHub repository URL
+ * @param {string} fileName - GitHub repository URL
+ * @returns {Promise<boolean>} Returns `true` or `false`.
+ */
+async function isFileOnGitHub (repoName, fileName) {
+	return new Promise((resolve) => {
+		https.get({
+			host: 'api.github.com',
+			path: `/repos/${repoName}/contents/${fileName}`,
+			method: 'HEAD',
+			headers: {
+				'User-Agent': 'Mozilla/5.0'
+			}
+		}, (response) => {
+			response.destroy();
+
+			resolve(response.statusCode === STATUS_OK);
+		});
+	});
 }
 
 module.exports = {

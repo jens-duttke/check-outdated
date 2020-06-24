@@ -268,7 +268,7 @@
 		"node_modules/module-with-package-json-with-github-repository/package.json": {
 			"repository": {
 				"type": "git",
-				"url": "https://github.com/jens-duttke/check-outdated"
+				"url": "https://github.com/jens-duttke/check-outdated/blob/master/README.md"
 			}
 		},
 		"node_modules/module-with-package-json-with-github-repository2/package.json": {
@@ -317,5 +317,8 @@
 				"url": "https://www.duttke.de/#git"
 			}
 		}
+	},
+	"httpsGet": {
+		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": 200
 	}
 }
