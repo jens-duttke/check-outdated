@@ -202,7 +202,7 @@ module.exports = {
 		'@typescript-eslint/prefer-includes': 'error',
 		'@typescript-eslint/prefer-namespace-keyword': 'error',
 		'@typescript-eslint/prefer-nullish-coalescing': 'off', // @todo `??` is not yet supported by NodeJS. Remove this like, as soon as it is supported.
-		'@typescript-eslint/prefer-optional-chain': 'error',
+		'@typescript-eslint/prefer-optional-chain': 'off', // @todo `a?.b` is not yet supported by NodeJS. Remove this like, as soon as it is supported.
 		'@typescript-eslint/prefer-readonly': 'error',
 		'@typescript-eslint/prefer-readonly-parameter-types': 'off', // Doesn't work with JSDoc @property definitions
 		'@typescript-eslint/prefer-reduce-type-parameter': 'error',
