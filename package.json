@@ -37,7 +37,7 @@
 		"check-outdated": "node check-outdated.js --ignore-pre-releases"
 	},
 	"engines": {
-		"node": ">=8.6.0"
+		"node": ">=8.13.0"
 	},
 	"devDependencies": {
 		"@types/node": "14.0.14",
