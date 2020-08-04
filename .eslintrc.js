@@ -197,9 +197,11 @@ module.exports = {
 		'@typescript-eslint/no-useless-constructor': 'error',
 		'@typescript-eslint/no-var-requires': 'off', // Requires type information
 		'@typescript-eslint/prefer-as-const': 'error',
+		'@typescript-eslint/prefer-enum-initializers': 'error',
 		'@typescript-eslint/prefer-for-of': 'error',
 		'@typescript-eslint/prefer-function-type': 'error',
 		'@typescript-eslint/prefer-includes': 'error',
+		'@typescript-eslint/prefer-literal-enum-member': 'error',
 		'@typescript-eslint/prefer-namespace-keyword': 'error',
 		'@typescript-eslint/prefer-nullish-coalescing': 'off', // @todo `??` is not yet supported by NodeJS. Remove this like, as soon as it is supported.
 		'@typescript-eslint/prefer-optional-chain': 'off', // @todo `a?.b` is not yet supported by NodeJS. Remove this like, as soon as it is supported.
@@ -252,7 +254,7 @@ module.exports = {
 		'jsdoc/no-bad-blocks': 'error',
 		'jsdoc/no-defaults': 'off',
 		'jsdoc/no-types': 'off',
-		'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never'] }],
+		'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never', 'Readonly'] }],
 		'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't seems to work correctly
 		'jsdoc/require-description': 'error',
 		'jsdoc/require-example': 'off',
@@ -450,7 +452,7 @@ module.exports = {
 		'func-style': ['error', 'declaration', { allowArrowFunctions: true }],
 		'function-call-argument-newline': ['error', 'consistent'],
 		'function-paren-newline': ['error', 'multiline-arguments'],
-		'id-blacklist': 'error',
+		'id-denylist': 'error',
 		'id-length': 'error',
 		'id-match': 'error',
 		'implicit-arrow-linebreak': 'error',
