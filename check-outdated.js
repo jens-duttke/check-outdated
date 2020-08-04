@@ -152,7 +152,10 @@ const AVAILABLE_COLUMNS = {
 					packageJsonCache[filePath] = fileContent;
 				}
 
-				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*"`, 'u');
+				const json = JSON.parse(fileContent);
+				const actualVersion = (dependency.type in json ? json[dependency.type][dependency.name] : undefined);
+
+				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
 				const [line, column] = getRegExpPosition(fileContent, needle);
 
 				if (line && column) {
