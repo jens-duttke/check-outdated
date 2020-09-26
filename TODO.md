@@ -3,7 +3,7 @@
 ## Functionality improvements
 
 - Add option to automatically update the outdated dependencies
-  - It must be configurable if you wan to auto-update only patches, or minor or major (all)
+  - It must be configurable if you want to auto-update only patches, or minor or major (all)
   - It must be configurable if the status code should be still -1 or if it should be 0
     - This must be configurable on a version-type base, e.g. patches should be silently updated, while minor and major updates should return -1
 
