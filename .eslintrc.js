@@ -72,9 +72,11 @@ module.exports = {
 		}],
 		'@typescript-eslint/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
 		'@typescript-eslint/class-literal-property-style': 'error',
+		'@typescript-eslint/comma-dangle': ['error', 'never'],
 		'@typescript-eslint/comma-spacing': 'error',
 		'@typescript-eslint/consistent-type-assertions': 'error',
 		'@typescript-eslint/consistent-type-definitions': 'error',
+		'@typescript-eslint/consistent-type-imports': 'error',
 		'@typescript-eslint/dot-notation': 'error',
 		'@typescript-eslint/explicit-function-return-type': 'off', // Requires type information (@see https://github.com/typescript-eslint/typescript-eslint/issues/906)
 		'@typescript-eslint/explicit-member-accessibility': 'off', // @todo This function should also consider JSDoc @public/@private, but it doesn't do that yet, so create an ticket.
@@ -152,6 +154,7 @@ module.exports = {
 		'@typescript-eslint/no-extraneous-class': 'error',
 		'@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
 		'@typescript-eslint/no-for-in-array': 'error',
+		'@typescript-eslint/no-implicit-any-catch': 'off', // @todo Does not work with JSDoc, since the type of the `error`-argument cannot be set in JavaScript files
 		'@typescript-eslint/no-inferrable-types': 'off',
 		'@typescript-eslint/no-invalid-this': 'error',
 		'@typescript-eslint/no-invalid-void-type': 'off', // @todo Disabled till intersections with `never` are allowed @see https://github.com/typescript-eslint/typescript-eslint/issues/1946
@@ -159,6 +162,7 @@ module.exports = {
 		'@typescript-eslint/no-magic-numbers': ['error', {
 			ignore: [-1, 0, 1, 2, 3],
 			ignoreArrayIndexes: true,
+			ignoreDefaultValues: true,
 			enforceConst: true,
 			detectObjects: true
 		}],
@@ -244,6 +248,7 @@ module.exports = {
 		'jsdoc/check-indentation': ['off', { excludeTags: ['typedef'] }], // @todo this doesn't work in all cases
 		'jsdoc/check-param-names': 'error',
 		'jsdoc/check-syntax': 'error',
+		'jsdoc/check-line-alignment': 'error',
 		'jsdoc/check-tag-names': 'error',
 		'jsdoc/check-types': 'error',
 		'jsdoc/check-values': 'error',
@@ -440,7 +445,7 @@ module.exports = {
 		'brace-style': 'off', // @typescript-eslint/brace-style
 		'camelcase': 'off', // @typescript-eslint/naming-convention
 		'capitalized-comments': 'error',
-		'comma-dangle': ['error', 'never'],
+		'comma-dangle': 'off', // @typescript-eslint/comma-dangle
 		'comma-spacing': 'off', // @typescript-eslint/comma-spacing
 		'comma-style': 'error',
 		'computed-property-spacing': 'error',
