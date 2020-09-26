@@ -232,6 +232,13 @@
 			"location": "node_modules/module-with-package-json-with-homepage-and-repository",
 			"type": "dependencies"
 		},
+		"module-with-empty-changelog": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-empty-changelog",
+			"type": "dependencies"
+		},
 		"@scoped/module": {
 			"current": "1.0.0",
 			"wanted": "1.0.0",
@@ -316,9 +323,26 @@
 				"type": "git",
 				"url": "https://www.duttke.de/#git"
 			}
+		},
+		"node_modules/module-with-empty-changelog/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/jens-duttke/empty-changelog/blob/master/README.md"
+			}
 		}
 	},
 	"httpsGet": {
-		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": 200
+		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"headers": {
+				"content-length": "1642"
+			}
+		},
+		"api.github.com/repos/jens-duttke/empty-changelog/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"headers": {
+				"content-length": "1132"
+			}
+		}
 	}
 }

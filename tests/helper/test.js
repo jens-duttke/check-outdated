@@ -146,8 +146,10 @@ async function test (title, argv, dependencies, expectedCallback) {
 				get (options, callback) {
 					const STATUS_NOT_FOUND = 404;
 
+					const response = (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND };
+
 					callback({
-						statusCode: (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || STATUS_NOT_FOUND,
+						...response,
 						destroy () { /* Do nothing */ }
 					});
 				}
