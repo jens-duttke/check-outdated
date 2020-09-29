@@ -16,7 +16,7 @@ const { setMocks, test } = require('./helper/test');
  * @property {{ [dependencyName: string]: Partial<import('../check-outdated').OutdatedDependency>; }} defaultResponse
  * @property {{ [path: string]: boolean; }} fsExists
  * @property {{ [path: string]: string | import('../helper/files').PackageJSON; }} fsReadFile
- * @property {Partial<import('http').IncomingMessage>} httpsGet
+ * @property {{ [url: string]: { statusCode: number; data?: string; }; }} httpsGet
  */
 
 const mockData = /** @type {MockData} */(require('./mock-data.json'));

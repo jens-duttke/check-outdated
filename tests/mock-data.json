@@ -334,15 +334,11 @@
 	"httpsGet": {
 		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"headers": {
-				"content-length": "1642"
-			}
+			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
 		},
 		"api.github.com/repos/jens-duttke/empty-changelog/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"headers": {
-				"content-length": "1132"
-			}
+			"data": "{\"content\": \"LUVtcHR5LQ==\"}"
 		}
 	}
 }

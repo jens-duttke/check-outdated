@@ -3,7 +3,6 @@
  */
 
 const https = require('https');
-const path = require('path');
 
 const STATUS_OK = 200;
 
@@ -176,56 +175,44 @@ async function getChangelogFromURL (url) {
  * @private
  * @param {string} repoName - GitHub repository name, e.g. "jens.duttke/check-outdated"
  * @param {string} fileName - File name, e.g. "README.md"
- * @param {number} [approximateContentSize] - The minimum content size. The actual file size will most likely differ by some bytes.
  * @returns {Promise<boolean>} Returns `true` or `false`.
  */
-async function isFileOnGitHub (repoName, fileName, approximateContentSize = 256) {
+async function isFileOnGitHub (repoName, fileName) {
 	return new Promise((resolve) => {
 		https.get({
 			host: 'api.github.com',
 			path: `/repos/${repoName}/contents/${fileName}`,
-			method: 'HEAD',
+			method: 'GET',
 			headers: {
 				'User-Agent': 'Mozilla/5.0'
 			}
 		}, (response) => {
-			response.destroy();
-
 			if (response.statusCode !== STATUS_OK) {
+				response.destroy();
+
 				resolve(false);
 
 				return;
 			}
 
-			/**
-			 * Since we rely on the HTTP header to save band-width, we need to estimate if the file has any meaningful content.
-			 * That's not the safest way, but we prefer performance.
-			 *
-			 * @example
-			 * {                                                                                                          // 2 Bytes
-			 *   "name": "[path.basename(fileName)]",                                                                     // 14 Bytes + path.basename(fileName)
-			 *   "path": "[fileName]",                                                                                    // 14 Bytes + fileName
-			 *   "sha": "9b18e93e51b128498599eda93e6181c19bc26604",                                                       // 53 Bytes
-			 *   "size": 104857600,                                                                                       // 21 Bytes
-			 *   "url": "https://api.github.com/repos/[repoName]/contents/[fileName]?ref=master",                         // 63 Bytes + repoName + fileName
-			 *   "html_url": "https://github.com/[repoName]/blob/master/[fileName]",                                      // 50 Bytes + repoName + fileName
-			 *   "git_url": "https://api.github.com/repos/[repoName]/git/blobs/9b18e93e51b128498599eda93e6181c19bc26604", // 97 Bytes + repoName
-			 *   "download_url": "https://raw.githubusercontent.com/[repoName]/master/[fileName]",                        // 64 Bytes + repoName + fileName
-			 *   "type": "file",                                                                                          // 18 Bytes
-			 *   "content": "[base64-encoded file content]",                                                              // 17 Bytes + (file size * 1.3333)
-			 *   "encoding": "base64",                                                                                    // 24 Bytes
-			 *   "_links": {                                                                                              // 14 Bytes
-			 *     "self": "https://api.github.com/repos/[repoName]/contents/[fileName]?ref=master",                      // 66 Bytes + repoName + fileName
-			 *     "git": "https://api.github.com/repos/[repoName]/git/blobs/9b18e93e51b128498599eda93e6181c19bc26604",   // 95 Bytes + repoName
-			 *     "html": "https://github.com/[repoName]/blob/master/[fileName]"                                         // 47 Bytes + repoName + fileName
-			 *   }                                                                                                        // 4 Bytes
-			 * }                                                                                                          // 2 Bytes
-			 */
-			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			const minimumFileSize = 665 + path.basename(fileName).length + (fileName.length * 6) + (repoName.length * 7) + (approximateContentSize * 1.3333);
-			const contentLength = response.headers['content-length'];
+			/** @type {string[]} */
+			const data = [];
 
-			resolve(typeof contentLength === 'string' && parseInt(contentLength, 10) > minimumFileSize);
+			response.setEncoding('utf8');
+			response.on('data', (chunk) => data.push(chunk));
+			response.on('end', () => {
+				try {
+					const json = JSON.parse(data.join(''));
+					const BASE64_DECODING_FACTOR = 0.75;
+					const MINIMUM_CONTENT_SIZE = 256;
+
+					resolve((json.content.replace(/\n/gu, '').length * BASE64_DECODING_FACTOR) >= MINIMUM_CONTENT_SIZE);
+				}
+				catch {
+					resolve(false);
+				}
+			});
+			response.on('error', () => resolve(false));
 		});
 	});
 }

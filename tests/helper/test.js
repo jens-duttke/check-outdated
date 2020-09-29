@@ -140,16 +140,39 @@ async function test (title, argv, dependencies, expectedCallback) {
 				 * Mock of the https.get() function, which is used by `check-outdated` to check if a file exists on a specific server.
 				 *
 				 * @param {{ host: string; path: string; }} options - The command to run.
-				 * @param {(res: { statusCode: number; destroy (): void; }) => void} callback - Called with the output when process terminates.
+				 * @param {(
+						res: {
+							statusCode: number;
+							on (event: 'data' | 'end' | 'error', listener: (...args: any[]) => void): void;
+							setEncoding (encoding: string): void, destroy (): void;
+						}
+					) => void} callback - Called with the output when process terminates.
 				 * @returns {void}
 				 */
 				get (options, callback) {
 					const STATUS_NOT_FOUND = 404;
 
+					/** @type {{ statusCode: number; data?: string; }} */
 					const response = (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND };
 
 					callback({
 						...response,
+						on (event, listener) {
+							switch (event) {
+								case 'data':
+									if (typeof response.data === 'string') {
+										listener(response.data);
+									}
+									break;
+
+								case 'end':
+									listener();
+									break;
+
+								default:
+							}
+						},
+						setEncoding () { /* Do nothing */ },
 						destroy () { /* Do nothing */ }
 					});
 				}
