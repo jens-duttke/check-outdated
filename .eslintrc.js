@@ -485,7 +485,7 @@ module.exports = {
 		'no-array-constructor': 'off', // @typescript-eslint/no-array-constructor
 		'no-bitwise': ['error', { allow: ['^', '~', '<<', '>>', '>>>', '|=', '&=', '^=', '<<=', '>>=', '>>>='] }], // Disallow "&" and "|".
 		'no-continue': 'error',
-		'no-inline-comments': 'off', // JSDoc inline comments must be allowed
+		'no-inline-comments': 'off', // Sometimes it's better to use inline comments
 		'no-lonely-if': 'error',
 		'no-mixed-operators': 'error',
 		'no-mixed-spaces-and-tabs': 'error',
