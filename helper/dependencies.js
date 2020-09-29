@@ -95,12 +95,14 @@ function prepareResponseObject (dependencies) {
 			}
 		}
 
-		/*
-			Sometimes, npm returns an empty `location` string. So we add it.
-			@todo We should try to resolve the path on the same way as npm is doing it
-			@see path.relative(process.cwd(), require.resolve(name));
-			@see module.path
-		*/
+		/**
+		 * Sometimes, npm returns an empty `location` string. So we add it.
+		 *
+		 * @todo We should try to resolve the path on the same way as npm is doing it
+		 *
+		 * @see path.relative(process.cwd(), require.resolve(name));
+		 * @see module.path
+		 */
 		if (!outdatedDependency.location) {
 			outdatedDependency.location = `node_modules/${name}`;
 		}
