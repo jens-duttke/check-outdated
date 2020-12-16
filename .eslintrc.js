@@ -53,10 +53,10 @@ module.exports = {
 		'@typescript-eslint/adjacent-overload-signatures': 'error',
 		'@typescript-eslint/array-type': 'error',
 		'@typescript-eslint/await-thenable': 'error',
-		'@typescript-eslint/ban-ts-ignore': 'off', // @typescript-eslint/ban-ts-comment
 		'@typescript-eslint/ban-ts-comment': ['error', {
-			'ts-expect-error': false
+			'ts-expect-error': 'allow-with-description'
 		}],
+		'@typescript-eslint/ban-tslint-comment': 'error',
 		'@typescript-eslint/ban-types': ['error', {
 			types: {
 				'Function': null,
@@ -74,6 +74,7 @@ module.exports = {
 		'@typescript-eslint/class-literal-property-style': 'error',
 		'@typescript-eslint/comma-dangle': ['error', 'never'],
 		'@typescript-eslint/comma-spacing': 'error',
+		'@typescript-eslint/consistent-indexed-object-style': 'error',
 		'@typescript-eslint/consistent-type-assertions': 'error',
 		'@typescript-eslint/consistent-type-definitions': 'error',
 		'@typescript-eslint/consistent-type-imports': 'error',
@@ -82,7 +83,17 @@ module.exports = {
 		'@typescript-eslint/explicit-member-accessibility': 'off', // @todo This function should also consider JSDoc @public/@private, but it doesn't do that yet, so create an ticket.
 		'@typescript-eslint/explicit-module-boundary-types': 'error',
 		'@typescript-eslint/func-call-spacing': 'error',
-		'@typescript-eslint/indent': ['error', 'tab', { SwitchCase: 1, VariableDeclarator: 1, MemberExpression: 1, flatTernaryExpressions: true, ignoredNodes: ['ConditionalExpression'] }],
+		'@typescript-eslint/indent': [
+			'error',
+			'tab',
+			{
+				SwitchCase: 1,
+				VariableDeclarator: 1,
+				MemberExpression: 1,
+				flatTernaryExpressions: true,
+				ignoredNodes: ['ConditionalExpression']
+			}
+		],
 		'@typescript-eslint/member-delimiter-style': ['error', { multiline: { delimiter: 'semi', requireLast: true }, singleline: { delimiter: 'semi', requireLast: true } }],
 		'@typescript-eslint/member-ordering': ['error', {
 			default: [
@@ -143,7 +154,9 @@ module.exports = {
 		'@typescript-eslint/no-array-constructor': 'error',
 		'@typescript-eslint/no-base-to-string': 'error',
 		'@typescript-eslint/no-confusing-non-null-assertion': 'error',
+		'@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
 		'@typescript-eslint/no-dupe-class-members': 'error',
+		'@typescript-eslint/no-duplicate-imports': 'error',
 		'@typescript-eslint/no-dynamic-delete': 'error',
 		'@typescript-eslint/no-empty-function': 'error',
 		'@typescript-eslint/no-empty-interface': 'off',
@@ -172,7 +185,9 @@ module.exports = {
 		'@typescript-eslint/no-non-null-assertion': 'error',
 		'@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
 		'@typescript-eslint/no-parameter-properties': 'error',
+		'@typescript-eslint/no-redeclare': 'error',
 		'@typescript-eslint/no-require-imports': 'off', // Requires type information
+		'@typescript-eslint/no-shadow': 'error',
 		'@typescript-eslint/no-this-alias': 'error',
 		'@typescript-eslint/no-throw-literal': 'off', // @todo Doesn't work with NodeJS assert.AssertionError()
 		'@typescript-eslint/no-type-alias': ['error', {
@@ -200,6 +215,7 @@ module.exports = {
 		'@typescript-eslint/no-use-before-define': ['error', { functions: false }],
 		'@typescript-eslint/no-useless-constructor': 'error',
 		'@typescript-eslint/no-var-requires': 'off', // Requires type information
+		'@typescript-eslint/non-nullable-type-assertion-style': 'off', // Conflicts with `no-non-null-assertion`, which we prefer
 		'@typescript-eslint/prefer-as-const': 'error',
 		'@typescript-eslint/prefer-enum-initializers': 'error',
 		'@typescript-eslint/prefer-for-of': 'error',
@@ -310,7 +326,6 @@ module.exports = {
 		'no-inner-declarations': ['error', 'both'],
 		'no-invalid-regexp': 'error',
 		'no-irregular-whitespace': 'error',
-		'no-loss-of-precision': 'off', // @typescript-eslint/no-loss-of-precision
 		'no-misleading-character-class': 'error',
 		'no-obj-calls': 'error',
 		'no-promise-executor-return': 'error',
@@ -324,6 +339,8 @@ module.exports = {
 		'no-unreachable-loop': 'error',
 		'no-unsafe-finally': 'error',
 		'no-unsafe-negation': 'error',
+		'no-unsafe-optional-chaining': 'error',
+		'no-useless-backreference': 'error',
 		'require-atomic-updates': 'error',
 		'use-isnan': 'error',
 		'valid-typeof': ['error', { requireStringLiterals: true }],
@@ -337,6 +354,7 @@ module.exports = {
 		'consistent-return': 'error',
 		'curly': 'error',
 		'default-case': 'error',
+		'default-case-last': 'error',
 		'default-param-last': 'error',
 		'dot-location': ['error', 'property'],
 		'dot-notation': 'off', // @typescript-eslint/dot-notation
@@ -368,12 +386,14 @@ module.exports = {
 		'no-labels': ['error', { allowLoop: true }],
 		'no-lone-blocks': 'error',
 		'no-loop-func': 'error',
+		'no-loss-of-precision': 'off', // @typescript-eslint/no-loss-of-precision
 		'no-magic-numbers': 'off', // @typescript-eslint/no-magic-numbers
 		'no-multi-spaces': 'error',
 		'no-multi-str': 'error',
 		'no-new': 'error',
 		'no-new-func': 'error',
 		'no-new-wrappers': 'error',
+		'no-nonoctal-decimal-escape': 'error',
 		'no-octal': 'error',
 		'no-octal-escape': 'error',
 		'no-param-reassign': 'error',
@@ -544,6 +564,7 @@ module.exports = {
 		'no-dupe-class-members': 'off', // @typescript-eslint/no-no-dupe-class-members
 		'no-duplicate-imports': 'error',
 		'no-new-symbol': 'error',
+		'no-restricted-exports': 'error',
 		'no-restricted-imports': 'error',
 		'no-this-before-super': 'error',
 		'no-useless-computed-key': 'error',
@@ -563,6 +584,6 @@ module.exports = {
 		'sort-imports': 'error',
 		'symbol-description': 'error',
 		'template-curly-spacing': 'error',
-		'yield-star-spacing': 'error'
+		'yield-star-spacing': ['error', { before: true, after: false }]
 	}
 };
