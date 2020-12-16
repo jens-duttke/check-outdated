@@ -10,23 +10,23 @@ const STATUS_OK = 200;
 
 /** @type {readonly {
  *   readonly regExp: RegExp;
- *   readonly getRepositoryURL: (match: readonly string[]) => string;
- *   readonly getChangelogURL: (match: readonly string[]) => Promise<string> | string;
+ *   readonly getRepositoryURL: (match: readonly string[], directory: string) => string;
+ *   readonly getChangelogURL: (match: readonly string[], directory: string) => Promise<string> | string;
  * }[]} */
 const REPOSITORY_URLS = [
 	{
 		regExp: /^github:(.+)/u,
-		getRepositoryURL: (match) => `https://github.com/${match[1]}`,
+		getRepositoryURL: (match, directory) => `https://github.com/${match[1]}${directory}`,
 		getChangelogURL: (match) => `https://github.com/${match[1]}/releases`
 	},
 	{
 		regExp: /^gist:(.+)/u,
-		getRepositoryURL: (match) => `https://gist.github.com/${match[1]}`,
+		getRepositoryURL: (match, directory) => `https://gist.github.com/${match[1]}${directory}`,
 		getChangelogURL: (match) => `https://gist.github.com/${match[1]}/revisions`
 	},
 	{
 		regExp: /^bitbucket:(.+)/u,
-		getRepositoryURL: (match) => `https://bitbucket.org/${match[1]}`,
+		getRepositoryURL: (match, directory) => `https://bitbucket.org/${match[1]}${directory}`,
 		// @todo Right now, I can't find a reference, to a public bitbucket repository
 		getChangelogURL: (match) => `https://bitbucket.org/${match[1]}`
 	},
@@ -37,19 +37,19 @@ const REPOSITORY_URLS = [
 	},
 	{
 		regExp: /^git\+(https?:\/\/.+)\.git$/u,
-		getRepositoryURL: (match) => match[1],
-		getChangelogURL: async (match) => getChangelogFromURL(match[1])
+		getRepositoryURL: (match, directory) => `${match[1]}${directory}`,
+		getChangelogURL: async (match, directory) => getChangelogFromURL(match[1], directory)
 	},
 	{
 		regExp: /^git\+ssh:\/\/git@(.+)\.git$/u,
-		getRepositoryURL: (match) => `https://${match[1]}`,
-		getChangelogURL: async (match) => getChangelogFromURL(`https://${match[1]}`)
+		getRepositoryURL: (match, directory) => `https://${match[1]}${directory}`,
+		getChangelogURL: async (match, directory) => getChangelogFromURL(`https://${match[1]}`, directory)
 	},
 	// Fallback (should be the last item)
 	{
 		regExp: /^(https?:\/\/.+)/u,
-		getRepositoryURL: (match) => match[1],
-		getChangelogURL: async (match) => getChangelogFromURL(match[1])
+		getRepositoryURL: (match, directory) => `${match[1]}${directory}`,
+		getChangelogURL: async (match, directory) => getChangelogFromURL(match[1], directory)
 	}
 ];
 
@@ -118,7 +118,7 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
 				const match = repo.regExp.exec(packageJSON.repository);
 
 				if (match !== null) {
-					return (linkToChangelog ? repo.getChangelogURL(match) : repo.getRepositoryURL(match));
+					return (linkToChangelog ? repo.getChangelogURL(match, '') : repo.getRepositoryURL(match, ''));
 				}
 			}
 		}
@@ -127,7 +127,9 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
 				const match = repo.regExp.exec(packageJSON.repository.url);
 
 				if (match !== null) {
-					return (linkToChangelog ? repo.getChangelogURL(match) : repo.getRepositoryURL(match));
+					const directory = packageJSON.repository.directory ? packageJSON.repository.directory.replace(/^\/*/u, '/').replace(/\/+$/u, '') : '';
+
+					return (linkToChangelog ? repo.getChangelogURL(match, directory) : repo.getRepositoryURL(match, directory));
 				}
 			}
 		}
@@ -141,14 +143,15 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
  *
  * @private
  * @param {string} url - Service URL
+ * @param {string} directory - Sub-directory path, starting with "/" or an empty string
  * @returns {Promise<string>} Either returns an URL to the changelog for a specific service, or it returns `url`.
  */
-async function getChangelogFromURL (url) {
+async function getChangelogFromURL (url, directory) {
 	const githubMatch = (/^https?:\/\/github.com\/([^/]+?\/[^/#?]+)/u).exec(url);
 
 	if (githubMatch !== null) {
-		if (await isFileOnGitHub(githubMatch[1], 'CHANGELOG.md')) {
-			return `https://github.com/${githubMatch[1]}/blob/master/CHANGELOG.md`;
+		if (await isFileOnGitHub(githubMatch[1], 'CHANGELOG.md', directory)) {
+			return `https://github.com/${githubMatch[1]}/blob/master${directory}/CHANGELOG.md`;
 		}
 
 		return `https://github.com/${githubMatch[1]}/releases`;
@@ -175,13 +178,14 @@ async function getChangelogFromURL (url) {
  * @private
  * @param {string} repoName - GitHub repository name, e.g. "jens.duttke/check-outdated"
  * @param {string} fileName - File name, e.g. "README.md"
+ * @param {string} directory - Sub-directory path, starting with "/" or an empty string
  * @returns {Promise<boolean>} Returns `true` or `false`.
  */
-async function isFileOnGitHub (repoName, fileName) {
+async function isFileOnGitHub (repoName, fileName, directory = '') {
 	return new Promise((resolve) => {
 		https.get({
 			host: 'api.github.com',
-			path: `/repos/${repoName}/contents/${fileName}`,
+			path: `/repos/${repoName}/contents${directory}/${fileName}`,
 			method: 'GET',
 			headers: {
 				'User-Agent': 'Mozilla/5.0'

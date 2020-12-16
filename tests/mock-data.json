@@ -169,6 +169,13 @@
 			"location": "node_modules/module-with-package-json-with-github-repository2",
 			"type": "dependencies"
 		},
+		"module-with-package-json-with-github-repository3": {
+			"current": "1.0.0",
+			"wanted": "1.0.0",
+			"latest": "2.0.0",
+			"location": "node_modules/module-with-package-json-with-github-repository3",
+			"type": "dependencies"
+		},
 		"module-with-package-json-with-github-repository-string": {
 			"current": "1.0.0",
 			"wanted": "1.0.0",
@@ -284,6 +291,13 @@
 				"url": "git+https://github.com/jens-duttke/check-outdated.git"
 			}
 		},
+		"node_modules/module-with-package-json-with-github-repository3/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/jens-duttke/check-outdated.git",
+				"directory": "packages/sub-package"
+			}
+		},
 		"node_modules/module-with-package-json-with-github-repository-string/package.json": {
 			"repository": "github:user/repo"
 		},
@@ -333,6 +347,10 @@
 	},
 	"httpsGet": {
 		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+		},
+		"api.github.com/repos/jens-duttke/check-outdated/contents/packages/sub-package/CHANGELOG.md": {
 			"statusCode": 200,
 			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
 		},
