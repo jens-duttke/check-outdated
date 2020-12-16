@@ -1,6 +1,6 @@
 {
 	"name": "check-outdated",
-	"version": "2.4.1",
+	"version": "2.5.0",
 	"description": "Ensures that your dependencies are up to date, otherwise the process is terminated with status code 1.",
 	"keywords": [
 		"cli",
@@ -20,7 +20,7 @@
 	"license": "MIT",
 	"main": "./check-outdated.js",
 	"bin": {
-		"check-outdated": "./check-outdated.js"
+		"check-outdated": "check-outdated.js"
 	},
 	"repository": {
 		"type": "git",
