@@ -4,12 +4,13 @@
 
 const tty = require('tty');
 
-let colorize = require('../../helper/colorize');
+const colorize = require('../../helper/colorize');
 
 const isTerminal = tty.isatty(1);
 
 if (!isTerminal) {
-	colorize = colorize.disabled;
+	module.exports = colorize.disabled;
 }
-
-module.exports = colorize;
+else {
+	module.exports = colorize;
+}
