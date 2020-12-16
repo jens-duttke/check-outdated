@@ -104,6 +104,10 @@ jobs:
         - 14.13.x
         - 14.14.x
         - 15.0.x
+        - 15.1.x
+        - 15.2.x
+        - 15.3.x
+        - 15.4.x
 
     steps:
     - uses: actions/checkout@v2
