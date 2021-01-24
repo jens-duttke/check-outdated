@@ -447,7 +447,7 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) 
  *
  * @private
  * @param {Dependencies} filteredDependencies - Array of dependency objects, which will be shown in the terminal.
- * @param {Options} options - The arguments which the user provided
+ * @param {Options} options - The arguments which the user provided.
  * @returns {void}
  */
 function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, options) {

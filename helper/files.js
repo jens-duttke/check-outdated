@@ -85,7 +85,7 @@ function getChangelogPath (dependencyLocation) {
  * Returns the content of a file.
  *
  * @public
- * @param {string} filePath - The path/file name
+ * @param {string} filePath - The path/file name.
  * @returns {string | undefined} The content of the file or `undefined`, if an error occurs.
  */
 function readFile (filePath) {

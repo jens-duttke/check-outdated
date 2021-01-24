@@ -6,9 +6,9 @@
  * Escape strings for use in regular expressions.
  *
  * @public
- * @param {string} str - The input string
- * @param {RegExp} regexp - The regular expression used for the search
- * @returns {[number, number]} The first value represents the line, the second value the column
+ * @param {string} str - The input string.
+ * @param {RegExp} regexp - The regular expression used for the search.
+ * @returns {[number, number]} The first value represents the line, the second value the column.
  */
 function getRegExpPosition (str, regexp) {
 	let pos = str.search(regexp);
@@ -46,8 +46,8 @@ function getRegExpPosition (str, regexp) {
  * Escape strings for use in regular expressions.
  *
  * @public
- * @param {string} str - The input string
- * @returns {string} The escaped output string
+ * @param {string} str - The input string.
+ * @returns {string} The escaped output string.
  */
 function escapeRegExp (str) {
 	return str.replace(/([[\\^$.|?*+()])/gu, '\\$1');

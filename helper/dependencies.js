@@ -75,8 +75,8 @@ async function getOutdatedDependencies (options) {
  * Adds missing properties to the dependencies object.
  *
  * @private
- * @param {{ readonly [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The partial filled outdated dependency object
- * @returns {{ [dependencyName: string]: OutdatedDependency; }} The enriched outdated dependency object
+ * @param {{ readonly [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The partial filled outdated dependency object.
+ * @returns {{ [dependencyName: string]: OutdatedDependency; }} The enriched outdated dependency object.
  */
 function prepareResponseObject (dependencies) {
 	/** @type {{ [dependencyName: string]: OutdatedDependency; }} */
@@ -98,7 +98,7 @@ function prepareResponseObject (dependencies) {
 		/**
 		 * Sometimes, npm returns an empty `location` string. So we add it.
 		 *
-		 * @todo We should try to resolve the path on the same way as npm is doing it
+		 * @todo We should try to resolve the path on the same way as npm is doing it.
 		 *
 		 * @see path.relative(process.cwd(), require.resolve(name));
 		 * @see module.path

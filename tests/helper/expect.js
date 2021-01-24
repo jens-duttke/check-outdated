@@ -133,7 +133,7 @@ function expectVarNotToHaveWord (variable, value, ignoreEscapeSequences = true) 
  * This code does some tricky code analysis to find the variable name.
  *
  * @private
- * @returns {string} Either the first argument or in red colored "[unknown argument]"
+ * @returns {string} Either the first argument or in red colored "[unknown argument]".
  */
 function getFirstArgument () {
 	const match = (/^\s+at\s(.+?):(\d+):(\d+)$/u).exec((Error().stack || '').split('\n')[3]);
