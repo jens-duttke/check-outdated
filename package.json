@@ -16,7 +16,7 @@
 		"packages",
 		"modules"
 	],
-	"author": "Jens Duttke <github@duttke.de>",
+	"author": "Jens Duttke <github@duttke.de> (https://github.com/jens-duttke)",
 	"license": "MIT",
 	"main": "./check-outdated.js",
 	"bin": {
