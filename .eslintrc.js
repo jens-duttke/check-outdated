@@ -276,7 +276,7 @@ module.exports = {
 		'jsdoc/no-defaults': 'off',
 		'jsdoc/no-types': 'off',
 		'jsdoc/no-undefined-types': ['error', { definedTypes: ['void', 'never', 'Readonly'] }],
-		'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't seems to work correctly
+		'jsdoc/require-description-complete-sentence': 'off', // @todo Doesn't work correctly (e.g. the `g` of `e.g.` is interpreted as separate sentence).
 		'jsdoc/require-description': 'error',
 		'jsdoc/require-example': 'off',
 		'jsdoc/require-file-overview': 'error',
@@ -292,6 +292,8 @@ module.exports = {
 		'jsdoc/require-returns-type': 'error',
 		'jsdoc/require-returns': ['error', { forceReturnsWithAsync: true }],
 		'jsdoc/require-throws': 'error',
+		'jsdoc/require-yields': 'error',
+		'jsdoc/require-yields-check': 'error',
 		'jsdoc/valid-types': 'off', // Checked by TypeScript
 
 		/**
