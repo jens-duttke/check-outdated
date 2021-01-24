@@ -2,6 +2,11 @@
 
 ## Functionality improvements
 
+- Test für CHANGELOG auf GitLab:
+  https://gitlab.com/allardyce/vectato
+
+- Add main-branch detection in helper\urls.js -> getChangelogFromURL() (right now, we assume the main branch is called "master")
+
 - Add option to automatically update the outdated dependencies
   - It must be configurable if you want to auto-update only patches, or minor or major (all)
   - It must be configurable if the status code should be still -1 or if it should be 0
