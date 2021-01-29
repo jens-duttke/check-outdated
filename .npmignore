@@ -1,3 +1,5 @@
+.github/
+.vscode/
 test/
 .editorconfig
 .eslintrc.js
