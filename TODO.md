@@ -2,6 +2,8 @@
 
 ## Functionality improvements
 
+- Make use of linter-bundle and move eslint-plugin-jsdoc to it
+
 - Test für CHANGELOG auf GitLab:
   https://gitlab.com/allardyce/vectato
 
