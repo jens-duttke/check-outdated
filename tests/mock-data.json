@@ -288,7 +288,7 @@
 		"node_modules/module-with-package-json-with-github-repository2/package.json": {
 			"repository": {
 				"type": "git",
-				"url": "git+https://github.com/jens-duttke/check-outdated.git"
+				"url": "https://github.com/jens-duttke/check-outdated.git"
 			}
 		},
 		"node_modules/module-with-package-json-with-github-repository3/package.json": {

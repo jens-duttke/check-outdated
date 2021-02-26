@@ -47,7 +47,7 @@ const REPOSITORY_URLS = [
 	},
 	// Fallback (should be the last item)
 	{
-		regExp: /^(https?:\/\/.+)/u,
+		regExp: /^(https?:\/\/.+?)(\.git)?$/u,
 		getRepositoryURL: (match, directory) => `${match[1]}${directory}`,
 		getChangelogURL: async (match, directory) => getChangelogFromURL(match[1], directory)
 	}
