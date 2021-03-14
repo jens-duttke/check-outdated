@@ -62,7 +62,7 @@ Or put it into your `package.json`:
 ### Available Columns
 
 By default, the following columns are shown:  
-`name`, `current`, `wanted`, `latest`, `location`, `changes`
+`name`, `current`, `wanted`, `latest`, `reference`, `changes`, `location`, 
 
 You are able to overwrite the default by using the `--columns` argument.
 
@@ -72,12 +72,12 @@ You are able to overwrite the default by using the `--columns` argument.
 | Current | `current` | The currently installed version of the package. | 3.<u>7</u>.<u>2</u> |
 | Wanted | `wanted` | The maximum version of the package that satisfies the semver range specified in **package.json**. If there's no available semver range (i.e. you're using the `--global` argument, or the package isn't included in **package.json**), then **wanted** shows the currently-installed version.<br />This column is always colored in **green**. | 3.7.2 |
 | Latest | `latest` | The version of the package tagged as latest in the npm registry.<br />This column is always colored in **magenta**. | 3.<u>8</u>.<u>3</u> |
-| Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor` or `patch` update, in Semantic Versioning. | minor |
-| Location | `location` | Shows where in the dependency tree the package is located. Note that **check-outdated** defaults to a depth of 0, so unless you override that, you'll always be seeing only top-level dependencies that are outdated. | node_modules/typescript |
-| Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
 | Reference | `reference` | Contains a link to the line and column of the dependency in the **package.json**.<br />By using a terminal which supports clicking on such links, you can navigate directly the the item. | P:\my-project\package.json:47:3 |
 | Changes | `changes` | **check-outdated** tries to find a direct link to changelog of the package. The following places are considered in the given order:<ol><li>{package}/package.json > "repository" \*</li><li>{package}/package.json > "homepage"</li><li>`https://www.npmjs.com/package/{name}`</li></ol>\* GitHub-repository URLs are adjusted, so that they directly link to the **CHANGELOG<span>.</span>md** or the **Releases** section. | https<span>:</span>//github<span>.</span>com/Microsoft/TypeScript/releases |
 | Changes | `changesPreferLocal` | Same as `changes`, but first check for a CHANGELOG<span>.</span>md in the package folder.<br />Keep in mind, you'll only see the changelog of the currently installed version, not of the version which is recommended. | node_modules/fs-extra/CHANGELOG.md |
+| Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor` or `patch` update, in Semantic Versioning. | minor |
+| Location | `location` | Shows where in the dependency tree the package is located. Note that **check-outdated** defaults to a depth of 0, so unless you override that, you'll always be seeing only top-level dependencies that are outdated. | node_modules/typescript |
+| Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<ol><li>{package}/package.json > "homepage"</li><li>{package}/package.json > "repository"</li><li>{package}/package.json > "author"</li><li>`https://www.npmjs.com/package/{name}`</li></ol> | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |
 | npmjs<span>.</span>com | `npmjs` | A link to the package on the npmjs.com website. | https<span>:</span>//www<span>.</span>npmjs<span>.</span>com/package/typescript |
 

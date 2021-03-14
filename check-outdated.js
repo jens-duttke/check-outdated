@@ -57,7 +57,7 @@ const pkg = require('./package.json');
  * @property {PackageJSON} [packageJSON]
  */
 
-const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'location', 'reference', 'changes'];
+const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'reference', 'changes', 'location'];
 
 /**
  * @typedef {object} Column
