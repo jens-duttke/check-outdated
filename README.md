@@ -62,7 +62,7 @@ Or put it into your `package.json`:
 ### Available Columns
 
 By default, the following columns are shown:  
-`name`, `current`, `wanted`, `latest`, `type`, `location`, `packageType`, `changes`
+`name`, `current`, `wanted`, `latest`, `location`, `packageType`, `changes`
 
 You are able to overwrite the default by using the `--columns` argument.
 
