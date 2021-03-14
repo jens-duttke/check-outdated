@@ -72,6 +72,47 @@ async function getOutdatedDependencies (options) {
 }
 
 /**
+ * Compare function used with `Array.sort()` to sort outdated dependencies by their name.
+ *
+ * @public
+ * @param {OutdatedDependency} firstDependency - First dependency objects.
+ * @param {OutdatedDependency} secondDependency - Second dependency objects.
+ * @returns {-1 | 0 | 1} - Defines the sorting order.
+ */
+function compareByName (firstDependency, secondDependency) {
+	if (firstDependency.name < secondDependency.name) {
+		return -1;
+	}
+	else if (firstDependency.name > secondDependency.name) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+ * Compare function used with `Array.sort()` to sort outdated dependencies primary by their type, secondary by their name.
+ *
+ * @public
+ * @param {OutdatedDependency} firstDependency - First dependency objects.
+ * @param {OutdatedDependency} secondDependency - Second dependency objects.
+ * @returns {-1 | 0 | 1} - Defines the sorting order.
+ */
+function compareByType (firstDependency, secondDependency) {
+	const first = `${(firstDependency.type === 'dependencies' ? 'A' : 'B')}${firstDependency.name}`;
+	const second = `${(secondDependency.type === 'dependencies' ? 'A' : 'B')}${secondDependency.name}`;
+
+	if (first < second) {
+		return -1;
+	}
+	else if (first > second) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
  * Adds missing properties to the dependencies object.
  *
  * @private
@@ -141,4 +182,8 @@ function parseResponse (stdout) {
 	}
 }
 
-module.exports = getOutdatedDependencies;
+module.exports = {
+	getOutdatedDependencies,
+	compareByName,
+	compareByType
+};

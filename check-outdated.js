@@ -10,7 +10,7 @@
 
 const parseArgs = require('./helper/args');
 const colorize = require('./helper/colorize');
-const getOutdatedDependencies = require('./helper/dependencies');
+const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
@@ -57,7 +57,7 @@ const pkg = require('./package.json');
  * @property {PackageJSON} [packageJSON]
  */
 
-const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'location', 'packageType', 'reference', 'changes'];
+const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'location', 'reference', 'changes'];
 
 /**
  * @typedef {object} Column
@@ -75,13 +75,13 @@ const AVAILABLE_COLUMNS = {
 		getValue: async (dependency) => {
 			switch (semverDiffType(dependency.current, dependency.latest)) {
 				case 'major':
-					return colorize.green(dependency.name);
+					return colorize.red(dependency.name);
 
 				case 'minor':
 					return colorize.yellow(dependency.name);
 
 				case 'patch':
-					return colorize.red(dependency.name);
+					return colorize.green(dependency.name);
 
 				default:
 					return dependency.name;
@@ -433,12 +433,24 @@ function getFilteredDependencies (dependencies, options) {
  * @returns {Promise<void>}
  */
 async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
-	/** @type {((string | TableColumn)[] | Promise<(string | TableColumn)[]>)[]} */
+	/** @type {(string | (string | TableColumn)[] | Promise<string | (string | TableColumn)[]>)[]} */
 	const table = [
 		visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].caption)
 	];
+	const groupByPackageType = !visibleColumns.includes('packageType');
+
+	/** @type {undefined | string} */
+	let previousPackageTypeGroup;
+
+	dependencies.sort((groupByPackageType ? compareByType : compareByName));
 
 	for (const dependency of dependencies) {
+		if (groupByPackageType && previousPackageTypeGroup !== dependency.type) {
+			table.push(`\n${colorize.underline(dependency.type)}`);
+
+			previousPackageTypeGroup = dependency.type;
+		}
+
 		table.push((async () => {
 			/** @type {DependencyDetailsCache} */
 			const dependencyDetailsCache = {};
@@ -451,9 +463,9 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) 
 		prettifyTable(await Promise.all(table)),
 		'',
 		colorize.underline('Color legend'),
-		`${colorize.green('Major update')}: backward-incompatible updates`,
+		`${colorize.red('Major update')}: backward-incompatible updates`,
 		`${colorize.yellow('Minor update')}: backward-compatible features`,
-		`${colorize.red('Patch update')}: backward-compatible bug fixes`,
+		`${colorize.green('Patch update')}: backward-compatible bug fixes`,
 		'',
 		''
 	].join('\n'));

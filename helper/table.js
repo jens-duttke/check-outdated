@@ -14,7 +14,7 @@
 /**
  * Array contains rows, contain columns, for a tabularly visualization of data.
  *
- * @typedef {(TableColumn | string)[][]} Table
+ * @typedef {(string | (TableColumn | string)[])[]} Table
  */
 
 /**
@@ -34,22 +34,27 @@ function prettifyTable (table) {
 			out.push('\n');
 		}
 
-		for (let col = 0; col < table[row].length; col++) {
-			const content = table[row][col];
-			const { text, alignRight = false } = (typeof content === 'object' ? content : { text: content });
+		if (typeof table[row] === 'string') {
+			out.push(table[row]);
+		}
+		else {
+			for (let col = 0; col < table[row].length; col++) {
+				const content = table[row][col];
+				const { text, alignRight = false } = (typeof content === 'object' ? content : { text: content });
 
-			if (col > 0) {
-				out.push('  ');
-			}
+				if (col > 0) {
+					out.push('  ');
+				}
 
-			if (alignRight) {
-				out.push(' '.repeat(colWidths[col] - plainLength(text)));
-			}
+				if (alignRight) {
+					out.push(' '.repeat(colWidths[col] - plainLength(text)));
+				}
 
-			out.push(text);
+				out.push(text);
 
-			if (!alignRight) {
-				out.push(' '.repeat(colWidths[col] - plainLength(text)));
+				if (!alignRight) {
+					out.push(' '.repeat(colWidths[col] - plainLength(text)));
+				}
 			}
 		}
 	}
@@ -62,10 +67,14 @@ function prettifyTable (table) {
  *
  * @private
  * @param {readonly number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
- * @param {readonly (string | TableColumn)[]} row - A single row containg the columns of a `Table`.
- * @returns {number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
+ * @param {(string | readonly (string | TableColumn)[])} row - A single row containg the columns of a `Table`.
+ * @returns {readonly number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
  */
 function colWidthReducer (widths, row) {
+	if (typeof row === 'string') {
+		return widths;
+	}
+
 	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), widths[colIndex] || 0));
 }
 
