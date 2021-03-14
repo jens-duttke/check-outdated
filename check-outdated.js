@@ -446,7 +446,7 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) 
 
 	for (const dependency of dependencies) {
 		if (groupByPackageType && previousPackageTypeGroup !== dependency.type) {
-			table.push(`\n${colorize.underline(dependency.type)}`);
+			table.push(`\n${colorize.underline(dependency.type || colorize.gray('unknown'))}`);
 
 			previousPackageTypeGroup = dependency.type;
 		}
