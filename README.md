@@ -24,7 +24,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 
 ## Example Screenshot
 
-[<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@b80591e/screenshot.png" width="100%" />](https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@b80591e/screenshot.png)
+[<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@c2adbf5/screenshot.png" width="100%" />](https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@c2adbf5/screenshot.png)
 
 ## Install
 
@@ -80,4 +80,3 @@ You are able to overwrite the default by using the `--columns` argument.
 | Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<ol><li>{package}/package.json > "homepage"</li><li>{package}/package.json > "repository"</li><li>{package}/package.json > "author"</li><li>`https://www.npmjs.com/package/{name}`</li></ol> | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |
 | npmjs<span>.</span>com | `npmjs` | A link to the package on the npmjs.com website. | https<span>:</span>//www<span>.</span>npmjs<span>.</span>com/package/typescript |
-
