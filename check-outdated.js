@@ -72,7 +72,21 @@ const packageJsonCache = {};
 const AVAILABLE_COLUMNS = {
 	name: {
 		caption: colorize.underline('Package'),
-		getValue: async (dependency) => (dependency.current === dependency.wanted ? colorize.yellow(dependency.name) : colorize.red(dependency.name))
+		getValue: async (dependency) => {
+			switch (semverDiffType(dependency.current, dependency.latest)) {
+				case 'major':
+					return colorize.green(dependency.name);
+
+				case 'minor':
+					return colorize.yellow(dependency.name);
+
+				case 'patch':
+					return colorize.red(dependency.name);
+
+				default:
+					return dependency.name;
+			}
+		}
 	},
 	current: {
 		caption: {
@@ -433,7 +447,16 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) 
 		})());
 	}
 
-	process.stdout.write(`${prettifyTable(await Promise.all(table))}\n\n`);
+	process.stdout.write([
+		prettifyTable(await Promise.all(table)),
+		'',
+		colorize.underline('Color legend'),
+		`${colorize.green('Major update')}: backward-incompatible updates`,
+		`${colorize.yellow('Minor update')}: backward-compatible features`,
+		`${colorize.red('Patch update')}: backward-compatible bug fixes`,
+		'',
+		''
+	].join('\n'));
 }
 
 /**
