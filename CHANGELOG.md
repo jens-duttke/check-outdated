@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.5.1...v2.6.0)
 
-## [2.5.1] - 2021 -02-26
+## [2.5.1] - 2021-02-26
 
 ### Fixed
 
@@ -151,6 +151,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/8fa4721...v1.0.1)
 
-## [1.0.0] - 2017-06-20
+## [1.0.0] - 2019-08-01
 
 Initial commit
