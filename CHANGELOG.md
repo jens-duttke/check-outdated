@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD)
 
 ## [2.6.0] - 2021-03-14
 
@@ -22,11 +22,15 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 - Reorder default columns
 - Remove "Type" from default columns
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.5.1...v2.6.0)
+
 ## [2.5.1] - 2021 -02-26
 
 ### Fixed
 
 - Remove ".git" extension from GitHub repository URLs
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.5.0...v2.5.1)
 
 ## [2.5.0] - 2020-12-16
 
@@ -34,11 +38,15 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 
 - Sub-packages in mono-repositories on GitHub (like Gatsby) are now considered for CHANGELOG.md-link generation
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.4.1...v2.5.0)
+
 ## [2.4.1] - 2020-09-29
 
 ### Changed
 
 - Improve CHANGELOG.md detection
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.4.0...v2.4.1)
 
 ## [2.4.0] - 2020-09-26
 
@@ -46,11 +54,15 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 
 - Only link to CHANGELOG.md files on GitHub if they have content
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.3.2...v2.4.0)
+
 ## [2.3.2] - 2020-08-04
 
 ### Changed
 
 - Optimize detection of item in package.json for generting the Reference link
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.3.1...v2.3.2)
 
 ## [2.3.1] - 2020-08-04
 
@@ -58,11 +70,15 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 
 - Fix missing Reference link, if the installed package version does not match the version in the package.json
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.3.0...v2.3.1)
+
 ## [2.3.0] - 2020-06-24
 
 ### Added
 
 - If a CHANGELOG.md exists in the GitHub repository, the Changes row, will link to this file, instead of the Releases page
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.2.0...v2.3.0)
 
 ## [2.2.0] - 2020-05-16
 
@@ -71,11 +87,15 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 - Add "Reference" column, which contains a link to the line and column of the dependency in the package.json.
   By using a terminal which supports clicking on such links, you can navigate directly the the item.
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.1.1...v2.2.0)
+
 ## [2.1.1] - 2020-05-08
 
 ### Fixed
 
 - Handle the issue that npm may return an empty current information for packages (thanks to Jonathan Graf for reporting this problem)
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.1.0...v2.1.1)
 
 ## [2.1.0] - 2020-05-08
 
@@ -92,6 +112,8 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 
 - Remove consideration of CHANGELOG.md from changes column
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.0.0...v2.1.0)
+
 ## [2.0.0] - 2020-04-26
 
 ### Added
@@ -99,33 +121,35 @@ https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD
 - Add --columns argument to hide/show and reorder the columns.
 - Add new columns "Changes" (changes), "Homepage" (homepage) and "npmjs.com" (npmjs)
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.4.3...v2.0.0)
+
 ## [1.4.3] - 2020-03-16
 
-https://github.com/jens-duttke/check-outdated/compare/v1.4.2...v1.4.3
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.4.2...v1.4.3)
 
 ## [1.4.2] - 2019-09-08
 
-https://github.com/jens-duttke/check-outdated/compare/v1.4.1...v1.4.2
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.4.1...v1.4.2)
 
 ## [1.4.1] - 2019-08-30
 
-https://github.com/jens-duttke/check-outdated/compare/v1.3.0...v1.4.1
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.3.0...v1.4.1)
 
 ## [1.3.0] - 2019-08-09
 
-https://github.com/jens-duttke/check-outdated/compare/v1.2.0...v1.3.0
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.2.0...v1.3.0)
 
 ## [1.2.0] - 2019-08-02
 
-https://github.com/jens-duttke/check-outdated/compare/v1.1.0...v1.2.0
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.1.0...v1.2.0)
 
 ## [1.1.0] - 2019-08-02
 
-https://github.com/jens-duttke/check-outdated/compare/v1.0.1...v1.1.0
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v1.0.1...v1.1.0)
 
 ## [1.0.1] - 2019-08-01
 
-https://github.com/jens-duttke/check-outdated/compare/8fa4721...v1.0.1
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/8fa4721...v1.0.1)
 
 ## [1.0.0] - 2017-06-20
 
