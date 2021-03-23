@@ -10,6 +10,7 @@
 		"up-to-date",
 		"code",
 		"error",
+		"ci",
 		"pipeline",
 		"publish",
 		"hook",
