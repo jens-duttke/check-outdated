@@ -234,6 +234,12 @@ const AVAILABLE_COLUMNS = {
 const AVAILABLE_ARGUMENTS = {
 	'--help': () => help(),
 	'-h': () => help(),
+	'--ignore-pre-releases': {
+		ignorePreReleases: true
+	},
+	'--ignore-dev-dependencies': {
+		ignoreDevDependencies: true
+	},
 	'--ignore-packages': (value) => {
 		const ignorePackages = value.split(',');
 
@@ -258,6 +264,9 @@ const AVAILABLE_ARGUMENTS = {
 
 		return { columns };
 	},
+	'--global': {
+		global: true
+	},
 	'--depth': (value) => {
 		const depth = parseInt(value, 10);
 
@@ -266,15 +275,6 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		return { depth };
-	},
-	'--ignore-pre-releases': {
-		ignorePreReleases: true
-	},
-	'--ignore-dev-dependencies': {
-		ignoreDevDependencies: true
-	},
-	'--global': {
-		global: true
 	}
 };
 
