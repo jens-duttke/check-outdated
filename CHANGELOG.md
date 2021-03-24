@@ -7,20 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.6.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.7.0...HEAD)
 
-## [2.6.0] - 2021-03-14
+## [2.7.0] - 2021-03-24
 
 ### Added
 
-- Added "Color legend"
-- Group dependencies by their type
+- New `--prefer-wanted` option, which compares the the `Current` version to the `Wanted` version, instead of the `Latest` version. This allow you to ensure that your installed version is the latest in the specified version range, but not necessary the latest available version ([#7](https://github.com/jens-duttke/check-outdated/issues/7))
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.6.0...v2.7.0)
+
+## [2.6.0] - 2021-03-14
 
 ### Changed
 
 - Change colorization of dependency name
 - Reorder default columns
 - Remove "Type" from default columns
+
+### Added
+
+- Added "Color legend"
+- Group dependencies by their type
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.5.1...v2.6.0)
 
@@ -99,18 +107,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0] - 2020-05-08
 
-### Added
+### Removed
 
-- Add functionality to optionally ignore a specific version of a package (e.g. to skip a broken version)
-- Add new changesPreferLocal column, which behaves like the old changes column
+- Remove consideration of CHANGELOG.md from changes column
 
 ### Changed
 
 - Changed the minimum required NodeJS version to v8.6.0
 
-### Removed
+### Added
 
-- Remove consideration of CHANGELOG.md from changes column
+- Add functionality to optionally ignore a specific version of a package (e.g. to skip a broken version)
+- Add new changesPreferLocal column, which behaves like the old changes column
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.0.0...v2.1.0)
 

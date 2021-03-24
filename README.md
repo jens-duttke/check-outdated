@@ -52,9 +52,10 @@ Or put it into your `package.json`:
 | Argument | Description | Example |
 |-|-|-|
 | --help, -h | Show the help | `--help` |
-| --ignore-pre-releases | Don't recommend to update to the latest version, if it contains a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1") | `--ignore-pre-releases` |
+| --ignore-pre-releases | Don't recommend to update to versions which contain a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1") | `--ignore-pre-releases` |
 | --ignore-dev-dependencies | Do not warn if devDependencies are outdated. | `--ignore-dev-dependencies` |
 | --ignore-packages \<comma-separated-list-of-package-names\> | Ignore the listed packages, even if they are outdated.<br />Using the `@` syntax (`<package>@<version>`) you can also, only ignore a specific version of a package (e.g. if it's broken). | `--ignore-packages typescript,terser-webpack-plugin@3.0.0` |
+| --prefer-wanted | Compare the `Current` version to the `Wanted` version, instead of the `Latest` version. |
 | --columns \<comma-separated-list-of-columns\> | Defines which columns should be shown in which order. (See [Available Columns](#available-columns) below) | `--columns name,current,latest,changes` |
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |
 | --depth \<number\> | Max depth for checking dependency tree (equal to the npm outdated-option) | `--depth 3` |

@@ -37,6 +37,7 @@ const pkg = require('./package.json');
  * @property {string[]} [ignorePackages]
  * @property {boolean} [ignoreDevDependencies]
  * @property {boolean} [ignorePreReleases]
+ * @property {boolean} [preferWanted]
  * @property {string[]} [columns]
  */
 
@@ -62,7 +63,7 @@ const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'reference', 'ch
 /**
  * @typedef {object} Column
  * @property {TableColumn | string} caption;
- * @property {(dependency: OutdatedDependency, detailsCache: DependencyDetailsCache) => Promise<TableColumn | string>} getValue
+ * @property {(dependency: OutdatedDependency, options: Options, detailsCache: DependencyDetailsCache) => Promise<TableColumn | string>} getValue
  */
 
 /** @type {{ [filePath: string]: string }} */
@@ -72,8 +73,8 @@ const packageJsonCache = {};
 const AVAILABLE_COLUMNS = {
 	name: {
 		caption: colorize.underline('Package'),
-		getValue: async (dependency) => {
-			switch (semverDiffType(dependency.current, dependency.latest)) {
+		getValue: async (dependency, options) => {
+			switch (semverDiffType(dependency.current, getWantedOrLatest(dependency, options))) {
 				case 'major':
 					return colorize.red(dependency.name);
 
@@ -93,7 +94,7 @@ const AVAILABLE_COLUMNS = {
 			text: colorize.underline('Current'),
 			alignRight: true
 		},
-		getValue: async (dependency, detailsCache) => {
+		getValue: async (dependency, options) => {
 			if (dependency.current === '') {
 				return {
 					text: colorize.gray('unknown'),
@@ -101,14 +102,14 @@ const AVAILABLE_COLUMNS = {
 				};
 			}
 
-			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
-				[dependency.current, dependency.latest],
+			const diff = semverDiff(
+				[dependency.current, getWantedOrLatest(dependency, options)],
 				[colorize, colorize.magenta],
 				[colorize.underline, colorize.magenta.underline]
 			);
 
 			return {
-				text: detailsCache.semverDiff[0],
+				text: diff[0],
 				alignRight: true
 			};
 		}
@@ -118,32 +119,40 @@ const AVAILABLE_COLUMNS = {
 			text: colorize.underline('Wanted'),
 			alignRight: true
 		},
-		getValue: async (dependency) => ({
-			text: colorize.green(dependency.wanted),
-			alignRight: true
-		})
+		getValue: async (dependency) => {
+			const diff = semverDiff(
+				[dependency.current, dependency.wanted],
+				[colorize, colorize.green],
+				[colorize.underline, colorize.green.underline]
+			);
+
+			return {
+				text: diff[1],
+				alignRight: true
+			};
+		}
 	},
 	latest: {
 		caption: {
 			text: colorize.underline('Latest'),
 			alignRight: true
 		},
-		getValue: async (dependency, detailsCache) => {
-			detailsCache.semverDiff = detailsCache.semverDiff || semverDiff(
+		getValue: async (dependency) => {
+			const diff = semverDiff(
 				[dependency.current, dependency.latest],
 				[colorize, colorize.magenta],
 				[colorize.underline, colorize.magenta.underline]
 			);
 
 			return {
-				text: detailsCache.semverDiff[1],
+				text: diff[1],
 				alignRight: true
 			};
 		}
 	},
 	type: {
 		caption: colorize.underline('Type'),
-		getValue: async (dependency) => (semverDiffType(dependency.current, dependency.latest) || '')
+		getValue: async (dependency, options) => (semverDiffType(dependency.current, getWantedOrLatest(dependency, options)) || '')
 	},
 	location: {
 		caption: colorize.underline('Location'),
@@ -182,7 +191,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	changes: {
 		caption: colorize.underline('Changes'),
-		getValue: async (dependency, detailsCache) => {
+		getValue: async (dependency, _options, detailsCache) => {
 			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
@@ -194,7 +203,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	changesPreferLocal: {
 		caption: colorize.underline('Changes'),
-		getValue: async (dependency, detailsCache) => {
+		getValue: async (dependency, _options, detailsCache) => {
 			const changelogFile = getChangelogPath(dependency.location);
 
 			if (changelogFile) {
@@ -212,7 +221,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	homepage: {
 		caption: colorize.underline('Homepage'),
-		getValue: async (dependency, detailsCache) => {
+		getValue: async (dependency, _options, detailsCache) => {
 			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
@@ -248,6 +257,9 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		return { ignorePackages };
+	},
+	'--prefer-wanted': {
+		preferWanted: true
 	},
 	'--columns': (value) => {
 		const columns = value.split(',');
@@ -332,7 +344,7 @@ async function checkOutdated (argv) {
 
 		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? DEFAULT_COLUMNS : args.columns);
 
-		await writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies);
+		await writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies, args);
 
 		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
 	}
@@ -355,17 +367,26 @@ async function checkOutdated (argv) {
 function help (...additionalLines) {
 	return [
 		`${pkg.name} v${pkg.version} - ${pkg.description}`,
-		'Usage: [--ignore-pre-releases] [--ignore-dev-dependencies] [--ignore-packages <comma-separated-list-of-package-names>] [--global] [--depth <number>]',
+		'Usage: ',
+		[
+			'[--ignore-pre-releases]',
+			'[--ignore-dev-dependencies]',
+			'[--ignore-packages <comma-separated-list-of-package-names>]',
+			'[--prefer-wanted]',
+			'[--columns <comma-separated-list-of-columns>]',
+			'[--global]',
+			'[--depth <number>]'
+		].join(' '),
 		'',
 		'Arguments:',
 		prettifyTable([
 			[
 				'--help, -h',
-				'Show this help'
+				'Show this help.'
 			],
 			[
 				'--ignore-pre-releases',
-				'Don\'t recommend to update to the latest version, if it contains a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1")'
+				'Don\'t recommend to update to versions which contain a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1").'
 			],
 			[
 				'--ignore-dev-dependencies',
@@ -373,7 +394,11 @@ function help (...additionalLines) {
 			],
 			[
 				'--ignore-packages <comma-separated-list-of-package-names>',
-				'Ignore the listed packages, even if they are outdated'
+				'Ignore the listed packages, even if they are outdated.'
+			],
+			[
+				'--prefer-wanted',
+				'Compare the "Current" version to the "Wanted" version, instead of the "Latest" version.'
 			],
 			[
 				'--columns <comma-separated-list-of-columns>',
@@ -386,11 +411,11 @@ function help (...additionalLines) {
 			],
 			[
 				'--global',
-				'Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option)'
+				'Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option).'
 			],
 			[
 				'--depth <number>',
-				'Max depth for checking dependency tree (equal to the npm outdated-option)'
+				'Max depth for checking dependency tree (equal to the npm outdated-option).'
 			]
 		]),
 		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),
@@ -407,21 +432,46 @@ function help (...additionalLines) {
  * @returns {Dependencies} Array with of the filtered dependency objects.
  */
 function getFilteredDependencies (dependencies, options) {
-	let filteredDependencies = dependencies.filter((dependency) => !['git', 'linked', 'remote'].includes(dependency.latest));
+	let filteredDependencies = dependencies.filter((dependency) => (
+		!['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))
+	));
 
 	if (options.ignorePackages) {
 		const ignore = options.ignorePackages;
 
-		filteredDependencies = filteredDependencies.filter(({ name, latest }) => !ignore.includes(name) && !ignore.includes(`${name}@${latest}`));
+		filteredDependencies = filteredDependencies.filter((dependency) => (
+			!ignore.includes(dependency.name) && !ignore.includes(`${dependency.name}@${getWantedOrLatest(dependency, options)}`)
+		));
 	}
+
 	if (options.ignoreDevDependencies) {
-		filteredDependencies = filteredDependencies.filter(({ type }) => type !== 'devDependencies');
+		filteredDependencies = filteredDependencies.filter(({ type }) => (
+			type !== 'devDependencies'
+		));
 	}
+
 	if (options.ignorePreReleases) {
-		filteredDependencies = filteredDependencies.filter(({ current, latest }) => !current.includes('-') && !latest.includes('-'));
+		filteredDependencies = filteredDependencies.filter((dependency) => (
+			!dependency.current.includes('-') && !getWantedOrLatest(dependency, options).includes('-')
+		));
+	}
+
+	if (options.preferWanted) {
+		filteredDependencies = filteredDependencies.filter(({ current, wanted }) => current !== wanted);
 	}
 
 	return filteredDependencies;
+}
+
+/**
+ * Depending on the `preferWanted` option, either the `wanted` or the `latest` property of a dependency is returned.
+ *
+ * @param {OutdatedDependency} dependency - A specific outdated dependency.
+ * @param {Options} options - The arguments which the user provided.
+ * @returns {string} `wanted` or `latest`
+ */
+function getWantedOrLatest (dependency, options) {
+	return (options.preferWanted ? dependency.wanted : dependency.latest);
 }
 
 /**
@@ -430,9 +480,10 @@ function getFilteredDependencies (dependencies, options) {
  * @private
  * @param {string[]} visibleColumns - The columns which should be shown in the given order.
  * @param {Dependencies} dependencies - Array of dependency objects, which shall be formatted and shown in the terminal.
+ * @param {Options} options - The arguments which the user provided.
  * @returns {Promise<void>}
  */
-async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) {
+async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, options) {
 	/** @type {(string | (string | TableColumn)[] | Promise<string | (string | TableColumn)[]>)[]} */
 	const table = [
 		visibleColumns.map((columnName) => AVAILABLE_COLUMNS[columnName].caption)
@@ -455,7 +506,7 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies) 
 			/** @type {DependencyDetailsCache} */
 			const dependencyDetailsCache = {};
 
-			return Promise.all(visibleColumns.map(async (columnName) => AVAILABLE_COLUMNS[columnName].getValue(dependency, dependencyDetailsCache)));
+			return Promise.all(visibleColumns.map(async (columnName) => AVAILABLE_COLUMNS[columnName].getValue(dependency, options, dependencyDetailsCache)));
 		})());
 	}
 

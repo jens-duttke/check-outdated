@@ -49,18 +49,46 @@
 			"location": "node_modules/module-revert",
 			"type": "dependencies"
 		},
+		"module-wanted-major-major": {
+			"current": "2.0.0",
+			"wanted": "3.1.0",
+			"latest": "3.0.0",
+			"location": "node_modules/module-wanted-major-major",
+			"type": "dependencies"
+		},
+		"module-wanted-minor-major": {
+			"current": "2.0.0",
+			"wanted": "2.1.0",
+			"latest": "3.0.0",
+			"location": "node_modules/module-wanted-minor-major",
+			"type": "dependencies"
+		},
+		"module-wanted-patch-major": {
+			"current": "2.0.0",
+			"wanted": "2.0.1",
+			"latest": "3.0.0",
+			"location": "node_modules/module-wanted-patch-major",
+			"type": "dependencies"
+		},
+		"module-wanted-minor-revert": {
+			"current": "2.0.0",
+			"wanted": "2.1.0",
+			"latest": "1.0.0",
+			"location": "node_modules/module-wanted-minor-revert",
+			"type": "dependencies"
+		},
 		"module-broken-version": {
 			"current": "1.0.0",
 			"wanted": "1.0.0",
 			"latest": "2.3.4",
-			"location": "node_modules/module-patch",
+			"location": "node_modules/module-broken-version",
 			"type": "dependencies"
 		},
 		"@scoped/module-sub-broken-version": {
 			"current": "1.0.0",
 			"wanted": "1.0.0",
 			"latest": "2.3.4",
-			"location": "node_modules/module-patch",
+			"location": "node_modules/module-sub-broken-version",
 			"type": "dependencies"
 		},
 		"module-no-current-version": {
@@ -265,6 +293,10 @@
 				"module-patch": "<1.0.0",
 				"module-prerelease": "^1.0.0",
 				"module-build": "~1.0.0",
+				"module-wanted-major-major": "^2.3.0",
+				"module-wanted-minor-major": "^2.3.0",
+				"module-wanted-patch-major": "^2.3.0",
+				"module-wanted-minor-revert": "^2.3.0",
 				"@scoped/module": "1.0.0"
 			}
 		},
