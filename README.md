@@ -26,20 +26,47 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 
 [<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@c2adbf5/screenshot.png" width="100%" />](https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@c2adbf5/screenshot.png)
 
-## Install
+## Usage without installation
+
+The benefit of using `npx` is, that it ensures that always the latest version of `check-outdated` is used. In addition, a download is only necessary in environments where it is needed - e.g. if `check-outdated` is not needed on the build server, it does not have to be downloaded there, which may speeds up the dependency installation slightly.
+
+On command-line you can run the command like this:
+
+```sh
+npx check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes
+```
+
+Or put it into your `package.json`:
+
+```json
+{
+  "scripts": {
+    "check-outdated": "npx --yes check-outdated -- --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes",
+    "preversion": "npm run lint && npm run test && npm run check-outdated"
+  }
+}
+```
+
+## Usage with installation
+
+### Install
 
 ```sh
 npm install check-outdated --save-dev
+# or
+yarn add check-outdated -D
 ```
 
 ### Usage
 
-On command-line you can run the command like this:
+After you've installed `check-outdated` you can run the command like this:
+
 ```sh
 node_modules/.bin/check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes
 ```
 
 Or put it into your `package.json`:
+
 ```json
 {
   "scripts": {
@@ -48,6 +75,8 @@ Or put it into your `package.json`:
   }
 }
 ```
+
+### Command-line arguments
 
 | Argument | Description | Example |
 |-|-|-|
