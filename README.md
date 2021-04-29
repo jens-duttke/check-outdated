@@ -41,7 +41,7 @@ Or put it into your `package.json`:
 ```json
 {
   "scripts": {
-    "check-outdated": "npx --yes check-outdated -- --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes",
+    "check-outdated": "npx --yes -- check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes",
     "preversion": "npm run lint && npm run test && npm run check-outdated"
   }
 }
