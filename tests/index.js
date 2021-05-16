@@ -318,7 +318,7 @@ void (async () => {
 	});
 
 	await describe('--columns argument', async () => {
-		await test('should return with outdated dependency message and all available columns', ['--columns', 'name,current,wanted,latest,type,location,packageType,reference,changes,changesPreferLocal,homepage,npmjs'], mockData.defaultResponse, (command, exitCode, stdout) => {
+		await test('should return with outdated dependency message and all available columns', ['--columns', 'package,current,wanted,latest,type,location,packageType,reference,changes,changesPreferLocal,homepage,npmjs'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false');
 			expectVarToEqual(exitCode, 1);
 
@@ -392,7 +392,7 @@ void (async () => {
 			expectVarToHaveWord(stdout, 'Invalid column name "INVALID" in --columns');
 		});
 
-		await test('should return with the help indicating an argument problem', ['--columns', 'name,INVALID1,INVALID2'], mockData.defaultResponse, (command, exitCode, stdout) => {
+		await test('should return with the help indicating an argument problem', ['--columns', 'package,INVALID1,INVALID2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, undefined);
 			expectVarToEqual(exitCode, 1);
 

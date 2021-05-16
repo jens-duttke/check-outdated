@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rename `name` column to `package`
 - Changed the minimum required NodeJS version to v10.0.0
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.7.0...HEAD)

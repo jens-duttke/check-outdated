@@ -57,7 +57,7 @@ const pkg = require('./package.json');
  * @property {PackageJSON} [packageJSON]
  */
 
-const DEFAULT_COLUMNS = ['name', 'current', 'wanted', 'latest', 'reference', 'changes', 'location'];
+const DEFAULT_COLUMNS = ['package', 'current', 'wanted', 'latest', 'reference', 'changes', 'location'];
 
 /**
  * @typedef {object} Column
@@ -70,7 +70,7 @@ const packageJsonCache = {};
 
 /** @type {{ readonly [columnName: string]: Column; }} */
 const AVAILABLE_COLUMNS = {
-	name: {
+	package: {
 		caption: colorize.underline('Package'),
 		getValue: async (dependency, options) => {
 			switch (semverDiffType(dependency.current, getWantedOrLatest(dependency, options))) {
@@ -254,6 +254,12 @@ const AVAILABLE_COLUMNS = {
 		getValue: async (dependency) => getNpmJSLink(dependency.name) || colorize.gray('-')
 	}
 };
+
+/**
+ * @deprecated `name` has been replaced by `package` in version 2.8.0.
+ */
+// @ts-expect-error -- That's the easiest way the clone the `package` property values
+AVAILABLE_COLUMNS.name = AVAILABLE_COLUMNS.package;
 
 /** @type {AvailableArguments} */
 const AVAILABLE_ARGUMENTS = {
