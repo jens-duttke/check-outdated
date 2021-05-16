@@ -35,6 +35,8 @@ function getExpectResult () {
 function expect (message, assertion) {
 	const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
 
+	/* eslint-disable no-console -- console.log() is used to output the test results */
+
 	try {
 		assertion();
 	}
@@ -54,7 +56,7 @@ function expect (message, assertion) {
 			}
 		}
 
-		console.log(`      ${colorize.gray((Error().stack || '').split('\n').slice(2, 3).join('').trim())}`);
+		console.log(`      ${colorize.gray((new Error('dummy').stack || '').split('\n').slice(2, 3).join('').trim())}`);
 		console.log();
 
 		sum.failed++;
@@ -63,6 +65,8 @@ function expect (message, assertion) {
 	}
 
 	console.log(`    ${colorize.green('√')} ${colorize.gray(styledMessage)}`);
+
+	/* eslint-enable no-console */
 
 	sum.passed++;
 }
@@ -93,7 +97,7 @@ function expectNoOfAffectedDependencies (stdout, dependencies, noOfAffectedDepen
  * @param {any} variable - The variable containing the actual value.
  * @param {any} value - The expected value.
  */
-function expectVarToEqual (variable, value) {
+function expectVariableToEqual (variable, value) {
 	expect(`\`${getFirstArgument()}\` should be \`${JSON.stringify(value)}\``, () => assert.equal(variable, value));
 }
 
@@ -105,7 +109,7 @@ function expectVarToEqual (variable, value) {
  * @param {any} value - The expected value.
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  */
-function expectVarToHaveWord (variable, value, ignoreEscapeSequences) {
+function expectVariableToHaveWord (variable, value, ignoreEscapeSequences) {
 	expect(
 		`\`${getFirstArgument()}\` should contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``,
 		() => assertHasWord(variable, value, ignoreEscapeSequences)
@@ -120,7 +124,7 @@ function expectVarToHaveWord (variable, value, ignoreEscapeSequences) {
  * @param {any} value - The expected value.
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  */
-function expectVarNotToHaveWord (variable, value, ignoreEscapeSequences = true) {
+function expectVariableNotToHaveWord (variable, value, ignoreEscapeSequences = true) {
 	expect(
 		`\`${getFirstArgument()}\` should not contain ${(!ignoreEscapeSequences ? 'styled ' : '')}\`${JSON.stringify(value)}\``,
 		() => assertNotHasWord(variable, value, ignoreEscapeSequences)
@@ -136,7 +140,7 @@ function expectVarNotToHaveWord (variable, value, ignoreEscapeSequences = true) 
  * @returns {string} Either the first argument or in red colored "[unknown argument]".
  */
 function getFirstArgument () {
-	const match = (/^\s+at\s(.+?):(\d+):(\d+)$/u).exec((Error().stack || '').split('\n')[3]);
+	const match = (/^\s+at\s(.+?):(\d+):(\d+)$/u).exec((new Error('dummy').stack || '').split('\n')[3]);
 
 	if (match !== null) {
 		const [, file, line, col] = match;
@@ -152,8 +156,8 @@ function getFirstArgument () {
 			expectVarFileCache[file] = fileContent;
 		}
 
-		const codeFromLine = fileContent.slice(parseInt(line, 10) - 1).join(' ');
-		const code = codeFromLine.substr(parseInt(col, 10) - 1, codeFromLine.indexOf(';', parseInt(col, 10)));
+		const codeFromLine = fileContent.slice(Number.parseInt(line, 10) - 1).join(' ');
+		const code = codeFromLine.substr(Number.parseInt(col, 10) - 1, codeFromLine.indexOf(';', Number.parseInt(col, 10)));
 
 		const firstArgumentMatch = (/\(([^,)]+)/u).exec(code);
 
@@ -169,7 +173,7 @@ module.exports = {
 	getExpectResult,
 	expect,
 	expectNoOfAffectedDependencies,
-	expectVarToEqual,
-	expectVarToHaveWord,
-	expectVarNotToHaveWord
+	expectVarToEqual: expectVariableToEqual,
+	expectVarToHaveWord: expectVariableToHaveWord,
+	expectVarNotToHaveWord: expectVariableNotToHaveWord
 };

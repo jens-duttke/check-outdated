@@ -8,11 +8,13 @@ const STATUS_OK = 200;
 
 /** @typedef {import('./files').PackageJSON} PackageJSON */
 
-/** @type {readonly {
+/**
+ * @type {readonly {
  *   readonly regExp: RegExp;
  *   readonly getRepositoryURL: (match: readonly string[], directory: string) => string;
  *   readonly getChangelogURL: (match: readonly string[], directory: string) => Promise<string> | string;
- * }[]} */
+ * }[]}
+ */
 const REPOSITORY_URLS = [
 	{
 		regExp: /^github:(.+)/u,
@@ -85,7 +87,7 @@ function getPackageAuthor (packageJSON) {
 		}
 	}
 
-	return undefined;
+	return;
 }
 
 /**
@@ -100,7 +102,7 @@ function getPackageHomepage (packageJSON) {
 		return packageJSON.homepage;
 	}
 
-	return undefined;
+	return;
 }
 
 /**
@@ -135,7 +137,7 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
 		}
 	}
 
-	return undefined;
+	return;
 }
 
 /**

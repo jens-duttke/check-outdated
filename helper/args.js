@@ -15,12 +15,12 @@
  * @returns {Options | string} Either a `Options` object or a `string` which should be returned to the user, if arguments cannot be parsed.
  * @throws If arguments is unknown.
  */
-function parseArgs (argv, availableArgs) {
+function parseArguments (argv, availableArgs) {
 	const args = {};
 
-	const unsupportedArgs = argv.filter((arg) => arg.startsWith('-') && !Object.keys(availableArgs).includes(arg));
-	if (unsupportedArgs.length > 0) {
-		throw new Error(`Unknown argument${(unsupportedArgs.length > 1 ? 's' : '')}: ${unsupportedArgs.join(', ')}`);
+	const unsupportedArguments = argv.filter((argument) => argument.startsWith('-') && !Object.keys(availableArgs).includes(argument));
+	if (unsupportedArguments.length > 0) {
+		throw new Error(`Unknown argument${(unsupportedArguments.length > 1 ? 's' : '')}: ${unsupportedArguments.join(', ')}`);
 	}
 
 	for (const [name, value] of Object.entries(availableArgs)) {
@@ -45,4 +45,4 @@ function parseArgs (argv, availableArgs) {
 	return args;
 }
 
-module.exports = parseArgs;
+module.exports = parseArguments;

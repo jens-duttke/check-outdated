@@ -8,7 +8,7 @@
  * @external NodeModule
  */
 
-const parseArgs = require('./helper/args');
+const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
 const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
@@ -17,7 +17,6 @@ const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
 const { getNpmJSLink, getPackageAuthor, getPackageHomepage, getPackageRepository } = require('./helper/urls');
-
 const pkg = require('./package.json');
 
 /**
@@ -97,7 +96,7 @@ const AVAILABLE_COLUMNS = {
 		getValue: async (dependency, options) => {
 			if (dependency.current === '') {
 				return {
-					text: colorize.gray('unknown'),
+					text: colorize.gray('-'),
 					alignRight: true
 				};
 			}
@@ -120,6 +119,13 @@ const AVAILABLE_COLUMNS = {
 			alignRight: true
 		},
 		getValue: async (dependency) => {
+			if (dependency.current === '') {
+				return {
+					text: colorize.gray('-'),
+					alignRight: true
+				};
+			}
+
 			const diff = semverDiff(
 				[dependency.current, dependency.wanted],
 				[colorize, colorize.green],
@@ -138,6 +144,13 @@ const AVAILABLE_COLUMNS = {
 			alignRight: true
 		},
 		getValue: async (dependency) => {
+			if (dependency.current === '') {
+				return {
+					text: colorize.gray('-'),
+					alignRight: true
+				};
+			}
+
 			const diff = semverDiff(
 				[dependency.current, dependency.latest],
 				[colorize, colorize.magenta],
@@ -152,15 +165,15 @@ const AVAILABLE_COLUMNS = {
 	},
 	type: {
 		caption: colorize.underline('Type'),
-		getValue: async (dependency, options) => (semverDiffType(dependency.current, getWantedOrLatest(dependency, options)) || '')
+		getValue: async (dependency, options) => (semverDiffType(dependency.current, getWantedOrLatest(dependency, options)) || colorize.gray('-'))
 	},
 	location: {
 		caption: colorize.underline('Location'),
-		getValue: async (dependency) => dependency.location
+		getValue: async (dependency) => dependency.location || colorize.gray('-')
 	},
 	packageType: {
 		caption: colorize.underline('Package Type'),
-		getValue: async (dependency) => dependency.type
+		getValue: async (dependency) => dependency.type || colorize.gray('-')
 	},
 	reference: {
 		caption: colorize.underline('Reference'),
@@ -171,12 +184,12 @@ const AVAILABLE_COLUMNS = {
 			if (fileContent !== undefined) {
 				fileContent = fileContent.replace(/\r\n|\r/gu, '\n');
 
-				if (packageJsonCache[filePath] === undefined) {
+				if (!('filePath' in packageJsonCache)) {
 					packageJsonCache[filePath] = fileContent;
 				}
 
 				const json = JSON.parse(fileContent);
-				const actualVersion = (dependency.type in json ? json[dependency.type][dependency.name] : undefined);
+				const actualVersion = (dependency.type && dependency.type in json ? json[dependency.type][dependency.name] : undefined);
 
 				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
 				const [line, column] = getRegExpPosition(fileContent, needle);
@@ -197,7 +210,8 @@ const AVAILABLE_COLUMNS = {
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name)
+				getNpmJSLink(dependency.name) ||
+				colorize.gray('-')
 			);
 		}
 	},
@@ -215,7 +229,8 @@ const AVAILABLE_COLUMNS = {
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name)
+				getNpmJSLink(dependency.name) ||
+				colorize.gray('-')
 			);
 		}
 	},
@@ -229,13 +244,14 @@ const AVAILABLE_COLUMNS = {
 				getPackageHomepage(detailsCache.packageJSON) ||
 				await getPackageRepository(detailsCache.packageJSON) ||
 				getPackageAuthor(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name)
+				getNpmJSLink(dependency.name) ||
+				colorize.gray('-')
 			);
 		}
 	},
 	npmjs: {
 		caption: colorize.underline('npmjs.com'),
-		getValue: async (dependency) => getNpmJSLink(dependency.name)
+		getValue: async (dependency) => getNpmJSLink(dependency.name) || colorize.gray('-')
 	}
 };
 
@@ -280,7 +296,7 @@ const AVAILABLE_ARGUMENTS = {
 		global: true
 	},
 	'--depth': (value) => {
-		const depth = parseInt(value, 10);
+		const depth = Number.parseInt(value, 10);
 
 		if (!Number.isFinite(depth)) {
 			return help('Invalid value of --depth');
@@ -294,6 +310,7 @@ if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
 
 	void (async () => {
+		// eslint-disable-next-line node/no-process-exit -- We need to set a specific error code, so we need `process.exit()` here
 		process.exit(await checkOutdated(process.argv.slice(2)));
 	})();
 }
@@ -313,7 +330,7 @@ async function checkOutdated (argv) {
 	let args;
 
 	try {
-		args = /** @type {Options | string} */(parseArgs(argv, AVAILABLE_ARGUMENTS));
+		args = /** @type {Options | string} */(parseArguments(argv, AVAILABLE_ARGUMENTS));
 	}
 	catch ({ message }) {
 		args = help(message);
@@ -349,7 +366,7 @@ async function checkOutdated (argv) {
 		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
 	}
 	catch (error) {
-		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((prop) => [colorize.magenta(prop), error[prop]]));
+		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((property) => [colorize.magenta(property), error[property]]));
 
 		process.stdout.write(`${colorize.red('Error while gathering outdated dependencies:')}\n\n${out}\n`);
 	}

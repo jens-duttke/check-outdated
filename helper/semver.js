@@ -18,14 +18,14 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
 	const parts1 = versions[0].split(splitRegExp);
 	const parts2 = versions[1].split(splitRegExp);
 
-	for (let partIdx = 0; partIdx < Math.max(parts1.length, parts2.length); partIdx++) {
-		if (parts1[partIdx] !== parts2[partIdx]) {
-			if (parts1[partIdx]) { parts1[partIdx] = diffColorizers[0](parts1[partIdx]); }
-			if (parts2[partIdx]) { parts2[partIdx] = diffColorizers[1](parts2[partIdx]); }
+	for (let partIndex = 0; partIndex < Math.max(parts1.length, parts2.length); partIndex++) {
+		if (parts1[partIndex] !== parts2[partIndex]) {
+			if (parts1[partIndex]) { parts1[partIndex] = diffColorizers[0](parts1[partIndex]); }
+			if (parts2[partIndex]) { parts2[partIndex] = diffColorizers[1](parts2[partIndex]); }
 		}
 		else {
-			parts1[partIdx] = equalColorizers[0](parts1[partIdx]);
-			parts2[partIdx] = equalColorizers[1](parts2[partIdx]);
+			parts1[partIndex] = equalColorizers[0](parts1[partIndex]);
+			parts2[partIndex] = equalColorizers[1](parts2[partIndex]);
 		}
 	}
 
@@ -42,7 +42,7 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
  */
 function semverDiffType (v1, v2) {
 	if (v1 === v2) {
-		return undefined;
+		return;
 	}
 
 	const semverRegExp = /^(\d+).(\d+).(\d+).*?(?:([-+]).+)?$/u;
@@ -50,24 +50,24 @@ function semverDiffType (v1, v2) {
 	const match1 = semverRegExp.exec(v1);
 
 	if (match1 === null) {
-		return undefined;
+		return;
 	}
 
 	const match2 = semverRegExp.exec(v2);
 
 	if (match2 === null) {
-		return undefined;
+		return;
 	}
 
-	if (parseInt(match1[1], 10) < parseInt(match2[1], 10)) {
+	if (Number.parseInt(match1[1], 10) < Number.parseInt(match2[1], 10)) {
 		return 'major';
 	}
 
-	if (parseInt(match1[2], 10) < parseInt(match2[2], 10)) {
+	if (Number.parseInt(match1[2], 10) < Number.parseInt(match2[2], 10)) {
 		return 'minor';
 	}
 
-	if (parseInt(match1[3], 10) < parseInt(match2[3], 10)) {
+	if (Number.parseInt(match1[3], 10) < Number.parseInt(match2[3], 10)) {
 		return 'patch';
 	}
 
@@ -79,7 +79,7 @@ function semverDiffType (v1, v2) {
 		return 'build';
 	}
 
-	return undefined;
+	return;
 }
 
 module.exports = {

@@ -27,6 +27,7 @@
 function prettifyTable (table) {
 	const out = [];
 
+	// eslint-disable-next-line unicorn/no-array-reduce -- Let's keep the `reduce()` here, to keep the code simple.
 	const colWidths = table.reduce(colWidthReducer, []);
 
 	for (let row = 0; row < table.length; row++) {
@@ -82,11 +83,11 @@ function colWidthReducer (widths, row) {
  * Get the length of a string without ANSI escape sequences for coloring.
  *
  * @private
- * @param {string} str - Input string containg ANSI escape sequences for coloring.
+ * @param {string} string - Input string containg ANSI escape sequences for coloring.
  * @returns {number} The text length of `str` without the ANSI escape sequences.
  */
-function plainLength (str) {
-	return str.replace(/\x1b\[.+?m/gu, '').length;
+function plainLength (string) {
+	return string.replace(/\u001B\[.+?m/gu, '').length;
 }
 
 module.exports = prettifyTable;

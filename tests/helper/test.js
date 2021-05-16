@@ -3,6 +3,7 @@
  */
 
 const path = require('path');
+
 const proxyquire = require('proxyquire').noPreserveCache();
 
 const colorize = require('./colorize');
@@ -32,11 +33,12 @@ function setMocks (newMockData) {
  * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
-// eslint-disable-next-line max-lines-per-function
 async function test (title, argv, dependencies, expectedCallback) {
+	/* eslint-disable no-console -- console.log() is used to output the test results */
 	console.log();
 	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
 	console.log();
+	/* eslint-enable no-console */
 
 	let usedCommand;
 
@@ -141,12 +143,12 @@ async function test (title, argv, dependencies, expectedCallback) {
 				 *
 				 * @param {{ host: string; path: string; }} options - The command to run.
 				 * @param {(
-						res: {
-							statusCode: number;
-							on (event: 'data' | 'end' | 'error', listener: (...args: any[]) => void): void;
-							setEncoding (encoding: string): void, destroy (): void;
-						}
-					) => void} callback - Called with the output when process terminates.
+				 *   res: {
+				 *     statusCode: number;
+				 *     on (event: 'data' | 'end' | 'error', listener: (...args: any[]) => void): void;
+				 *     setEncoding (encoding: string): void, destroy (): void;
+				 *   }
+				 * ) => void} callback - Called with the output when process terminates.
 				 * @returns {void}
 				 */
 				get (options, callback) {
@@ -155,6 +157,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 					/** @type {{ statusCode: number; data?: string; }} */
 					const response = (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND };
 
+					// eslint-disable-next-line node/no-callback-literal -- `callback()` is not using the Node.js error-first callback pattern.
 					callback({
 						...response,
 						on (event, listener) {
@@ -194,7 +197,6 @@ async function test (title, argv, dependencies, expectedCallback) {
  * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {
-	// eslint-disable-next-line @typescript-eslint/unbound-method
 	const write = process.stdout.write;
 
 	/** @type {string[]} */

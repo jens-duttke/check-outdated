@@ -1,3 +1,7 @@
+<!-- markdownlint-configure-file { "MD033": { "allowed_elements": ["br", "img", "li", "ol", "span", "u"] } } -->
+
+# check-outdated
+
 [![npm version](https://badge.fury.io/js/check-outdated.svg)](https://badge.fury.io/js/check-outdated)
 [![Dependency Status](https://img.shields.io/david/jens-duttke/check-outdated)](https://www.npmjs.com/package/check-outdated)
 [![Known Vulnerabilities](https://snyk.io/test/github/jens-duttke/check-outdated/badge.svg?targetFile=package.json)](https://snyk.io/test/github/jens-duttke/check-outdated?targetFile=package.json)
@@ -5,8 +9,6 @@
 [![node](https://img.shields.io/node/v/check-outdated)](https://www.npmjs.com/package/check-outdated)
 ![Ensure Node.js compatibility](https://github.com/jens-duttke/check-outdated/workflows/Ensure%20Node.js%20compatibility/badge.svg?branch=master)
 [![MIT license](https://img.shields.io/github/license/jens-duttke/check-outdated.svg?style=flat)](https://opensource.org/licenses/MIT)
-
-# check-outdated
 
 Ensures that your dependencies are up-to-date, otherwise the process is terminated with status code 1.
 
@@ -28,7 +30,8 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 
 ## Usage without installation
 
-The benefit of using `npx` is, that it ensures that always the latest version of `check-outdated` is used. In addition, a download is only necessary in environments where it is needed - e.g. if `check-outdated` is not needed on the build server, it does not have to be downloaded there, which may speeds up the dependency installation slightly.
+The benefit of using `npx` is, that it ensures that always the latest version of `check-outdated` is used. In addition, a download is only necessary in environments where it is needed - e.g. if `check-outdated` is not needed on the build server, it does not have to be downloaded there, which may
+speeds up the dependency installation slightly.
 
 On command-line you can run the command like this:
 
@@ -92,7 +95,7 @@ Or put it into your `package.json`:
 ### Available Columns
 
 By default, the following columns are shown:  
-`name`, `current`, `wanted`, `latest`, `reference`, `changes`, `location`, 
+`name`, `current`, `wanted`, `latest`, `reference`, `changes`, `location`
 
 You are able to overwrite the default by using the `--columns` argument.
 

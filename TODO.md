@@ -4,9 +4,8 @@
 
 - Make use of linter-bundle and move eslint-plugin-jsdoc to it
 
-- Test für CHANGELOG auf GitLab:
-  https://gitlab.com/allardyce/vectato
-
+- [Test für CHANGELOG auf GitLab](https://gitlab.com/allardyce/vectato)
+  
 - Add main-branch detection in helper\urls.js -> getChangelogFromURL() (right now, we assume the main branch is called "master")
 
 - Add option to automatically update the outdated dependencies
@@ -21,4 +20,3 @@
 - Improve the "--depth" test by adding modules with deeper node_modules-structure.
 - Add some more tests for edge-cases
   - child_process.exec() returns with error (first callback parameter)
-

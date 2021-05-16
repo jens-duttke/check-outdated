@@ -13,7 +13,7 @@ const childProcess = require('child_process');
  * @property {string} wanted
  * @property {string} latest
  * @property {string} location
- * @property {'dependencies' | 'devDependencies'} type
+ * @property {'dependencies' | 'devDependencies'} [type]
  * @property {string} [homepage]
  */
 
@@ -130,9 +130,9 @@ function prepareResponseObject (dependencies) {
 			name
 		};
 
-		for (const propName of ['current', 'wanted', 'latest', 'type']) {
-			if (!(propName in outdatedDependency)) {
-				outdatedDependency[propName] = '';
+		for (const propertyName of ['current', 'wanted', 'latest', 'type']) {
+			if (!(propertyName in outdatedDependency)) {
+				outdatedDependency[propertyName] = '';
 			}
 		}
 

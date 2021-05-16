@@ -38,7 +38,7 @@ function getDependencyPackageJSON (dependencyLocation) {
 		try {
 			return JSON.parse(fileContent);
 		}
-		catch (ex) { /* We ignore errors here */ }
+		catch { /* We ignore errors here */ }
 	}
 
 	return {};
@@ -76,9 +76,9 @@ function getChangelogPath (dependencyLocation) {
 			return path.relative(process.cwd(), filePath).replace(/\\/gu, '/');
 		}
 	}
-	catch (ex) { /* We ignore errors here */ }
+	catch { /* We ignore errors here */ }
 
-	return undefined;
+	return;
 }
 
 /**
@@ -92,9 +92,9 @@ function readFile (filePath) {
 	try {
 		return fs.readFileSync(filePath, 'utf8');
 	}
-	catch (ex) { /* Do nothing here, but return undefined in the next step */ }
+	catch { /* Do nothing here, but return undefined in the next step */ }
 
-	return undefined;
+	return;
 }
 
 /**

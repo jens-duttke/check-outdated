@@ -2,8 +2,6 @@
  * @file Use ANSI escape sequences for coloring terminal output.
  */
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-
 /**
  * @typedef {(text: string) => string} ColorizeFunction
  */
@@ -99,7 +97,7 @@ function colorize (options) {
 				closeCode.push(TEXT_DECORATIONS[options.textDecoration] + RESET_OFFSET);
 			}
 
-			return `\x1b[${openCode.join(';')}m${text}\x1b[${closeCode.join(';')}m`;
+			return `\u001B[${openCode.join(';')}m${text}\u001B[${closeCode.join(';')}m`;
 		},
 		Object.assign(
 			{

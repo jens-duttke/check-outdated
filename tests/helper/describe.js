@@ -13,9 +13,11 @@ const colorize = require('./colorize');
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as all test suites are finished.
  */
 async function describe (title, tests) {
+	/* eslint-disable no-console -- console.log() is used to output the test results */
 	console.log();
-	console.log(`${colorize.cyan(title.replace(/`(.+?)`/gu, colorize.underline('$1')))}`);
+	console.log(String(colorize.cyan(title.replace(/`(.+?)`/gu, colorize.underline('$1')))));
 	console.log();
+	/* eslint-enable no-console */
 
 	await tests();
 }
