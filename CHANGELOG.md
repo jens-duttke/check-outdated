@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.8.0...HEAD)
+
+## [2.8.0] - 2021-05-22
+
 ### Changed
 
 - Rename `name` column to `package`
 - Changed the minimum required NodeJS version to v10.0.0
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.7.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.7.0...v2.8.0)
 
 ## [2.7.0] - 2021-03-24
 
