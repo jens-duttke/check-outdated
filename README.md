@@ -10,7 +10,7 @@
 ![Ensure Node.js compatibility](https://github.com/jens-duttke/check-outdated/workflows/Ensure%20Node.js%20compatibility/badge.svg?branch=master)
 [![MIT license](https://img.shields.io/github/license/jens-duttke/check-outdated.svg?style=flat)](https://opensource.org/licenses/MIT)
 
-Ensures that your dependencies are up-to-date, otherwise the process is terminated with status code 1.
+Light-weight CLI tool to ensure that your dependencies are up-to-date, otherwise the process is terminated with status code 1.
 
 This is an improved version of `npm outdated`, which can be used in build-pipelines, pre-publish scripts (npm) or pre-commit hook (Git) to make sure all the used dependencies are up-to-date.
 
