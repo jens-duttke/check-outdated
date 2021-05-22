@@ -2,9 +2,19 @@
 
 ## Functionality improvements
 
-- Make use of linter-bundle and move eslint-plugin-jsdoc to it
+- "--check-also" option which allows to check additional packages which are not referenced in the package.json
+  --check-also better-npm-audit@1.9.1,improved-yarn-audit@2.3.3
 
-- [Test für CHANGELOG auf GitLab](https://gitlab.com/allardyce/vectato)
+- Support of aliases:
+  "gsap": "npm:@gsap/shockingly@^3.6.0",
+  
+  Installable using:
+  npm install -D tailwindcss@npm:@tailwindcss/postcss7-compat
+
+  See the npm issue [[BUG] npm outdated fails to parse aliases
+](https://github.com/npm/cli/issues/2800)
+
+- [Test for CHANGELOG at GitLab](https://gitlab.com/allardyce/vectato)
   
 - Add main-branch detection in helper\urls.js -> getChangelogFromURL() (right now, we assume the main branch is called "master")
 
