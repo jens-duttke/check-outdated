@@ -119,7 +119,7 @@ const AVAILABLE_COLUMNS = {
 			alignRight: true
 		},
 		getValue: async (dependency) => {
-			if (dependency.current === '') {
+			if (dependency.wanted === '') {
 				return {
 					text: colorize.gray('-'),
 					alignRight: true
@@ -144,7 +144,7 @@ const AVAILABLE_COLUMNS = {
 			alignRight: true
 		},
 		getValue: async (dependency) => {
-			if (dependency.current === '') {
+			if (dependency.latest === '') {
 				return {
 					text: colorize.gray('-'),
 					alignRight: true

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Show `wanted` and `latest` version numbers even if `current` is empty
+
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.8.0...HEAD)
 
 ## [2.8.0] - 2021-05-22
