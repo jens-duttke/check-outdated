@@ -2,6 +2,8 @@
 
 ## Functionality improvements
 
+- Delay warning for major and minor releases by X days to ensure that the new version has been adequately teste by others
+
 - "--check-also" option which allows to check additional packages which are not referenced in the package.json
   --check-also better-npm-audit@1.9.1,improved-yarn-audit@2.3.3
 
