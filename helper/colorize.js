@@ -69,7 +69,7 @@ const DEFAULT_FOREGROUND_COLOR = 39;
  * @returns {ColorizeProperty} Function which can be used to colorize the given text, or for chaining.
  */
 function colorize (options) {
-	return Object.defineProperties(
+	return /** @type {ColorizeProperty} */(Object.defineProperties(
 		/**
 		 * Styles the given `text` using ANSI escape sequences, based on the previously set `options`.
 		 *
@@ -122,7 +122,7 @@ function colorize (options) {
 				}
 			}))
 		)
-	);
+	));
 }
 
 module.exports = colorize({});

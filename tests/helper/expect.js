@@ -49,7 +49,7 @@ function expect (message, assertion) {
 		console.log();
 
 		if (error instanceof assert.AssertionError) {
-			if (error.expected && error.actual) {
+			if (typeof error.expected === 'string' && typeof error.actual === 'string') {
 				console.log(`      ${colorize.red(`- ${error.expected.replace(/\n/gu, '\n      ')}`)}`);
 				console.log(`      ${colorize.green(`+ ${error.actual.replace(/\n/gu, '\n      ')}`)}`);
 				console.log();
