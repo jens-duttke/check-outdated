@@ -309,6 +309,9 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		return { depth };
+	},
+	'--minor-only': {
+		minorOnly: true
 	}
 };
 
@@ -398,7 +401,8 @@ function help (...additionalLines) {
 			'[--prefer-wanted]',
 			'[--columns <comma-separated-list-of-columns>]',
 			'[--global]',
-			'[--depth <number>]'
+			'[--depth <number>]',
+			'[--minor-only]'
 		].join(' '),
 		'',
 		'Arguments:',
@@ -439,6 +443,10 @@ function help (...additionalLines) {
 			[
 				'--depth <number>',
 				'Max depth for checking dependency tree (equal to the npm outdated-option).'
+			],
+			[
+				'--minor-only',
+				'Check packages for updates in minor versions with fixed major version.'
 			]
 		]),
 		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),
@@ -481,6 +489,14 @@ function getFilteredDependencies (dependencies, options) {
 
 	if (options.preferWanted) {
 		filteredDependencies = filteredDependencies.filter(({ current, wanted }) => current !== wanted);
+	}
+
+	if (options.minorOnly) {
+		filteredDependencies = filteredDependencies.filter(({ current, latest }) => {
+			const [currentMajor, currentMinor, currentPatch] = current.split(".");
+			const [latestMajor, latestMinor, latestPatch] = latest.split(".");
+			return currentMajor === latestMajor && currentMinor !== latestMinor;
+		});
 	}
 
 	return filteredDependencies;
