@@ -339,7 +339,12 @@ async function checkOutdated (argv) {
 		args = /** @type {Options | string} */(parseArguments(argv, AVAILABLE_ARGUMENTS));
 	}
 	catch ({ message }) {
-		args = help(message);
+		if (typeof message === 'string') {
+			args = help(message);
+		}
+		else {
+			args = help();
+		}
 	}
 
 	if (typeof args === 'string') {
@@ -372,9 +377,17 @@ async function checkOutdated (argv) {
 		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
 	}
 	catch (error) {
-		const out = generateKeyValueList(Object.getOwnPropertyNames(error).map((property) => [colorize.magenta(property), error[property]]));
+		if (typeof error === 'object' && error !== null) {
+			// Required for TypeScript to ensure the type is an `object` instead of `unknown`.
+			const errorObject = error;
 
-		process.stdout.write(`${colorize.red('Error while gathering outdated dependencies:')}\n\n${out}\n`);
+			const out = generateKeyValueList(Object.getOwnPropertyNames(errorObject).map((property) => [colorize.magenta(property), errorObject[property]]));
+
+			process.stdout.write(`${colorize.red('Error while gathering outdated dependencies:')}\n\n${out}\n`);
+		}
+		else {
+			process.stdout.write(`${colorize.red('Unknown error while gathering outdated dependencies.')}\n`);
+		}
 	}
 
 	return 1;

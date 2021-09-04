@@ -42,10 +42,21 @@ function expect (message, assertion) {
 	}
 	catch (error) {
 		const errorType = (error instanceof assert.AssertionError ? 'Test failed' : 'Error in code');
+		let errorMessage;
+
+		if (error instanceof Error) {
+			errorMessage = error.message;
+		}
+		else if (typeof error === 'string') {
+			errorMessage = error;
+		}
+		else {
+			errorMessage = 'Unknown error';
+		}
 
 		console.log(`    ${colorize.red(`× ${styledMessage}`)}`);
 		console.log();
-		console.log(`      ${colorize.gray(`${errorType}: ${error.message.trim().replace(/\n/gu, '\n      ')}`)}`);
+		console.log(`      ${colorize.gray(`${errorType}: ${errorMessage.trim().replace(/\n/gu, '\n      ')}`)}`);
 		console.log();
 
 		if (error instanceof assert.AssertionError) {

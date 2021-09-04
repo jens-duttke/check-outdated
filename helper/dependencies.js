@@ -172,12 +172,19 @@ function parseResponse (stdout) {
 		return response;
 	}
 	catch (error) {
+		if (error instanceof Error) {
+			return {
+				error: {
+					message: error.message,
+					stack: error.stack,
+					source: stdout
+				}
+			};
+		}
+
 		return {
-			error: {
-				message: error.message,
-				stack: error.stack,
-				source: stdout
-			}
+			message: (typeof error === 'string' ? error : 'Unknown error'),
+			source: stdout
 		};
 	}
 }
