@@ -91,6 +91,7 @@ Or put it into your `package.json`:
 | --columns \<comma-separated-list-of-columns\> | Defines which columns should be shown in which order. (See [Available Columns](#available-columns) below) | `--columns name,current,latest,changes` |
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |
 | --depth \<number\> | Max depth for checking dependency tree (equal to the npm outdated-option) | `--depth 3` |
+| --minor-only | Check packages for updates in minor versions with fixed major version. | `--minor-only` |
 
 ### Available Columns
 

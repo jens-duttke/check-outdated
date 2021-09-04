@@ -441,7 +441,37 @@ void (async () => {
 		});
 	});
 
-	await describe('(Almost) all arguments (without "--prefer-wanted")', async () => {
+	await describe('--minor-only argument', async () => {
+		await test('should return with outdated dependency message', ['--minor-only'], mockData.defaultResponse, (command, exitCode, stdout) => {
+			expectVarToEqual(command, 'npm outdated --json --long --save false');
+			expectVarToEqual(exitCode, 1);
+
+			expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 35);
+
+			expect('`stdout` should contain the correct output', () => assert.equal(
+				stdout.replace(/\u0020+(\n|$)/gu, '$1'),
+				[
+					'3 outdated dependencies found:',
+					'',
+					'\u001B[4mPackage\u001B[24m             \u001B[4mCurrent\u001B[24m  \u001B[4mWanted\u001B[24m  \u001B[4mLatest\u001B[24m  \u001B[4mReference\u001B[24m         \u001B[4mChanges\u001B[24m                                           \u001B[4mLocation\u001B[24m',
+					'',
+					'\u001B[4mdependencies\u001B[24m',
+					'\u001B[33mmodule-diff-wanted\u001B[39m    1.\u001B[4m0\u001B[24m.0   \u001B[32m1\u001B[39m\u001B[32m.\u001B[39m\u001B[32;4m1\u001B[39;24m\u001B[32m.\u001B[39m\u001B[32m0\u001B[39m   \u001B[35m1\u001B[39m\u001B[35m.\u001B[39m\u001B[35;4m2\u001B[39;24m\u001B[35m.\u001B[39m\u001B[35m0\u001B[39m  \u001B[90m-\u001B[39m                 https://www.npmjs.com/package/module-diff-wanted  node_modules/module-diff-wanted',
+					'\u001B[33mmodule-minor\u001B[39m          1.\u001B[4m0\u001B[24m.0   \u001B[32m1\u001B[39m\u001B[32m.\u001B[39m\u001B[32m0\u001B[39m\u001B[32m.\u001B[39m\u001B[32m0\u001B[39m   \u001B[35m1\u001B[39m\u001B[35m.\u001B[39m\u001B[35;4m1\u001B[39;24m\u001B[35m.\u001B[39m\u001B[35m0\u001B[39m  package.json:4:5  https://www.npmjs.com/package/module-minor        node_modules/module-minor',
+					'module-revert         1.\u001B[4m1\u001B[24m.0   \u001B[32m1\u001B[39m\u001B[32m.\u001B[39m\u001B[32m1\u001B[39m\u001B[32m.\u001B[39m\u001B[32m0\u001B[39m   \u001B[35m1\u001B[39m\u001B[35m.\u001B[39m\u001B[35;4m0\u001B[39;24m\u001B[35m.\u001B[39m\u001B[35m0\u001B[39m  \u001B[90m-\u001B[39m                 https://www.npmjs.com/package/module-revert       node_modules/module-revert',
+					'',
+					'\u001B[4mColor legend\u001B[24m',
+					'\u001B[31mMajor update\u001B[39m: backward-incompatible updates',
+					'\u001B[33mMinor update\u001B[39m: backward-compatible features',
+					'\u001B[32mPatch update\u001B[39m: backward-compatible bug fixes',
+					'',
+					''
+				].join('\n')
+			));
+		});
+	});
+
+	await describe('(Almost) all arguments (without "--prefer-wanted" and "--minor-only")', async () => {
 		await test('should return with outdated dependency message if all options are activated', ['--ignore-pre-releases', '--ignore-dev-dependencies', '--ignore-packages', 'module-major,module-minor', '--global', '--depth', '10'], mockData.defaultResponse, (command, exitCode, stdout) => {
 			expectVarToEqual(command, 'npm outdated --json --long --save false --global --depth 10');
 			expectVarToEqual(exitCode, 1);
