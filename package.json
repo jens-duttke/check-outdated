@@ -35,7 +35,7 @@
 		"publish:patch": "npm version patch",
 		"preversion": "npm run lint && npm run test && npm run check-outdated",
 		"postversion": "git push && git push --tags && npm publish",
-		"check-outdated": "node check-outdated.js --ignore-pre-releases --minor-only"
+		"check-outdated": "node check-outdated.js --ignore-pre-releases"
 	},
 	"engines": {
 		"node": ">=10.0.0"

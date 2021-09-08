@@ -19,6 +19,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally ignore dev dependencies
 - Optionally ignore specific packages
 - Optionally ignore a specific version of a package (e.g. to skip a broken version)
+- Optionally restrict the update type (e.g. only show minor updates, or reverted versions)
 - Optionally check globally installed packages
 - Optionally set depth for checking dependency tree
 - Show link to changelogs
@@ -44,7 +45,7 @@ Or put it into your `package.json`:
 ```json
 {
   "scripts": {
-    "check-outdated": "npx --yes -- check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes",
+    "check-outdated": "npx --yes -- check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted",
     "preversion": "npm run lint && npm run test && npm run check-outdated"
   }
 }
@@ -65,7 +66,7 @@ yarn add check-outdated -D
 After you've installed `check-outdated` you can run the command like this:
 
 ```sh
-node_modules/.bin/check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes
+node_modules/.bin/check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted
 ```
 
 Or put it into your `package.json`:
@@ -73,7 +74,7 @@ Or put it into your `package.json`:
 ```json
 {
   "scripts": {
-    "check-outdated": "check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes",
+    "check-outdated": "check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted",
     "preversion": "npm run lint && npm run test && npm run check-outdated"
   }
 }
@@ -89,9 +90,9 @@ Or put it into your `package.json`:
 | --ignore-packages \<comma-separated-list-of-package-names\> | Ignore the listed packages, even if they are outdated.<br />Using the `@` syntax (`<package>@<version>`) you can also, only ignore a specific version of a package (e.g. if it's broken). | `--ignore-packages typescript,terser-webpack-plugin@3.0.0` |
 | --prefer-wanted | Compare the `Current` version to the `Wanted` version, instead of the `Latest` version. |
 | --columns \<comma-separated-list-of-columns\> | Defines which columns should be shown in which order. (See [Available Columns](#available-columns) below) | `--columns name,current,latest,changes` |
+| --types \<comma-separated-list-of-update-types\> | Restrict the update type (e.g. only show minor updates, or reverted versions) (See [Available Types](#available-types) below) | `--types minor,reverted` |
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |
 | --depth \<number\> | Max depth for checking dependency tree (equal to the npm outdated-option) | `--depth 3` |
-| --minor-only | Check packages for updates in minor versions with fixed major version. | `--minor-only` |
 
 ### Available Columns
 
@@ -109,8 +110,24 @@ You are able to overwrite the default by using the `--columns` argument.
 | Reference | `reference` | Contains a link to the line and column of the dependency in the **package.json**.<br />By using a terminal which supports clicking on such links, you can navigate directly the the item. | P:\my-project\package.json:47:3 |
 | Changes | `changes` | **check-outdated** tries to find a direct link to changelog of the package. The following places are considered in the given order:<ol><li>{package}/package.json > "repository" \*</li><li>{package}/package.json > "homepage"</li><li>`https://www.npmjs.com/package/{name}`</li></ol>\* GitHub-repository URLs are adjusted, so that they directly link to the **CHANGELOG<span>.</span>md** or the **Releases** section. | https<span>:</span>//github<span>.</span>com/Microsoft/TypeScript/releases |
 | Changes | `changesPreferLocal` | Same as `changes`, but first check for a CHANGELOG<span>.</span>md in the package folder.<br />Keep in mind, you'll only see the changelog of the currently installed version, not of the version which is recommended. | node_modules/fs-extra/CHANGELOG.md |
-| Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor` or `patch` update, in Semantic Versioning. | minor |
+| Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor`, `patch`, `prerelease`, `build` or `reverted` update, in [Semantic Versioning](https://semver.org/spec/v2.0.0.html). For more details see [Available Types](#available-types) below. | minor |
 | Location | `location` | Shows where in the dependency tree the package is located. Note that **check-outdated** defaults to a depth of 0, so unless you override that, you'll always be seeing only top-level dependencies that are outdated. | node_modules/typescript |
 | Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<ol><li>{package}/package.json > "homepage"</li><li>{package}/package.json > "repository"</li><li>{package}/package.json > "author"</li><li>`https://www.npmjs.com/package/{name}`</li></ol> | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |
 | npmjs<span>.</span>com | `npmjs` | A link to the package on the npmjs.com website. | https<span>:</span>//www<span>.</span>npmjs<span>.</span>com/package/typescript |
+
+### Available Types
+
+The type describes the difference between the **Current** version and **Latest** version, in [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+By default, all types are shown.
+
+You are able to overwrite the default by using the `--types` argument.
+
+| --types value | Description | Example |
+|-|-|-|
+| `major` | Backward-incompatible updates | `1.2.3` -> `2.0.0` |
+| `minor` | Backward-compatible features | `1.2.3` -> `1.3.0` |
+| `patch` | Backward-compatible bug fixes | `1.2.3` -> `1.2.4` |
+| `reverted` | Latest available version is lower than the installed version | `1.2.3` -> `1.1.5` |
+| `prerelease` | Only the pre-release version has been amended or added | `1.2.3` -> `1.2.3-beta.1` |
+| `build` | Only build metadata has been amended or added | `1.2.3` -> `1.2.3+build.2` |

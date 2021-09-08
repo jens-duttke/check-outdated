@@ -38,6 +38,7 @@ const pkg = require('./package.json');
  * @property {boolean} [ignorePreReleases]
  * @property {boolean} [preferWanted]
  * @property {string[]} [columns]
+ * @property {string[]} [types]
  */
 
 /** @typedef {CheckOutdatedOptions & NpmOptions} Options */
@@ -75,13 +76,16 @@ const AVAILABLE_COLUMNS = {
 		getValue: async (dependency, options) => {
 			switch (semverDiffType(dependency.current, getWantedOrLatest(dependency, options))) {
 				case 'major':
-					return colorize.red(dependency.name);
+					return colorize.yellow(dependency.name);
 
 				case 'minor':
-					return colorize.yellow(dependency.name);
+					return colorize.cyan(dependency.name);
 
 				case 'patch':
 					return colorize.green(dependency.name);
+
+				case 'revert':
+					return colorize.red(dependency.name);
 
 				default:
 					return dependency.name;
@@ -298,6 +302,21 @@ const AVAILABLE_ARGUMENTS = {
 
 		return { columns };
 	},
+	'--types': (value) => {
+		const types = value.split(',');
+		const availableTypesNames = ['major', 'minor', 'patch', 'prerelease', 'build', 'reverted'];
+
+		if (types.length === 1 && (types[0] === '' || types[0].startsWith('-'))) {
+			return help('Invalid value of --types');
+		}
+
+		const invalidType = types.find((name) => !availableTypesNames.includes(name));
+		if (invalidType) {
+			return help(`Invalid type name "${invalidType}" in --types\nAvailable types are:\n${availableTypesNames.join(', ')}`);
+		}
+
+		return { types };
+	},
 	'--global': {
 		global: true
 	},
@@ -309,9 +328,6 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		return { depth };
-	},
-	'--minor-only': {
-		minorOnly: true
 	}
 };
 
@@ -413,9 +429,9 @@ function help (...additionalLines) {
 			'[--ignore-packages <comma-separated-list-of-package-names>]',
 			'[--prefer-wanted]',
 			'[--columns <comma-separated-list-of-columns>]',
+			'[--types <comma-separated-list-of-update-types>]',
 			'[--global]',
-			'[--depth <number>]',
-			'[--minor-only]'
+			'[--depth <number>]'
 		].join(' '),
 		'',
 		'Arguments:',
@@ -450,16 +466,21 @@ function help (...additionalLines) {
 				`Possible values: ${Object.keys(AVAILABLE_COLUMNS).join(',')}`
 			],
 			[
+				'--types <comma-separated-list-of-update-types>',
+				'Restrict the update type (e.g. only show minor updates, or reverted versions)'
+			],
+			[
+				// Follow-up line for '--types' description
+				'',
+				'Possible values: major,minor,patch,prerelease,build,reverted'
+			],
+			[
 				'--global',
 				'Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option).'
 			],
 			[
 				'--depth <number>',
 				'Max depth for checking dependency tree (equal to the npm outdated-option).'
-			],
-			[
-				'--minor-only',
-				'Check packages for updates in minor versions with fixed major version.'
 			]
 		]),
 		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),
@@ -504,12 +525,8 @@ function getFilteredDependencies (dependencies, options) {
 		filteredDependencies = filteredDependencies.filter(({ current, wanted }) => current !== wanted);
 	}
 
-	if (options.minorOnly) {
-		filteredDependencies = filteredDependencies.filter(({ current, latest }) => {
-			const [currentMajor, currentMinor, currentPatch] = current.split(".");
-			const [latestMajor, latestMinor, latestPatch] = latest.split(".");
-			return currentMajor === latestMajor && currentMinor !== latestMinor;
-		});
+	if (options.types) {
+		filteredDependencies = filteredDependencies.filter(({ current, latest }) => options.types?.includes(semverDiffType(current, latest) || ''));
 	}
 
 	return filteredDependencies;
@@ -566,9 +583,10 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
 		prettifyTable(await Promise.all(table)),
 		'',
 		colorize.underline('Color legend'),
-		`${colorize.red('Major update')}: backward-incompatible updates`,
-		`${colorize.yellow('Minor update')}: backward-compatible features`,
+		`${colorize.yellow('Major update')}: backward-incompatible updates`,
+		`${colorize.cyan('Minor update')}: backward-compatible features`,
 		`${colorize.green('Patch update')}: backward-compatible bug fixes`,
+		`${colorize.red('Reverted')}:     latest available version is lower than the installed version`,
 		'',
 		''
 	].join('\n'));
