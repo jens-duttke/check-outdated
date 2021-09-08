@@ -2,6 +2,10 @@
 
 ## Functionality improvements
 
+- Support "main" branch for CHANGELOG.md search
+  Right now only "master" is supported in `/helper/urls.js`:
+  `https://github.com/${githubMatch[1]}/blob/master${directory}/CHANGELOG.md`
+
 - Delay warning for major and minor releases by X days to ensure that the new version has been adequately teste by others
 
 - "--check-also" option which allows to check additional packages which are not referenced in the package.json
