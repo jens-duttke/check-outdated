@@ -1,6 +1,7 @@
 .github/
 .vscode/
 demo/
+tests/
 .editorconfig
 .eslintrc.js
 *.log
