@@ -30,6 +30,7 @@
 	"scripts": {
 		"lint": "lint tsc --tsconfig=jsconfig.json ts md audit",
 		"test": "node tests",
+		"screenshot-demo": "node demo",
 		"publish:major": "npm version major",
 		"publish:minor": "npm version minor",
 		"publish:patch": "npm version patch",

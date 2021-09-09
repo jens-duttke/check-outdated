@@ -38,6 +38,7 @@
 		"./*.js",
 		"./.eslintrc.js",
 		"./helper/**/*.js",
+		"./demo/**/*.js",
 		"./tests/**/*.js"
 	]
 }

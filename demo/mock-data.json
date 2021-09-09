@@ -1,0 +1,170 @@
+{
+	"defaultResponse": {
+		"react": {
+			"current": "16.12.0",
+			"wanted": "16.12.0",
+			"latest": "17.0.1",
+			"location": "M:/my-project/node_modules/react",
+			"type": "dependencies"
+		},
+		"react-dom": {
+			"current": "16.12.0",
+			"wanted": "16.12.0",
+			"latest": "17.0.1",
+			"location": "M:/my-project/node_modules/react-dom",
+			"type": "dependencies"
+		},
+		"react-transition-group": {
+			"current": "4.3.0",
+			"wanted": "4.3.0",
+			"latest": "4.4.1",
+			"location": "M:/my-project/node_modules/react-transition-group",
+			"type": "dependencies"
+		},
+		"@babel/core": {
+			"current": "7.8.3",
+			"wanted": "7.8.3",
+			"latest": "7.13.10",
+			"location": "M:/my-project/node_modules/@babel/core",
+			"type": "devDependencies"
+		},
+		"@babel/plugin-proposal-class-properties": {
+			"current": "7.8.3",
+			"wanted": "7.8.3",
+			"latest": "7.13.0",
+			"location": "M:/my-project/node_modules/@babel/plugin-proposal-class-properties",
+			"type": "devDependencies"
+		},
+		"@babel/plugin-proposal-decorators": {
+			"current": "7.8.3",
+			"wanted": "7.8.3",
+			"latest": "7.13.5",
+			"location": "M:/my-project/node_modules/@babel/plugin-proposal-decorators",
+			"type": "devDependencies"
+		},
+		"autoprefixer": {
+			"current": "9.7.4",
+			"wanted": "9.7.4",
+			"latest": "10.2.5",
+			"location": "M:/my-project/node_modules/autoprefixer",
+			"type": "devDependencies"
+		},
+		"gatsby-plugin-dts-css-modules": {
+			"current": "2.1.0",
+			"wanted": "2.1.0",
+			"latest": "2.1.1",
+			"location": "M:/my-project/node_modules/gatsby-plugin-dts-css-modules",
+			"type": "devDependencies"
+		},
+		"linter-bundle": {
+			"current": "1.25.1",
+			"wanted": "1.25.1",
+			"latest": "1.25.2",
+			"location": "M:/my-project/node_modules/linter-bundle",
+			"type": "devDependencies"
+		},
+		"typescript": {
+			"current": "3.7.5",
+			"wanted": "3.7.5",
+			"latest": "4.2.3",
+			"location": "M:/my-project/node_modules/typescript",
+			"type": "devDependencies"
+		}
+	},
+	"fsExists": {
+		"M:/my-project/node_modules/react/CHANGELOG.md": true
+	},
+	"fsReadFile": {
+		"M:/my-project/package.json": {
+			"devDependencies": {
+				"a": "",
+				"b": "",
+				"c": "",
+				"d": "",
+				"e": "",
+				"f": "",
+				"react": "1.0.0",
+				"react-dom": "1.0.0",
+				"g": "",
+				"react-transition-group": "1.0.0"
+			},
+			"dependencies": {
+				"h": "",
+				"i": "",
+				"j": "",
+				"k": "",
+				"@babel/core": "1.0.0",
+				"l": "",
+				"m": "",
+				"@babel/plugin-proposal-class-properties": "1.0.0",
+				"n": "",
+				"@babel/plugin-proposal-decorators": "1.0.0",
+				"o": "",
+				"p": "",
+				"q": "",
+				"r": "",
+				"s": "",
+				"autoprefixer": "1.0.0",
+				"t": "",
+				"u": "",
+				"v": "",
+				"gatsby-plugin-dts-css-modules": "1.0.0",
+				"w": "",
+				"linter-bundle": "1.0.0",
+				"x": "",
+				"y": "",
+				"z": "",
+				"typescript": "1.0.0"
+			}
+		},
+		"M:/my-project/node_modules/react/package.json": {
+			"homepage": "https://github.com/facebook/react/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/react-dom/package.json": {
+			"homepage": "https://github.com/facebook/react/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/react-transition-group/package.json": {
+			"homepage": "https://github.com/reactjs/react-transition-group/blob/master/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/@babel/core/package.json": {
+			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/@babel/plugin-proposal-class-properties/package.json": {
+			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/@babel/plugin-proposal-decorators/package.json": {
+			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/autoprefixer/package.json": {
+			"homepage": "https://github.com/postcss/autoprefixer/blob/main/CHANGELOG.md"
+		},
+		"M:/my-project/node_modules/gatsby-plugin-dts-css-modules/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://www.npmjs.com/package/gatsby-plugin-dts-css-modules"
+			}
+		},
+		"M:/my-project/node_modules/linter-bundle/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://www.npmjs.com/package/linter-bundle"
+			}
+		},
+		"M:/my-project/node_modules/typescript/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/Microsoft/TypeScript"
+			}
+		}
+	},
+	"httpsGet": {
+		"api.github.com/repos/jens-duttke/linter-bundle/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+		},
+		"api.github.com/repos/jens-duttke/gatsby-plugin-dts-css-modules/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+		}
+	}
+}
