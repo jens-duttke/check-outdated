@@ -7,11 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.9.0...HEAD)
+
+## [2.9.0] - 2021-09-09
+
+### Changed
+
+- For reverted versions, the "Type" column shows "reverted"
+- The package names of reverted versions are shown in red
+- The package name color of major-updates changed to yellow, and of minor-updates changed to cyan
+
+### Added
+
+- Added `--types` option to restrict the visible versions.
+
 ### Fixed
 
 - Show `wanted` and `latest` version numbers even if `current` is empty
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.8.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.8.0...v2.9.0)
 
 ## [2.8.0] - 2021-05-22
 
