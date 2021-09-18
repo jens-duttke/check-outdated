@@ -152,8 +152,10 @@ async function getChangelogFromURL (url, directory) {
 	const githubMatch = (/^https?:\/\/github.com\/([^/]+?\/[^/#?]+)/u).exec(url);
 
 	if (githubMatch !== null) {
-		if (await isFileOnGitHub(githubMatch[1], 'CHANGELOG.md', directory)) {
-			return `https://github.com/${githubMatch[1]}/blob/master${directory}/CHANGELOG.md`;
+		const linkToChangelog = await getFileOnGitHub(githubMatch[1], 'CHANGELOG.md', directory, 256);
+
+		if (linkToChangelog) {
+			return linkToChangelog;
 		}
 
 		return `https://github.com/${githubMatch[1]}/releases`;
@@ -175,15 +177,16 @@ async function getChangelogFromURL (url, directory) {
 }
 
 /**
- * Checks if a specific file exists in a GitHub repository.
+ * Returns a link to the HTML representation of a specific file in a GitHub repository.
  *
  * @private
  * @param {string} repoName - GitHub repository name, e.g. "jens.duttke/check-outdated"
  * @param {string} fileName - File name, e.g. "README.md"
  * @param {string} directory - Sub-directory path, starting with "/" or an empty string
- * @returns {Promise<boolean>} Returns `true` or `false`.
+ * @param {number} minimumContentSize - The minimum required size of the file content.
+ * @returns {Promise<string | undefined>} Returns either the URL to the HTML representation of the file, or `undefined` if the file has not been found, or if it is too small.
  */
-async function isFileOnGitHub (repoName, fileName, directory = '') {
+async function getFileOnGitHub (repoName, fileName, directory = '', minimumContentSize = 0) {
 	return new Promise((resolve) => {
 		https.get({
 			host: 'api.github.com',
@@ -196,7 +199,7 @@ async function isFileOnGitHub (repoName, fileName, directory = '') {
 			if (response.statusCode !== STATUS_OK) {
 				response.destroy();
 
-				resolve(false);
+				resolve(undefined);
 
 				return;
 			}
@@ -209,16 +212,19 @@ async function isFileOnGitHub (repoName, fileName, directory = '') {
 			response.on('end', () => {
 				try {
 					const json = JSON.parse(data.join(''));
-					const BASE64_DECODING_FACTOR = 0.75;
-					const MINIMUM_CONTENT_SIZE = 256;
 
-					resolve((json.content.replace(/\n/gu, '').length * BASE64_DECODING_FACTOR) >= MINIMUM_CONTENT_SIZE);
+					if (json.html_url && json.size >= minimumContentSize) {
+						resolve(json.html_url);
+					}
+					else {
+						resolve(undefined);
+					}
 				}
 				catch {
-					resolve(false);
+					resolve(undefined);
 				}
 			});
-			response.on('error', () => resolve(false));
+			response.on('error', () => resolve(undefined));
 		});
 	});
 }

@@ -314,7 +314,7 @@
 		"node_modules/module-with-package-json-with-github-repository/package.json": {
 			"repository": {
 				"type": "git",
-				"url": "https://github.com/jens-duttke/check-outdated/blob/master/README.md"
+				"url": "https://github.com/jens-duttke/check-outdated/blob/main/README.md"
 			}
 		},
 		"node_modules/module-with-package-json-with-github-repository2/package.json": {
@@ -373,22 +373,22 @@
 		"node_modules/module-with-empty-changelog/package.json": {
 			"repository": {
 				"type": "git",
-				"url": "https://github.com/jens-duttke/empty-changelog/blob/master/README.md"
+				"url": "https://github.com/jens-duttke/empty-changelog/blob/main/README.md"
 			}
 		}
 	},
 	"httpsGet": {
 		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+			"data": "{\"size\":300,\"html_url\":\"https://github.com/jens-duttke/check-outdated/blob/main/CHANGELOG.md\"}"
 		},
 		"api.github.com/repos/jens-duttke/check-outdated/contents/packages/sub-package/CHANGELOG.md": {
 			"statusCode": 200,
-			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+			"data": "{\"size\":300,\"html_url\":\"https://github.com/jens-duttke/check-outdated/blob/main/packages/sub-package/CHANGELOG.md\"}"
 		},
 		"api.github.com/repos/jens-duttke/empty-changelog/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"data": "{\"content\": \"LUVtcHR5LQ==\"}"
+			"data": "{\"size\":50}"
 		}
 	}
 }

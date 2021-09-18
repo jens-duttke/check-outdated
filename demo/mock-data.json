@@ -118,37 +118,52 @@
 			}
 		},
 		"M:/my-project/node_modules/react/package.json": {
-			"homepage": "https://github.com/facebook/react/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/facebook/react"
+			}
 		},
 		"M:/my-project/node_modules/react-dom/package.json": {
-			"homepage": "https://github.com/facebook/react/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/facebook/react"
+			}
 		},
 		"M:/my-project/node_modules/react-transition-group/package.json": {
-			"homepage": "https://github.com/reactjs/react-transition-group/blob/master/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/reactjs/react-transition-group"
+			}
 		},
 		"M:/my-project/node_modules/@babel/core/package.json": {
-			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/babel/babel"
+			}
 		},
 		"M:/my-project/node_modules/@babel/plugin-proposal-class-properties/package.json": {
-			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/babel/babel"
+			}
 		},
 		"M:/my-project/node_modules/@babel/plugin-proposal-decorators/package.json": {
-			"homepage": "https://github.com/babel/babel/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/babel/babel"
+			}
 		},
 		"M:/my-project/node_modules/autoprefixer/package.json": {
-			"homepage": "https://github.com/postcss/autoprefixer/blob/main/CHANGELOG.md"
+			"repository": {
+				"type": "git",
+				"url": "https://github.com/postcss/autoprefixer"
+			}
 		},
 		"M:/my-project/node_modules/gatsby-plugin-dts-css-modules/package.json": {
-			"repository": {
-				"type": "git",
-				"url": "https://www.npmjs.com/package/gatsby-plugin-dts-css-modules"
-			}
+			"homepage": "https://www.npmjs.com/package/gatsby-plugin-dts-css-modules"
 		},
 		"M:/my-project/node_modules/linter-bundle/package.json": {
-			"repository": {
-				"type": "git",
-				"url": "https://www.npmjs.com/package/linter-bundle"
-			}
+			"homepage": "https://www.npmjs.com/package/linter-bundle"
 		},
 		"M:/my-project/node_modules/typescript/package.json": {
 			"repository": {
@@ -158,13 +173,21 @@
 		}
 	},
 	"httpsGet": {
-		"api.github.com/repos/jens-duttke/linter-bundle/contents/CHANGELOG.md": {
+		"api.github.com/repos/facebook/react/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+			"data": "{\"size\":177905,\"html_url\":\"https://github.com/facebook/react/blob/main/CHANGELOG.md\"}"
 		},
-		"api.github.com/repos/jens-duttke/gatsby-plugin-dts-css-modules/contents/CHANGELOG.md": {
+		"api.github.com/repos/babel/babel/contents/CHANGELOG.md": {
 			"statusCode": 200,
-			"data": "{\"content\": \"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4gQWVuZWFuIGxhY2luaWEgcXVhbSBlZ2V0IGVsaXQgaWFjdWxpcyBwaGFyZXRyYS4gTmFtIG1hbGVzdWFkYSBhbnRlIHZpdGFlIG5lcXVlIHBlbGxlbnRlc3F1ZSwgZXQgZnJpbmdpbGxhIGxhY3VzIHNvZGFsZXMuIFNlZCBjb21tb2RvIG9yY2kgaW4gbGlndWxhIHZ1bHB1dGF0ZSB2dWxwdXRhdGUuIE51bGxhIGNvbnNlY3RldHVyIGxlbyBzZWQgdmVsLg==\"}"
+			"data": "{\"size\":528169,\"html_url\":\"https://github.com/babel/babel/blob/main/CHANGELOG.md\"}"
+		},
+		"api.github.com/repos/postcss/autoprefixer/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"data": "{\"size\":31860,\"html_url\":\"https://github.com/postcss/autoprefixer/blob/main/CHANGELOG.md\"}"
+		},
+		"api.github.com/repos/reactjs/react-transition-group/contents/CHANGELOG.md": {
+			"statusCode": 200,
+			"data": "{\"size\":13181,\"html_url\":\"https://github.com/reactjs/react-transition-group/blob/master/CHANGELOG.md\"}"
 		}
 	}
 }
