@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.9.0...HEAD)
 
+## [2.10.0] - 2021-09-18
+
+### Changed
+
+- Now supporting other "base" branches than `master` on GitHub, to find the CHANGELOG.md
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.9.0...v2.10.0)
+
 ## [2.9.0] - 2021-09-09
 
 ### Changed
