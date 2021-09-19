@@ -3,6 +3,7 @@
 # check-outdated
 
 [![npm version](https://badge.fury.io/js/check-outdated.svg)](https://badge.fury.io/js/check-outdated)
+[![install size](https://packagephobia.com/badge?p=check-outdated@2.10.0)](https://packagephobia.com/result?p=check-outdated)
 [![Dependency Status](https://img.shields.io/david/jens-duttke/check-outdated)](https://www.npmjs.com/package/check-outdated)
 [![Known Vulnerabilities](https://snyk.io/test/github/jens-duttke/check-outdated/badge.svg?targetFile=package.json)](https://snyk.io/test/github/jens-duttke/check-outdated?targetFile=package.json)
 [![npm](https://img.shields.io/npm/dm/check-outdated.svg?maxAge=2592000)](https://www.npmjs.com/package/check-outdated)
