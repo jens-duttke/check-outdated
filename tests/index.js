@@ -533,8 +533,21 @@ void (async () => {
 	catch (error) {
 		/* eslint-disable no-console -- console.error() is used to output information about the error */
 		console.error();
-		console.error(colorize.red(error.message));
-		console.error(colorize.gray(error.stack));
+
+		if (error instanceof Error) {
+			console.error(colorize.red(error.message));
+
+			if (error.stack) {
+				console.error(colorize.gray(error.stack));
+			}
+		}
+		else if (typeof error === 'string') {
+			console.error(colorize.red(error));
+		}
+		else {
+			console.error(colorize.red('Unknown error'));
+		}
+
 		console.error();
 		/* eslint-enable no-console */
 
