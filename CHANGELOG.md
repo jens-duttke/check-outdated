@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.9.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.10.1...HEAD)
+
+## [2.10.1] - 2021-09-25
+
+### Fixed
+
+- Fixed syntax error with Node.js v13 and below
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.10.0...v2.10.1)
 
 ## [2.10.0] - 2021-09-18
 
