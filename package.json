@@ -1,6 +1,6 @@
 {
 	"name": "check-outdated",
-	"version": "2.10.1",
+	"version": "2.10.2",
 	"description": "Light-weight CLI tool to ensure that your dependencies are up to date, otherwise the process is terminated with status code 1.",
 	"keywords": [
 		"cli",
