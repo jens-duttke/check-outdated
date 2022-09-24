@@ -19,7 +19,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally ignore pre-releases (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1")
 - Optionally ignore dev dependencies
 - Optionally ignore specific packages
-- Optionally ignore a specific version of a package (e.g. to skip a broken version)
+- Optionally ignore a specific version or version range of a package (e.g. to skip a broken version)
 - Optionally restrict the update type (e.g. only show minor updates, or reverted versions)
 - Optionally check globally installed packages
 - Optionally set depth for checking dependency tree
@@ -88,8 +88,8 @@ Or put it into your `package.json`:
 | --help, -h | Show the help | `--help` |
 | --ignore-pre-releases | Don't recommend to update to versions which contain a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1") | `--ignore-pre-releases` |
 | --ignore-dev-dependencies | Do not warn if devDependencies are outdated. | `--ignore-dev-dependencies` |
-| --ignore-packages \<comma-separated-list-of-package-names\> | Ignore the listed packages, even if they are outdated.<br />Using the `@` syntax (`<package>@<version>`) you can also, only ignore a specific version of a package (e.g. if it's broken). | `--ignore-packages typescript,terser-webpack-plugin@3.0.0` |
-| --prefer-wanted | Compare the `Current` version to the `Wanted` version, instead of the `Latest` version. |
+| --ignore-packages \<comma-separated-list-of-package-names\> | Ignore the listed packages, even if they are outdated.<br />Using the `@` syntax (`<package>@<version>`) you can also, only ignore a specific version, or a semver range (like `^2`, `~2.3.4`, `2.*`, `2.3.x`) of a package (e.g. if it's broken). | `--ignore-packages typescript,terser-webpack-plugin@3.0.0,got@^12` |
+| --prefer-wanted | Compare the `Current` version to the `Wanted` version, instead of the `Latest` version. | `--prefer-wanted` |
 | --columns \<comma-separated-list-of-columns\> | Defines which columns should be shown in which order. (See [Available Columns](#available-columns) below) | `--columns name,current,latest,changes` |
 | --types \<comma-separated-list-of-update-types\> | Restrict the update type (e.g. only show minor updates, or reverted versions) (See [Available Types](#available-types) below) | `--types minor,reverted` |
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |

@@ -274,7 +274,7 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, 'module-minor');
 			});
 
-			await test('should return with outdated dependency message, ignoring package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
+			await test('should return with outdated dependency message, ignoring package `"module-broken-version"` of version `2.3.4`', ['--ignore-packages', 'module-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
 
@@ -283,7 +283,7 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, 'module-broken-version');
 			});
 
-			await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"`', ['--ignore-packages', 'module-broken-version@2.3.3'], mockData.defaultResponse, (command, exitCode, stdout) => {
+			await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version" of version `2.3.3``', ['--ignore-packages', 'module-broken-version@2.3.3'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
 
@@ -293,7 +293,35 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@2.3.3" has no effect, the latest version is 2.3.4.');
 			});
 
-			await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
+			await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"` of version `2.3.4`', ['--ignore-packages', '@scoped/module-sub-broken-version@2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
+
+				expectVarNotToHaveWord(stdout, '@scoped/module-sub-broken-version');
+			});
+
+			await test('should return with outdated dependency message, ignoring package `"module-broken-version"` of version `^2`', ['--ignore-packages', 'module-broken-version@^2'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
+
+				expectVarNotToHaveWord(stdout, 'module-broken-version');
+			});
+
+			await test('should return with outdated dependency message, informing about an unnecessary ignore of package `"module-broken-version"` of version `^1`', ['--ignore-packages', 'module-broken-version@^1'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
+
+				expectVarToHaveWord(stdout, '\u001B[33mmodule-broken-version\u001B[39m', false);
+				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@^1" has no effect, the latest version is 2.3.4.');
+			});
+
+			await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"` of version `^2`', ['--ignore-packages', '@scoped/module-sub-broken-version@^2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
 

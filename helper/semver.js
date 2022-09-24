@@ -94,7 +94,56 @@ function semverDiffType (v1, v2) {
 	return;
 }
 
+/**
+ * Checks if a semver range pattern matches to a specific version.
+ *
+ * @public
+ * @param {string} version - Version.
+ * @param {string} pattern - Range pattern.
+ * @returns {boolean} `true` if the range pattern matches, otherwise `false`.
+ */
+function semverInRange (version, pattern) {
+	const semverRangeRegExp = /^([\^~])?(?:(\d+|\*|x)?(?:\.(\d+|\*|x))?(?:\.(\d+|\*|x))?)?$/u;
+
+	/** @type {(string | undefined)[] | null} */
+	const match = semverRangeRegExp.exec(pattern);
+
+	if (match === null) {
+		return (version === pattern);
+	}
+
+	if (match[2] === '*' || match[2] === 'x') {
+		return true;
+	}
+
+	const splitRegExp = /[.+-]/u;
+	const parts = version.split(splitRegExp);
+
+	if (match[1] === '^' || match[3] === '*' || match[3] === 'x') {
+		return (parts[0] === match[2]);
+	}
+
+	if (match[1] === '~') {
+		return (parts[0] === match[2] && (match[3] === undefined || parts[1] === match[3]) && (match[4] === undefined || Number.parseInt(parts[1], 10) >= Number.parseInt(match[4], 10)));
+	}
+
+	if (match[4] === '*' || match[4] === 'x') {
+		return (parts[0] === match[2] && parts[1] === match[3]);
+	}
+
+	if (match[3] === undefined) {
+		return (parts[0] === match[2]);
+	}
+
+	if (match[4] === undefined) {
+		return (parts[0] === match[2] && parts[1] === match[3]);
+	}
+
+	return (version === pattern);
+}
+
 module.exports = {
 	semverDiff,
-	semverDiffType
+	semverDiffType,
+	semverInRange
 };

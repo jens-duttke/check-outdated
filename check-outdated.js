@@ -14,7 +14,7 @@ const { getOutdatedDependencies, compareByName, compareByType } = require('./hel
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
-const { semverDiff, semverDiffType } = require('./helper/semver');
+const { semverDiff, semverDiffType, semverInRange } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
 const { getNpmJSLink, getPackageAuthor, getPackageHomepage, getPackageRepository } = require('./helper/urls');
 const pkg = require('./package.json');
@@ -502,11 +502,29 @@ function getFilteredDependencies (dependencies, options) {
 	));
 
 	if (options.ignorePackages) {
-		const ignore = options.ignorePackages;
+		const ignorePackages = options.ignorePackages;
+		const packageVersionRegExp = /^(.+?)@(.*)$/u;
 
-		filteredDependencies = filteredDependencies.filter((dependency) => (
-			!ignore.includes(dependency.name) && !ignore.includes(`${dependency.name}@${getWantedOrLatest(dependency, options)}`)
-		));
+		filteredDependencies = filteredDependencies.filter((dependency) => {
+			for (const ignoredPackage of ignorePackages) {
+				const match = packageVersionRegExp.exec(ignoredPackage);
+
+				if (match === null) {
+					if (ignoredPackage === dependency.name) {
+						return false;
+					}
+				}
+				else {
+					if (match[1] === dependency.name) {
+						if (semverInRange(getWantedOrLatest(dependency, options), match[2])) {
+							return false;
+						}
+					}
+				}
+			}
+
+			return true;
+		});
 	}
 
 	if (options.ignoreDevDependencies) {
@@ -596,10 +614,11 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
  * Show information about packages which are ignored by `--ignore-packages` with version number, but where the `latest` version differs.
  *
  * Example:
- * Current "module" version: 1.0.0
- * Latest "module" version: 1.0.2
- * --ignore-packages module@1.0.1
- * In this case, the ignore-statement has no effect, because version 1.0.1 is outdated. That means, the ignore-statement can be removed.
+ * Current "module" version: 2.0.0
+ * Latest "module" version: 2.0.2
+ * --ignore-packages module@^1
+ * --ignore-packages module@2.0.1
+ * In these cases, the ignore-statements have no effect, because version ^1 and 2.0.1 are outdated. That means, the ignore-statement can be removed.
  *
  * @private
  * @param {Dependencies} filteredDependencies - Array of dependency objects, which will be shown in the terminal.
