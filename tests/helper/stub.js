@@ -105,6 +105,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 						throw new RangeError('path.resolve(): Mock expects exactly 2 path segments.');
 					}
 
+					// eslint-disable-next-line no-unnecessary-typeof -- From the Node.js documentation: "A `TypeError` is thrown if any of the arguments is not a string.""
 					if (typeof pathSegments[1] !== 'string') {
 						throw new TypeError('path.resolve(): Mock expects the second path segment to be an string.');
 					}
@@ -134,7 +135,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 					/** @type {{ statusCode: number; data?: string; }} */
 					const response = (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND };
 
-					// eslint-disable-next-line node/no-callback-literal -- `callback()` is not using the Node.js error-first callback pattern.
+					// eslint-disable-next-line n/no-callback-literal -- `callback()` is not using the Node.js error-first callback pattern.
 					callback({
 						...response,
 						on (event, listener) {

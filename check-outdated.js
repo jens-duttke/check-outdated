@@ -335,7 +335,7 @@ if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
 
 	void (async () => {
-		// eslint-disable-next-line node/no-process-exit -- We need to set a specific error code, so we need `process.exit()` here
+		// eslint-disable-next-line n/no-process-exit -- We need to set a specific error code, so we need `process.exit()` here
 		process.exit(await checkOutdated(process.argv.slice(2)));
 	})();
 }

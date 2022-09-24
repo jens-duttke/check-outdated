@@ -1,5 +1,7 @@
 # @todo
 
+<!-- markdownlint-disable MD034 -->
+
 ## Functionality improvements
 
 - If no changelog is found, could we create one automatically, if version tags are available?
