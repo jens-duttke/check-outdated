@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.10.2...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.11.0...HEAD)
+
+## [2.11.0] - 2021-09-25
+
+### Added
+
+- `--ignore-packages` now support semver ranges like `foo@^2`, `foo@~2.3.4`, `foo@2.*`, `foo@2.3.x`
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.10.2...v2.11.0)
 
 ## [2.10.2] - 2021-09-25
 
