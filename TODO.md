@@ -2,6 +2,46 @@
 
 ## Functionality improvements
 
+- If no changelog is found, could we create one automatically, if version tags are available?
+  e.g. https://github.com/GoogleChrome/workbox/compare/v6.5.2...v6.5.3
+
+- Also check "overrides" and "resolutions":
+  Overrides:
+  https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
+    "foo": {
+      ".": "1.0.0",
+      "bar": "1.0.0"
+    }
+    "bar": {
+      "foo": "1.0.0"
+    }
+    "baz": {
+      "bar": {
+        "foo": "1.0.0"
+      }
+    }
+    "bar@2.0.0": {
+      "foo": "1.0.0"
+    }
+
+  References can be ignored as they do not "manage" their own version number:
+  "overrides": {
+    "luxon": "^1.21.3",
+    "@vlc/components": "$@vlc/components",
+    "@vlc/dialog": "$@vlc/dialog",
+    "@vlc/form": "$@vlc/form",
+    "@vlc/snackbar": "$@vlc/snackbar",
+    "@vlc/table": "$@vlc/table",
+    "formik-material-ui": "$formik-material-ui"
+  },
+
+- Resolutions:
+  https://classic.yarnpkg.com/en/docs/selective-version-resolutions/
+    "d2/left-pad": "1.1.1",
+    "c/**/left-pad": "^1.1.2"
+
+  When resolving the position within the file, it must be taken into account that different packages can contain different versions of sub-components.
+
 - Delay warning for major and minor releases by X days to ensure that the new version has been adequately teste by others
 
 - "--check-also" option which allows to check additional packages which are not referenced in the package.json
