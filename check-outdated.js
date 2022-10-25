@@ -333,10 +333,10 @@ const AVAILABLE_ARGUMENTS = {
 
 if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
+	const argv = process.argv.slice(2);
 
 	void (async () => {
-		// eslint-disable-next-line n/no-process-exit -- We need to set a specific error code, so we need `process.exit()` here
-		process.exit(await checkOutdated(process.argv.slice(2)));
+		process.exitCode = await checkOutdated(argv);
 	})();
 }
 else {
