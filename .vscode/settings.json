@@ -13,7 +13,7 @@
 	"[markdown]": {
 		"editor.rulers": [300]
 	},
-	"[typescript]": {
+	"[javascript]": {
 		"editor.rulers": [300]
 	}
 }
