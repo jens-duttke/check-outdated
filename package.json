@@ -44,7 +44,7 @@
 	"devDependencies": {
 		"@types/node": "20.4.9",
 		"@types/proxyquire": "1.3.28",
-		"linter-bundle": "3.6.0",
+		"linter-bundle": "3.7.0",
 		"proxyquire": "2.1.3",
 		"typescript": "5.1.6"
 	}
