@@ -59,7 +59,7 @@ const REPOSITORY_URLS = [
  * Generates a link to the npmjs.com website, based on a dependency name..
  *
  * @public
- * @param {string} packageName - Options which shall be appened to the `npm outdated` command-line call.
+ * @param {string} packageName - Options which shall be appended to the `npm outdated` command-line call.
  * @returns {string} The link to the package on the npmjs.com website.
  */
 function getNpmJSLink (packageName) {

@@ -21,7 +21,7 @@
  * Converts a two-dimensional array into an styled table with aligned columns.
  *
  * @public
- * @param {Table} table - Two-dimentational array which shall be shown in a table with aligned columns.
+ * @param {Table} table - Two-dimensional array which shall be shown in a table with aligned columns.
  * @returns {string} Multiline string containing the table.
  */
 function prettifyTable (table) {
@@ -68,7 +68,7 @@ function prettifyTable (table) {
  *
  * @private
  * @param {readonly number[]} widths - `Array.reduce()` accumulator, which is filled with the maximal text lengths per column.
- * @param {(string | readonly (string | TableColumn)[])} row - A single row containg the columns of a `Table`.
+ * @param {(string | readonly (string | TableColumn)[])} row - A single row containing the columns of a `Table`.
  * @returns {readonly number[]} Updated version of `widths` containing the new maximal text lengths, considering the current `row`.
  */
 function colWidthReducer (widths, row) {
@@ -83,7 +83,7 @@ function colWidthReducer (widths, row) {
  * Get the length of a string without ANSI escape sequences for coloring.
  *
  * @private
- * @param {string} string - Input string containg ANSI escape sequences for coloring.
+ * @param {string} string - Input string containing ANSI escape sequences for coloring.
  * @returns {number} The text length of `str` without the ANSI escape sequences.
  */
 function plainLength (string) {

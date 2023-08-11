@@ -64,7 +64,7 @@ const DEFAULT_FOREGROUND_COLOR = 39;
  * Allows to style strings by using ANSI escape sequences for coloring terminal output.
  *
  * @example
- * colorize({ fgColor: 'magenta', textDecoraton: 'underline' })('text');
+ * colorize({ fgColor: 'magenta', textDecoration: 'underline' })('text');
  * colorize({}).magenta.underline('text');
  *
  * @public

@@ -1,5 +1,5 @@
 /**
- * @file Aquires and prepares outdated dependencies.
+ * @file Acquires and prepares outdated dependencies.
  */
 
 const childProcess = require('child_process');
@@ -35,7 +35,7 @@ const childProcess = require('child_process');
  * Calls `npm outdated` to retrieve information about the outdated dependencies.
  *
  * @public
- * @param {NpmOptions} options - Options which shall be appened to the `npm outdated` command-line call.
+ * @param {NpmOptions} options - Options which shall be appended to the `npm outdated` command-line call.
  * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
  */
 async function getOutdatedDependencies (options) {
@@ -172,6 +172,7 @@ function parseResponse (stdout) {
 		return response;
 	}
 	catch (error) {
+		debugger;
 		if (error instanceof Error) {
 			return {
 				error: {

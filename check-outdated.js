@@ -51,7 +51,7 @@ const pkg = require('./package.json');
 
 /**
  * The details change can be used to share data between columns.
- * For example, if the first column reads the package.json, the next column can rely of this data, without to aquire it again.
+ * For example, if the first column reads the package.json, the next column can rely of this data, without to acquire it again.
  *
  * @typedef {object} DependencyDetailsCache
  * @property {[string, string]} [semverDiff]
