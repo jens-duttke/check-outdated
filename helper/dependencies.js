@@ -132,9 +132,9 @@ function prepareResponseObject (dependencies) {
 			name
 		};
 
-		outdatedDependency.current ||= '';
-		outdatedDependency.wanted ||= '';
-		outdatedDependency.latest ||= '';
+		outdatedDependency.current = outdatedDependency.current || '';
+		outdatedDependency.wanted = outdatedDependency.wanted || '';
+		outdatedDependency.latest = outdatedDependency.latest || '';
 
 		/**
 		 * Sometimes, npm returns an empty `location` string. So we add it.

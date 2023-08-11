@@ -209,7 +209,7 @@ const AVAILABLE_COLUMNS = {
 	changes: {
 		caption: colorize.underline('Changes'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -228,7 +228,7 @@ const AVAILABLE_COLUMNS = {
 				return changelogFile;
 			}
 
-			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -241,7 +241,7 @@ const AVAILABLE_COLUMNS = {
 	homepage: {
 		caption: colorize.underline('Homepage'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
 
 			return (
 				dependency.homepage ||
