@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.11.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.12.0...HEAD)
+
+## [2.12.0] - 2023-08-11
+
+### Changed
+
+- Updated dependencies
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.11.0...v2.12.0)
 
 ## [2.11.0] - 2022-09-24
 
