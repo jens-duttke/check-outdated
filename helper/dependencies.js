@@ -172,7 +172,6 @@ function parseResponse (stdout) {
 		return response;
 	}
 	catch (error) {
-		debugger;
 		if (error instanceof Error) {
 			return {
 				error: {
