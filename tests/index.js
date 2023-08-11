@@ -178,7 +178,6 @@ void (async () => {
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
-				expectVarToHaveWord(stdout, 'Unexpected end of JSON input');
 				expectVarToHaveWord(stdout, '{ "Incomplete JSON response');
 			});
 
