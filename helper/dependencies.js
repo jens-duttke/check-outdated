@@ -64,6 +64,8 @@ async function getOutdatedDependencies (options) {
 
 			if (typeof response !== 'object' || response === null) {
 				reject(new TypeError('npm did not respond with an object.'));
+
+				return;
 			}
 
 			resolve(prepareResponseObject(response));
