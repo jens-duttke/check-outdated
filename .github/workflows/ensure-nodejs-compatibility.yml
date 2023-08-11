@@ -201,5 +201,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install -g proxyquire
+    - run: rm -f package-lock.json
+    - run: mv package.json _package.json
+    - run: npm install proxyquire
+    - run: mv _package.json package.json
     - run: npm test
