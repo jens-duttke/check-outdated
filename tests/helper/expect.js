@@ -8,6 +8,7 @@ const fs = require('fs');
 const { assertHasWord, assertNotHasWord } = require('./assert');
 const colorize = require('./colorize');
 
+/** @type {Record<string, string[]>} */
 const expectVarFileCache = {};
 
 const sum = {

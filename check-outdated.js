@@ -398,6 +398,7 @@ async function checkOutdated (argv) {
 	catch (error) {
 		if (typeof error === 'object' && error !== null) {
 			// Required for TypeScript to ensure the type is an `object` instead of `unknown`.
+			/** @type {Record<string, any>} */
 			const errorObject = error;
 
 			const out = generateKeyValueList(Object.getOwnPropertyNames(errorObject).map((property) => [colorize.magenta(property), errorObject[property]]));
