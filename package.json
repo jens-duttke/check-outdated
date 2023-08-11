@@ -28,7 +28,7 @@
 		"url": "https://github.com/jens-duttke/check-outdated.git"
 	},
 	"scripts": {
-		"lint": "lint tsc --tsconfig=jsconfig.json ts md audit",
+		"lint": "lint tsc ts md audit",
 		"test": "node tests",
 		"screenshot-demo": "node demo",
 		"publish:major": "npm version major",

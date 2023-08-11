@@ -18,7 +18,6 @@
 		"allowUnusedLabels": false,
 		"alwaysStrict": true,
 		"forceConsistentCasingInFileNames": true,
-		"keyofStringsOnly": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
@@ -31,8 +30,7 @@
 		"strictFunctionTypes": true,
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
-		"suppressExcessPropertyErrors": false,
-		"suppressImplicitAnyIndexErrors": true
+		"suppressExcessPropertyErrors": false
 	},
     "include": [
 		"./*.js",
