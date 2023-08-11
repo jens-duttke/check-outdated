@@ -209,7 +209,7 @@ const AVAILABLE_COLUMNS = {
 	changes: {
 		caption: colorize.underline('Changes'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -228,7 +228,7 @@ const AVAILABLE_COLUMNS = {
 				return changelogFile;
 			}
 
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -241,7 +241,7 @@ const AVAILABLE_COLUMNS = {
 	homepage: {
 		caption: colorize.underline('Homepage'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON ||= getDependencyPackageJSON(dependency.location);
 
 			return (
 				dependency.homepage ||
@@ -357,9 +357,9 @@ async function checkOutdated (argv) {
 	try {
 		args = /** @type {Options | string} */(parseArguments(argv, AVAILABLE_ARGUMENTS));
 	}
-	catch ({ message }) {
-		if (typeof message === 'string') {
-			args = help(message);
+	catch (error) {
+		if (error instanceof Error) {
+			args = help(error.message);
 		}
 		else {
 			args = help();

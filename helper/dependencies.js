@@ -132,11 +132,9 @@ function prepareResponseObject (dependencies) {
 			name
 		};
 
-		for (const propertyName of ['current', 'wanted', 'latest', 'type']) {
-			if (!(propertyName in outdatedDependency)) {
-				outdatedDependency[propertyName] = '';
-			}
-		}
+		outdatedDependency.current ||= '';
+		outdatedDependency.wanted ||= '';
+		outdatedDependency.latest ||= '';
 
 		/**
 		 * Sometimes, npm returns an empty `location` string. So we add it.

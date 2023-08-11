@@ -13,10 +13,12 @@
 /**
  * @typedef {object} Colorize
  *
- * General.
+ * General
+ *
  * @property {ColorizeProperty} disabled
  *
- * Foreground colors.
+ * Foreground colors
+ *
  * @property {ColorizeProperty} gray
  * @property {ColorizeProperty} red
  * @property {ColorizeProperty} green
@@ -26,7 +28,8 @@
  * @property {ColorizeProperty} cyan
  * @property {ColorizeProperty} white
  *
- * Text Decoration.
+ * Text Decoration
+ *
  * @property {ColorizeProperty} bold
  * @property {ColorizeProperty} underline
  */
