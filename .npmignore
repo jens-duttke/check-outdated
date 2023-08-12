@@ -5,7 +5,7 @@ tests/
 .editorconfig
 .eslintrc.js
 *.log
-jsconfig.json
+tsconfig.json
 npm-debug.log*
 screenshot.png
 TODO.md
