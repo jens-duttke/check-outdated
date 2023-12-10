@@ -11,7 +11,8 @@
 
 - Also check "overrides" and "resolutions":  
   - Overrides:  
-    https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides  
+    https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
+
     ```json
     "foo": {
       ".": "1.0.0",
@@ -30,7 +31,8 @@
     }
     ```
 
-    References can be ignored as they do not "manage" their own version number:  
+    References can be ignored as they do not "manage" their own version number:
+
     ````json
     "overrides": {
       "luxon": "^1.21.3",
@@ -45,6 +47,7 @@
 
   - Resolutions:  
     https://classic.yarnpkg.com/en/docs/selective-version-resolutions/
+
     ```json
     "d2/left-pad": "1.1.1",
     "c/**/left-pad": "^1.1.2"
@@ -54,19 +57,22 @@
 
 - "--check-also" option which allows to check additional packages which are not referenced in the package.json  
   Example:
-  ```
+
+  ```sh
   --check-also better-npm-audit@1.9.1,improved-yarn-audit@2.3.3
   ```
 
 - Ensure that [optionalDependencies](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#optionaldependencies) are handled correctly.
 
 - Support of aliases:
-  ```
+
+  ```json
   "gsap": "npm:@gsap/shockingly@^3.6.0",
   ```
   
   Installable by using:
-  ```
+
+  ```sh
   npm install -D tailwindcss@npm:@tailwindcss/postcss7-compat
   ```
 
