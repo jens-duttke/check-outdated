@@ -501,9 +501,29 @@ function help (...additionalLines) {
  * @returns {Dependencies} Array with of the filtered dependency objects.
  */
 function getFilteredDependencies (dependencies, options) {
-	let filteredDependencies = dependencies.filter((dependency) => (
-		!['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))
-	));
+	let filteredDependencies = dependencies.filter((dependency) => {
+		if (!['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))) {
+			return false;
+		}
+
+		// Ignore this dependency if package.json specifies "*" as the version, meaning any version is acceptable
+		if (dependency.type) {
+			try {
+				const packageJSONContent = readFile(getParentPackageJSONPath(dependency.location));
+
+				if (packageJSONContent) {
+					const versionString = JSON.parse(packageJSONContent)[dependency.type][dependency.name];
+
+					if (versionString === '*') {
+						return false;
+					}
+				}
+			}
+			catch { /* Do nothing */ }
+		}
+
+		return true;
+	});
 
 	if (options.ignorePackages) {
 		const ignorePackages = options.ignorePackages;
