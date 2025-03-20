@@ -13,7 +13,7 @@ const childProcess = require('child_process');
  * @property {string} wanted
  * @property {string} latest
  * @property {string} location
- * @property {'dependencies' | 'devDependencies'} [type]
+ * @property {'dependencies' | 'devDependencies' | 'peerDependencies'} [type]
  * @property {string} [homepage]
  */
 
