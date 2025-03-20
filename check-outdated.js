@@ -502,7 +502,7 @@ function help (...additionalLines) {
  */
 function getFilteredDependencies (dependencies, options) {
 	let filteredDependencies = dependencies.filter((dependency) => {
-		if (!['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))) {
+		if (['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))) {
 			return false;
 		}
 
