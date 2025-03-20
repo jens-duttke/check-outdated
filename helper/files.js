@@ -80,7 +80,7 @@ function getChangelogPath (dependencyLocation) {
 	}
 	catch { /* We ignore errors here */ }
 
-	return;
+	return undefined;
 }
 
 /**
@@ -96,7 +96,7 @@ function readFile (filePath) {
 	}
 	catch { /* Do nothing here, but return undefined in the next step */ }
 
-	return;
+	return undefined;
 }
 
 /**

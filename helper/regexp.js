@@ -50,7 +50,7 @@ function getRegExpPosition (string, regexp) {
  * @returns {string} The escaped output string.
  */
 function escapeRegExp (string) {
-	return string.replace(/([[\\^$.|?*+()])/gu, '\\$1');
+	return string.replace(/([[\\^$.|?*+()])/gu, String.raw`\$1`);
 }
 
 module.exports = {

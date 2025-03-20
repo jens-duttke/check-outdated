@@ -87,7 +87,7 @@ function getPackageAuthor (packageJSON) {
 		}
 	}
 
-	return;
+	return undefined;
 }
 
 /**
@@ -102,7 +102,7 @@ function getPackageHomepage (packageJSON) {
 		return packageJSON.homepage;
 	}
 
-	return;
+	return undefined;
 }
 
 /**
@@ -120,7 +120,11 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
 				const match = repo.regExp.exec(packageJSON.repository);
 
 				if (match !== null) {
-					return (linkToChangelog ? repo.getChangelogURL(match, '') : repo.getRepositoryURL(match, ''));
+					if (linkToChangelog) {
+						return repo.getChangelogURL(match, '');
+					}
+
+					return repo.getRepositoryURL(match, '');
 				}
 			}
 		}
@@ -129,15 +133,19 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
 				const match = repo.regExp.exec(packageJSON.repository.url);
 
 				if (match !== null) {
-					const directory = packageJSON.repository.directory ? packageJSON.repository.directory.replace(/^\/*/u, '/').replace(/\/+$/u, '') : '';
+					const directory = (packageJSON.repository.directory ? packageJSON.repository.directory.replace(/^\/*/u, '/').replace(/\/+$/u, '') : '');
 
-					return (linkToChangelog ? repo.getChangelogURL(match, directory) : repo.getRepositoryURL(match, directory));
+					if (linkToChangelog) {
+						return repo.getChangelogURL(match, directory);
+					}
+
+					return repo.getRepositoryURL(match, directory);
 				}
 			}
 		}
 	}
 
-	return;
+	return undefined;
 }
 
 /**

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.12.0...HEAD)
 
+## [2.13.0] - 2025-03-20
+
+### Changed
+
+- Updated dependencies
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.12.0...v2.13.0)
+
 ## [2.12.0] - 2023-08-11
 
 ### Changed

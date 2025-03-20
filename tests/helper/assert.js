@@ -71,7 +71,7 @@ function hasWord (string, word, ignoreEscapeSequences) {
  * @returns {string} The escaped string.
  */
 function escapeRegExp (string) {
-	return string.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+	return string.replace(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
 }
 
 module.exports = {

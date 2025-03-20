@@ -25,6 +25,7 @@
  * @returns {string} Multiline string containing the table.
  */
 function prettifyTable (table) {
+	/** @type {string[]} */
 	const out = [];
 
 	// eslint-disable-next-line unicorn/no-array-reduce -- Let's keep the `reduce()` here, to keep the code simple.
@@ -35,12 +36,14 @@ function prettifyTable (table) {
 			out.push('\n');
 		}
 
-		if (typeof table[row] === 'string') {
-			out.push(table[row]);
+		const tableRow = table[row];
+
+		if (typeof tableRow === 'string') {
+			out.push(tableRow);
 		}
 		else {
-			for (let col = 0; col < table[row].length; col++) {
-				const content = table[row][col];
+			for (let col = 0; col < tableRow.length; col++) {
+				const content = tableRow[col];
 				const { text, alignRight = false } = (typeof content === 'object' ? content : { text: content });
 
 				if (col > 0) {
@@ -76,7 +79,7 @@ function colWidthReducer (widths, row) {
 		return widths;
 	}
 
-	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), widths[colIndex] || 0));
+	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), (widths[colIndex] || 0)));
 }
 
 /**

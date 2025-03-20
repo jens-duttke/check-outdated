@@ -33,7 +33,7 @@
 
     References can be ignored as they do not "manage" their own version number:
 
-    ````json
+    ```json
     "overrides": {
       "luxon": "^1.21.3",
       "@vlc/components": "$@vlc/components",

@@ -33,8 +33,9 @@
 		"suppressExcessPropertyErrors": false
 	},
     "include": [
+		"./typings.d.ts",
 		"./*.js",
-		"./.eslintrc.js",
+		"eslint.config.mjs",
 		"./helper/**/*.js",
 		"./demo/**/*.js",
 		"./tests/**/*.js"

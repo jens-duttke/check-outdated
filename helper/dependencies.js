@@ -57,6 +57,7 @@ async function getOutdatedDependencies (options) {
 			const response = parseResponse(stdout);
 
 			if ('error' in response) {
+				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- @todo The error object could be wrapped in a custom error with additional properties
 				reject(response.error);
 
 				return;
@@ -132,9 +133,9 @@ function prepareResponseObject (dependencies) {
 			name
 		};
 
-		outdatedDependency.current = outdatedDependency.current || '';
-		outdatedDependency.wanted = outdatedDependency.wanted || '';
-		outdatedDependency.latest = outdatedDependency.latest || '';
+		outdatedDependency.current = (outdatedDependency.current || '');
+		outdatedDependency.wanted = (outdatedDependency.wanted || '');
+		outdatedDependency.latest = (outdatedDependency.latest || '');
 
 		/**
 		 * Sometimes, npm returns an empty `location` string. So we add it.

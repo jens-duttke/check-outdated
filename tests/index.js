@@ -549,11 +549,13 @@ void (async () => {
 		/* eslint-disable no-console -- console.log() is used to output the test results */
 		console.log();
 		console.log(colorize.green(`${sum.passed} passed`));
+
 		if (sum.failed > 0) {
 			console.log(colorize.red(`${sum.failed} failed`));
 
 			process.exitCode = 1;
 		}
+
 		console.log();
 		/* eslint-enable no-console */
 	}

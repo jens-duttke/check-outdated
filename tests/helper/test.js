@@ -33,7 +33,7 @@ function setMocks (newMockData) {
 async function test (title, argv, dependencies, expectedCallback) {
 	/* eslint-disable no-console -- console.log() is used to output the test results */
 	console.log();
-	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
+	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, String.raw`\n`).replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
 	console.log();
 	/* eslint-enable no-console */
 
@@ -55,6 +55,7 @@ async function test (title, argv, dependencies, expectedCallback) {
  * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {
+	// eslint-disable-next-line @typescript-eslint/unbound-method -- We want to keep the `write` method as it is, without binding it
 	const write = process.stdout.write;
 
 	/** @type {string[]} */

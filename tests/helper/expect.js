@@ -34,7 +34,7 @@ function getExpectResult () {
  * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
  */
 function expect (message, assertion) {
-	const styledMessage = message.replace(/\n/gu, '\\n').replace(/`(.+?)`/gu, colorize.underline('$1'));
+	const styledMessage = message.replace(/\n/gu, String.raw`\n`).replace(/`(.+?)`/gu, colorize.underline('$1'));
 
 	/* eslint-disable no-console -- console.log() is used to output the test results */
 
@@ -94,7 +94,7 @@ function expect (message, assertion) {
  */
 function expectNoOfAffectedDependencies (stdout, dependencies, noOfAffectedDependencies) {
 	const dependencyValues = Object.values(dependencies);
-	const noOfDepsLeft = dependencyValues.filter(({ latest }) => !latest || !['git', 'linked', 'remote'].includes(latest)).length - noOfAffectedDependencies;
+	const noOfDepsLeft = dependencyValues.filter(({ latest }) => (!latest || !['git', 'linked', 'remote'].includes(latest))).length - noOfAffectedDependencies;
 
 	expect(
 		`\`stdout\` should contain \`"${noOfDepsLeft} outdated dependencies found:"\``,

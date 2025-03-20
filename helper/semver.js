@@ -42,7 +42,7 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
  */
 function semverDiffType (v1, v2) {
 	if (v1 === v2) {
-		return;
+		return undefined;
 	}
 
 	const semverRegExp = /^(\d+).(\d+).(\d+).*?(?:([-+]).+)?$/u;
@@ -50,13 +50,13 @@ function semverDiffType (v1, v2) {
 	const match1 = semverRegExp.exec(v1);
 
 	if (match1 === null) {
-		return;
+		return undefined;
 	}
 
 	const match2 = semverRegExp.exec(v2);
 
 	if (match2 === null) {
-		return;
+		return undefined;
 	}
 
 	if (Number.parseInt(match2[1], 10) > Number.parseInt(match1[1], 10)) {
@@ -91,15 +91,15 @@ function semverDiffType (v1, v2) {
 		return 'build';
 	}
 
-	return;
+	return undefined;
 }
 
 /**
  * Checks if a semver range pattern matches to a specific version.
  *
  * @public
- * @param {string} version - Version.
- * @param {string} pattern - Range pattern.
+ * @param {string} version - The version to check
+ * @param {string} pattern - A semver range pattern
  * @returns {boolean} `true` if the range pattern matches, otherwise `false`.
  */
 function semverInRange (version, pattern) {

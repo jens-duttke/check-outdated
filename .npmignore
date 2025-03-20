@@ -3,9 +3,10 @@
 demo/
 tests/
 .editorconfig
-.eslintrc.js
 *.log
-tsconfig.json
+eslint.config.mjs
 npm-debug.log*
 screenshot.png
 TODO.md
+tsconfig.json
+typings.d.ts

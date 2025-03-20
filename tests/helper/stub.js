@@ -89,7 +89,11 @@ function stub (mockData, dependencies, setUsedCommand) {
 
 					const content = mockData.fsReadFile[normalizedPath];
 
-					return (typeof content === 'string' ? content : JSON.stringify(content, null, '  '));
+					if (typeof content === 'string') {
+						return content;
+					}
+
+					return JSON.stringify(content, null, '  ');
 				}
 			},
 			path: {
@@ -105,7 +109,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 						throw new RangeError('path.resolve(): Mock expects exactly 2 path segments.');
 					}
 
-					// eslint-disable-next-line no-unnecessary-typeof -- From the Node.js documentation: "A `TypeError` is thrown if any of the arguments is not a string.""
+					// eslint-disable-next-line linter-bundle/no-unnecessary-typeof -- From the Node.js documentation: "A `TypeError` is thrown if any of the arguments is not a string.""
 					if (typeof pathSegments[1] !== 'string') {
 						throw new TypeError('path.resolve(): Mock expects the second path segment to be an string.');
 					}
@@ -133,9 +137,8 @@ function stub (mockData, dependencies, setUsedCommand) {
 					const STATUS_NOT_FOUND = 404;
 
 					/** @type {{ statusCode: number; data?: string; }} */
-					const response = (mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND };
+					const response = ((mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND });
 
-					// eslint-disable-next-line n/no-callback-literal -- `callback()` is not using the Node.js error-first callback pattern.
 					callback({
 						...response,
 						on (event, listener) {
@@ -144,10 +147,12 @@ function stub (mockData, dependencies, setUsedCommand) {
 									if (typeof response.data === 'string') {
 										listener(response.data);
 									}
+
 									break;
 
 								case 'end':
 									listener();
+
 									break;
 
 								default:

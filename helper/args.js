@@ -18,7 +18,8 @@
 function parseArguments (argv, availableArgs) {
 	const args = {};
 
-	const unsupportedArguments = argv.filter((argument) => argument.startsWith('-') && !Object.keys(availableArgs).includes(argument));
+	const unsupportedArguments = argv.filter((argument) => (argument.startsWith('-') && !Object.keys(availableArgs).includes(argument)));
+
 	if (unsupportedArguments.length > 0) {
 		throw new Error(`Unknown argument${(unsupportedArguments.length > 1 ? 's' : '')}: ${unsupportedArguments.join(', ')}`);
 	}

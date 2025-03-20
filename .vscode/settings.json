@@ -1,15 +1,12 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true,
-		"source.fixAll.stylelint": true
+		"source.fixAll.eslint": "explicit",
+		"source.fixAll.stylelint": "explicit"
 	},
 	"eslint.nodePath": "./node_modules/linter-bundle/node_modules/eslint",
 	"eslint.options": {
-		"configFile": "./.eslintrc.js",
-		"resolvePluginsRelativeTo": "./node_modules/linter-bundle",
-		"rulePaths": ["./node_modules/linter-bundle/eslint/rules"],
-		"reportUnusedDisableDirectives": "error",
-	},
+		"overrideConfigFile": "./eslint.config.mjs"
+	  },
 	"[markdown]": {
 		"editor.rulers": [300]
 	},

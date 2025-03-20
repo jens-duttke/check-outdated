@@ -73,6 +73,7 @@ const DEFAULT_FOREGROUND_COLOR = 39;
  */
 function colorize (options) {
 	return /** @type {ColorizeProperty} */(Object.defineProperties(
+
 		/**
 		 * Styles the given `text` using ANSI escape sequences, based on the previously set `options`.
 		 *

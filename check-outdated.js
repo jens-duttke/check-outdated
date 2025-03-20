@@ -173,17 +173,17 @@ const AVAILABLE_COLUMNS = {
 	},
 	location: {
 		caption: colorize.underline('Location'),
-		getValue: async (dependency) => dependency.location || colorize.gray('-')
+		getValue: async (dependency) => (dependency.location || colorize.gray('-'))
 	},
 	packageType: {
 		caption: colorize.underline('Package Type'),
-		getValue: async (dependency) => dependency.type || colorize.gray('-')
+		getValue: async (dependency) => (dependency.type || colorize.gray('-'))
 	},
 	reference: {
 		caption: colorize.underline('Reference'),
 		getValue: async (dependency) => {
 			const filePath = getParentPackageJSONPath(dependency.location);
-			let fileContent = packageJsonCache[filePath] || readFile(filePath);
+			let fileContent = (packageJsonCache[filePath] || readFile(filePath));
 
 			if (fileContent !== undefined) {
 				fileContent = fileContent.replace(/\r\n|\r/gu, '\n');
@@ -193,7 +193,7 @@ const AVAILABLE_COLUMNS = {
 				}
 
 				const json = JSON.parse(fileContent);
-				const actualVersion = (dependency.type && dependency.type in json ? json[dependency.type][dependency.name] : undefined);
+				const actualVersion = ((dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
 
 				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
 				const [line, column] = getRegExpPosition(fileContent, needle);
@@ -209,7 +209,7 @@ const AVAILABLE_COLUMNS = {
 	changes: {
 		caption: colorize.underline('Changes'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = (detailsCache.packageJSON || getDependencyPackageJSON(dependency.location));
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -228,7 +228,7 @@ const AVAILABLE_COLUMNS = {
 				return changelogFile;
 			}
 
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = (detailsCache.packageJSON || getDependencyPackageJSON(dependency.location));
 
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
@@ -241,7 +241,7 @@ const AVAILABLE_COLUMNS = {
 	homepage: {
 		caption: colorize.underline('Homepage'),
 		getValue: async (dependency, _options, detailsCache) => {
-			detailsCache.packageJSON = detailsCache.packageJSON || getDependencyPackageJSON(dependency.location);
+			detailsCache.packageJSON = (detailsCache.packageJSON || getDependencyPackageJSON(dependency.location));
 
 			return (
 				dependency.homepage ||
@@ -255,7 +255,7 @@ const AVAILABLE_COLUMNS = {
 	},
 	npmjs: {
 		caption: colorize.underline('npmjs.com'),
-		getValue: async (dependency) => getNpmJSLink(dependency.name) || colorize.gray('-')
+		getValue: async (dependency) => (getNpmJSLink(dependency.name) || colorize.gray('-'))
 	}
 };
 
@@ -296,6 +296,7 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		const invalidColumn = columns.find((name) => !availableColumnsNames.includes(name));
+
 		if (invalidColumn) {
 			return help(`Invalid column name "${invalidColumn}" in --columns\nAvailable columns are:\n${availableColumnsNames.join(', ')}`);
 		}
@@ -311,6 +312,7 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		const invalidType = types.find((name) => !availableTypesNames.includes(name));
+
 		if (invalidType) {
 			return help(`Invalid type name "${invalidType}" in --types\nAvailable types are:\n${availableTypesNames.join(', ')}`);
 		}
@@ -333,6 +335,7 @@ const AVAILABLE_ARGUMENTS = {
 
 if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 	process.title = pkg.name;
+
 	const argv = process.argv.slice(2);
 
 	void (async () => {
@@ -389,7 +392,7 @@ async function checkOutdated (argv) {
 			process.stdout.write(`${filteredDependencies.length} outdated dependencies found:\n\n`);
 		}
 
-		const visibleColumns = (args.columns === undefined || args.columns.length === 0 ? DEFAULT_COLUMNS : args.columns);
+		const visibleColumns = ((args.columns === undefined || args.columns.length === 0) ? DEFAULT_COLUMNS : args.columns);
 
 		await writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies, args);
 
@@ -545,7 +548,7 @@ function getFilteredDependencies (dependencies, options) {
 	}
 
 	if (options.types) {
-		filteredDependencies = filteredDependencies.filter(({ current, latest }) => options.types && options.types.includes(semverDiffType(current, latest) || ''));
+		filteredDependencies = filteredDependencies.filter(({ current, latest }) => (options.types && options.types.includes(semverDiffType(current, latest) || '')));
 	}
 
 	return filteredDependencies;
@@ -556,10 +559,14 @@ function getFilteredDependencies (dependencies, options) {
  *
  * @param {OutdatedDependency} dependency - A specific outdated dependency.
  * @param {Options} options - The arguments which the user provided.
- * @returns {string} `wanted` or `latest`
+ * @returns {string} Either `wanted` or `latest`
  */
 function getWantedOrLatest (dependency, options) {
-	return (options.preferWanted ? dependency.wanted : dependency.latest);
+	if (options.preferWanted) {
+		return dependency.wanted;
+	}
+
+	return dependency.latest;
 }
 
 /**

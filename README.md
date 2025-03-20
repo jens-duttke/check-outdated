@@ -27,7 +27,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 
 ## Example Screenshot
 
-[<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@93cb33b/screenshot.png" width="100%" />](https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@93cb33b/screenshot.png)
+[<img src="https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@93cb33b/screenshot.png" width="100%" alt="" />](https://cdn.jsdelivr.net/gh/jens-duttke/check-outdated@93cb33b/screenshot.png)
 
 ## Usage without installation
 
