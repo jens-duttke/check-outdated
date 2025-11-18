@@ -15,7 +15,7 @@ const colorize = require('./colorize');
 async function describe (title, tests) {
 	/* eslint-disable no-console -- console.log() is used to output the test results */
 	console.log();
-	console.log(String(colorize.cyan(title.replace(/`(.+?)`/gu, colorize.underline('$1')))));
+	console.log(colorize.cyan(title.replace(/`(.+?)`/gu, colorize.underline('$1'))));
 	/* eslint-enable no-console */
 
 	await tests();

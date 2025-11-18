@@ -44,7 +44,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 				 *
 				 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
 				 * @returns {boolean} Returns true if the `filePath` exists, false otherwise.
-				 * @throws Error if no mock data for the file exist.
+				 * @throws {TypeError | Error} Error if no mock data for the file exist.
 				 */
 				existsSync (filePath) {
 					if (typeof filePath !== 'string') {
@@ -68,7 +68,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 				 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
 				 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
 				 * @returns {string | Buffer} Returns the contents of the `filePath`.
-				 * @throws Error if no mock data for the file exist.
+				 * @throws {TypeError | Error} Error if no mock data for the file exist.
 				 */
 				readFileSync (filePath, options) {
 					if (typeof filePath !== 'string') {
@@ -102,7 +102,7 @@ function stub (mockData, dependencies, setUsedCommand) {
 				 *
 				 * @param {string[]} pathSegments - A sequence of paths or path segments.
 				 * @returns {string} Returns an absolute path.
-				 * @throws Error if the number of arguments is not 2, or if if the second argument is not a string.
+				 * @throws {RangeError | TypeError} Error if the number of arguments is not 2, or if if the second argument is not a string.
 				 */
 				resolve (...pathSegments) {
 					if (pathSegments.length !== 2) {
@@ -127,8 +127,9 @@ function stub (mockData, dependencies, setUsedCommand) {
 				 * @param {(
 				 *   res: {
 				 *     statusCode: number;
-				 *     on (event: 'data' | 'end' | 'error', listener: (...args: any[]) => void): void;
-				 *     setEncoding (encoding: string): void, destroy (): void;
+				 *     on: (event: 'data' | 'end' | 'error', listener: (...args: any[]) => void) => void;
+				 *     setEncoding: (encoding: string) => void;
+				 *     destroy: () => void;
 				 *   }
 				 * ) => void} callback - Called with the output when process terminates.
 				 * @returns {void}

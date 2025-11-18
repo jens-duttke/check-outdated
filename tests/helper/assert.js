@@ -12,7 +12,7 @@ const assert = require('assert').strict;
  * @param {string} word - A word which shall be part of the `str`.
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  * @returns {void}
- * @throws {assert.AssertionError}
+ * @throws {import('assert').AssertionError} - If `str` does not contain `word`.
  */
 function assertHasWord (string, word, ignoreEscapeSequences = true) {
 	if (!hasWord(string, word, ignoreEscapeSequences)) {
@@ -34,7 +34,7 @@ function assertHasWord (string, word, ignoreEscapeSequences = true) {
  * @param {string} word - A word which shall not be part of `str`.
  * @param {boolean} [ignoreEscapeSequences=true] - ANSI escape sequences for coloring in `str` shall be ignored.
  * @returns {void}
- * @throws {assert.AssertionError}
+ * @throws {import('assert').AssertionError} If `str` contains `word`.
  */
 function assertNotHasWord (string, word, ignoreEscapeSequences = true) {
 	if (hasWord(string, word, ignoreEscapeSequences)) {

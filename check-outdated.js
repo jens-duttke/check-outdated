@@ -626,6 +626,7 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
 	}
 
 	process.stdout.write([
+		// eslint-disable-next-line @typescript-eslint/await-thenable -- `table` can be either synchronous or asynchronous.
 		prettifyTable(await Promise.all(table)),
 		'',
 		colorize.underline('Color legend'),

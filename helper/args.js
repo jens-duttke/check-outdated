@@ -13,7 +13,7 @@
  * @param {string[]} argv - Arguments given in the command line (`process.argv.slice(2)`).
  * @param {AvailableArguments} availableArgs - Configuration object with supported arguments.
  * @returns {Options | string} Either a `Options` object or a `string` which should be returned to the user, if arguments cannot be parsed.
- * @throws If arguments is unknown.
+ * @throws {Error} If arguments is unknown.
  */
 function parseArguments (argv, availableArgs) {
 	const args = {};
