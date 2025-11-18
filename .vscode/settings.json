@@ -6,7 +6,7 @@
 	"eslint.nodePath": "./node_modules/linter-bundle/node_modules/eslint",
 	"eslint.options": {
 		"overrideConfigFile": "./eslint.config.mjs"
-	  },
+	},
 	"[markdown]": {
 		"editor.rulers": [300]
 	},
