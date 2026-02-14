@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.14.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.15.0...HEAD)
+
+## [2.15.0] - 2026-02-14
+
+### Added
+
+- Added support for aliased npm dependencies (e.g. `"alias-name": "npm:actual-package@1.0.0"`). Thanks to [@valeriansaliou](https://github.com/valeriansaliou) for the suggestion.
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.14.0...v2.15.0)
 
 ## [2.14.0] - 2025-11-18
 
