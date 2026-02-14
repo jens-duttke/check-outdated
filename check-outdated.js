@@ -214,7 +214,7 @@ const AVAILABLE_COLUMNS = {
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name) ||
+				getNpmJSLink(dependency.resolvedName) ||
 				colorize.gray('-')
 			);
 		}
@@ -233,7 +233,7 @@ const AVAILABLE_COLUMNS = {
 			return (
 				await getPackageRepository(detailsCache.packageJSON, true) ||
 				getPackageHomepage(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name) ||
+				getNpmJSLink(dependency.resolvedName) ||
 				colorize.gray('-')
 			);
 		}
@@ -248,14 +248,14 @@ const AVAILABLE_COLUMNS = {
 				getPackageHomepage(detailsCache.packageJSON) ||
 				await getPackageRepository(detailsCache.packageJSON) ||
 				getPackageAuthor(detailsCache.packageJSON) ||
-				getNpmJSLink(dependency.name) ||
+				getNpmJSLink(dependency.resolvedName) ||
 				colorize.gray('-')
 			);
 		}
 	},
 	npmjs: {
 		caption: colorize.underline('npmjs.com'),
-		getValue: async (dependency) => (getNpmJSLink(dependency.name) || colorize.gray('-'))
+		getValue: async (dependency) => (getNpmJSLink(dependency.resolvedName) || colorize.gray('-'))
 	}
 };
 

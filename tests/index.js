@@ -347,6 +347,75 @@ void (async () => {
 			});
 		});
 
+		await describe('--ignore-packages argument with aliased (npm:) dependencies', async () => {
+			// npm outdated reports aliased dependencies (e.g. "alias-name": "npm:actual-lib@1.0.0")
+			// with the key format "alias-name:actual-lib@1.0.0" in its JSON output.
+			const aliasedResponse = {
+				'module-major': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-major',
+					type: 'dependencies'
+				},
+				'module-aliased:actual-module@1.0.0': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-aliased',
+					type: 'dependencies'
+				},
+				'module-aliased-broken:actual-broken-module@1.0.0': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.3.4',
+					location: 'node_modules/module-aliased-broken',
+					type: 'dependencies'
+				}
+			};
+
+			await test('should ignore an aliased dependency when using --ignore-packages with the alias name', ['--ignore-packages', 'module-aliased'], aliasedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// With the fix, 1 aliased dep should be filtered, leaving 2
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+			});
+
+			await test('should ignore an aliased dependency when using --ignore-packages with the alias name and exact version', ['--ignore-packages', 'module-aliased-broken@2.3.4'], aliasedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// With the fix, 1 aliased dep should be filtered, leaving 2
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+			});
+
+			await test('should ignore an aliased dependency when using --ignore-packages with the alias name and version range', ['--ignore-packages', 'module-aliased-broken@^2'], aliasedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// With the fix, 1 aliased dep should be filtered, leaving 2
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+			});
+
+			await test('should inform about an unnecessary --ignore-packages filter for an aliased dependency', ['--ignore-packages', 'module-aliased-broken@2.3.3'], aliasedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '\u001B[33mmodule-aliased-broken\u001B[39m', false);
+				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-aliased-broken@2.3.3" has no effect, the latest version is 2.3.4.');
+			});
+			await test('should show the npmjs link using the real package name for aliased dependencies', ['--columns', 'package,npmjs'], aliasedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/actual-module');
+				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/actual-broken-module');
+				expectVarNotToHaveWord(stdout, 'actual-module%40');
+				expectVarNotToHaveWord(stdout, 'actual-broken-module%40');
+			});
+		});
+
 		await describe('--columns argument', async () => {
 			await test('should return with outdated dependency message and all available columns', ['--columns', 'package,current,wanted,latest,type,location,packageType,reference,changes,changesPreferLocal,homepage,npmjs'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');

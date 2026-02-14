@@ -9,6 +9,7 @@ const childProcess = require('child_process');
  *
  * @typedef {object} OutdatedDependency
  * @property {string} name
+ * @property {string} resolvedName
  * @property {string} current
  * @property {string} wanted
  * @property {string} latest
@@ -127,10 +128,15 @@ function prepareResponseObject (dependencies) {
 	const outdatedDependencies = {};
 
 	for (const [name, dependency] of Object.entries(dependencies)) {
+		// npm reports aliased dependencies (e.g. "alias": "npm:real-pkg@1.0.0") as "alias:real-pkg@1.0.0".
+		// We normalize the name to the alias and store the real package name (without version) separately.
+		const [, aliasName, resolvedName = aliasName] = ((/^([^:]+)(?::(.+)@[^@]+)?$/u).exec(name) || []);
+
 		// Adding the name, makes it easier to work with the dependency object.
 		const outdatedDependency = {
 			...dependency,
-			name
+			name: aliasName,
+			resolvedName
 		};
 
 		outdatedDependency.current = (outdatedDependency.current || '');
@@ -146,10 +152,10 @@ function prepareResponseObject (dependencies) {
 		 * @see module.path
 		 */
 		if (!outdatedDependency.location) {
-			outdatedDependency.location = `node_modules/${name}`;
+			outdatedDependency.location = `node_modules/${aliasName}`;
 		}
 
-		outdatedDependencies[name] = /** @type {OutdatedDependency} */(outdatedDependency);
+		outdatedDependencies[aliasName] = /** @type {OutdatedDependency} */(outdatedDependency);
 	}
 
 	return outdatedDependencies;
