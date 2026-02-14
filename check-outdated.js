@@ -530,16 +530,20 @@ function getFilteredDependencies (dependencies, options) {
 		const packageVersionRegExp = /^(.+?)@(.*)$/u;
 
 		filteredDependencies = filteredDependencies.filter((dependency) => {
+			// Dependencies aliased to other dependencies with the package.json syntax '"alias-name": "npm:target-name@0.0.0"' are seen here as 'alias-name:target-name@0.0.0'.
+			// We therefore need to make sure in such cases to use the actual name 'alias-name', hence the split.
+			const actualDependencyName = dependency.name.split(":")[0];
+
 			for (const ignoredPackage of ignorePackages) {
 				const match = packageVersionRegExp.exec(ignoredPackage);
 
 				if (match === null) {
-					if (ignoredPackage === dependency.name) {
+					if (ignoredPackage === actualDependencyName) {
 						return false;
 					}
 				}
 				else {
-					if (match[1] === dependency.name) {
+					if (match[1] === actualDependencyName) {
 						if (semverInRange(getWantedOrLatest(dependency, options), match[2])) {
 							return false;
 						}
