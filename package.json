@@ -34,8 +34,8 @@
 		"publish:major": "npm version major",
 		"publish:minor": "npm version minor",
 		"publish:patch": "npm version patch",
-		"preversion": "npm run lint && npm run test && npm run check-outdated",
-		"postversion": "git push && git push --tags && npm publish",
+		"preversion": "npm whoami && npm run lint && npm run test && npm run check-outdated",
+		"postversion": "npm publish && git push && git push --tags",
 		"check-outdated": "node check-outdated.js --ignore-pre-releases"
 	},
 	"engines": {
