@@ -831,6 +831,33 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.1.2');
 			});
+
+			await test('should ignore pre-release versions when determining qualifying line with `--min-age 10`', ['--min-age', '10', '--columns', 'package,latest'], {
+				'module-prerelease-age': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-prerelease-age',
+					type: 'dependencies'
+				}
+			}, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 1);
+
+				// 2.0.0-beta.0 is 15 days old but is a pre-release, should be ignored.
+				// 2.0.0 is 5 days old, too new for --min-age 10.
+				// Only 1.5.0 (20 days) qualifies as the highest stable version.
+				expectVarToHaveWord(stdout, 'module-prerelease-age');
+				expectVarToHaveWord(stdout, '1.5.0');
+				expectVarNotToHaveWord(stdout, '2.0.0');
+			}, {
+				'module-prerelease-age': {
+					'1.0.0': daysAgo(100),
+					'1.5.0': daysAgo(20),
+					'2.0.0-alpha.0': daysAgo(30),
+					'2.0.0-beta.0': daysAgo(15),
+					'2.0.0': daysAgo(5)
+				}
+			});
 		});
 
 		const sum = getExpectResult();

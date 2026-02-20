@@ -99,6 +99,22 @@ async function fetchVersionTimestamps (packageName) {
 }
 
 /**
+ * Checks whether a version string is a pre-release (contains `-` after major.minor.patch).
+ *
+ * @param {string} version - A semantic version string (e.g. "1.0.0-beta.1").
+ * @returns {boolean} `true` if the version is a pre-release.
+ */
+function isPrerelease (version) {
+	const match = (/^(\d+\.\d+\.\d+)/u).exec(version);
+
+	if (match === null) {
+		return false;
+	}
+
+	return (version.length > match[1].length && version.charAt(match[1].length) === '-');
+}
+
+/**
  * Finds the highest version from a list of versions that meets the minimum age requirement.
  *
  * @param {VersionTimestamps} timestamps - Version timestamps from the registry.
@@ -112,6 +128,7 @@ function findBestQualifiedVersion (timestamps, minAgeMs, now, maxVersion) {
 
 	const qualifiedVersions = Object.keys(timestamps)
 		.filter((key) => semverRegExp.test(key))
+		.filter((version) => !isPrerelease(version))
 		.filter((version) => {
 			const publishDate = new Date(timestamps[version]).getTime();
 
@@ -175,6 +192,7 @@ function findBestPatchInLine (timestamps, majorMinor, minAgePatchMs, now, maxVer
 
 			return (Number.parseInt(/** @type {string} */(match[1]), 10) === majorMinor.major && Number.parseInt(/** @type {string} */(match[2]), 10) === majorMinor.minor);
 		})
+		.filter((version) => !isPrerelease(version))
 		.filter((version) => {
 			const publishDate = new Date(timestamps[version]).getTime();
 
@@ -303,5 +321,6 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 module.exports = {
 	applyMinAgeFilter,
 	semverCompare,
-	findBestQualifiedVersion
+	findBestQualifiedVersion,
+	isPrerelease
 };
