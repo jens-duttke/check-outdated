@@ -28,9 +28,10 @@ function setMocks (newMockData) {
  * @param {string[]} argv - Arguments which are used for the `check-outdated` call.
  * @param {any} dependencies - Mock of the `npm outdated --json` response.
  * @param {(command: string | undefined, exitCode: number, stdout: string) => void} expectedCallback - Callback with for the assertion functionality.
+ * @param {{ [packageName: string]: { [version: string]: string } }} [npmTimeData] - Optional mock time data for npm view.
  * @returns {Promise<void>} The Promise is resolved with `void` as soon as the test suite is finished.
  */
-async function test (title, argv, dependencies, expectedCallback) {
+async function test (title, argv, dependencies, expectedCallback, npmTimeData) {
 	/* eslint-disable no-console -- console.log() is used to output the test results */
 	console.log();
 	console.log(`  ${JSON.stringify(argv)} ${title.replace(/\n/gu, String.raw`\n`).replace(/`(.+?)`/gu, colorize.underline('$1'))}`);
@@ -39,7 +40,7 @@ async function test (title, argv, dependencies, expectedCallback) {
 
 	let usedCommand;
 
-	const checkOutdated = stub(mockData, dependencies, (command) => { usedCommand = command; });
+	const checkOutdated = stub(mockData, dependencies, (command) => { usedCommand = command; }, npmTimeData);
 
 	const unhookCapture = captureStdout();
 	const exitCode = await checkOutdated(argv);

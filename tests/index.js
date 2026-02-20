@@ -2,7 +2,7 @@
  * @file Different tests to verify everything works correctly.
  */
 
-/* eslint-disable max-len -- Since we want to have all tests together in one file, we ignore the max. lines limit here. */
+/* eslint-disable max-lines, max-len -- Since we want to have all tests together in one file, we ignore the max. lines limit here. */
 
 /**
  * @typedef {object} MockData
@@ -613,6 +613,193 @@ void (async () => {
 			});
 		});
 
+		const minAgeResponse = {
+			'module-min-age-test': {
+				current: '1.0.0',
+				wanted: '1.0.0',
+				latest: '1.1.2',
+				location: 'node_modules/module-min-age-test',
+				type: 'dependencies'
+			}
+		};
+
+		const minAgeTimeData = {
+			'module-min-age-test': {
+				'created': daysAgo(60),
+				'modified': daysAgo(2),
+				'1.0.0': daysAgo(50),
+				'1.0.1': daysAgo(19),
+				'1.1.0': daysAgo(12),
+				'1.1.1': daysAgo(5),
+				'1.1.2': daysAgo(2)
+			}
+		};
+
+		await describe('--min-age argument', async () => {
+			await test('should include newest patch in qualifying line with `--min-age 10` (default `--min-age-patch 0`)', ['--min-age', '10', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// --min-age 10 qualifies 1.1.0 (12 days), patch relaxation picks newest 1.1.x patch: 1.1.2
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.2');
+			}, minAgeTimeData);
+
+			await test('should include patch `1.0.1` in qualifying 1.0.x line with `--min-age 30`', ['--min-age', '30', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// --min-age 30 qualifies 1.0.0 (50 days), patch relaxation picks newest 1.0.x patch: 1.0.1
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.0.1');
+			}, minAgeTimeData);
+
+			await test('should show warning and fallback when time data is not available', ['--min-age', '10', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// Should show warning about missing time data
+				expectVarToHaveWord(stdout, 'Warning:');
+				expectVarToHaveWord(stdout, 'Could not retrieve time data');
+				// Should still show the dependency with original latest (fallback behavior)
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.2');
+			}); // No npmTimeData provided - triggers fallback
+
+			await test('should return error for invalid `--min-age` value (non-numeric)', ['--min-age', 'abc'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Invalid value of --min-age');
+			}, minAgeTimeData);
+
+			await test('should return error for missing `--min-age` value', ['--min-age'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Invalid value of --min-age');
+			}, minAgeTimeData);
+
+			await test('should show all outdated dependencies with `--min-age 0` (no effective filtering)', ['--min-age', '0', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// With min-age 0, all versions pass, so original latest is shown
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.2');
+			}, minAgeTimeData);
+
+			await test('should filter multiple packages independently with `--min-age 10`', ['--min-age', '10', '--columns', 'package,latest'], {
+				'module-age-a': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-age-a',
+					type: 'dependencies'
+				},
+				'module-age-b': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '3.0.0',
+					location: 'node_modules/module-age-b',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// module-age-a: 2.0.0 is too new (3 days), 1.5.0 qualifies (15 days) -> shown with 1.5.0
+				expectVarToHaveWord(stdout, 'module-age-a');
+				expectVarToHaveWord(stdout, '1.5.0');
+				// module-age-b: 3.0.0 is too new (5 days), no other version > current -> not shown
+				expectVarNotToHaveWord(stdout, 'module-age-b');
+			}, {
+				'module-age-a': {
+					'1.0.0': daysAgo(100),
+					'1.5.0': daysAgo(15),
+					'2.0.0': daysAgo(3)
+				},
+				'module-age-b': {
+					'1.0.0': daysAgo(100),
+					'3.0.0': daysAgo(5)
+				}
+			});
+
+			await test('should not affect output when `--min-age` is not provided', ['--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// Without --min-age, the original latest should be shown
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.2');
+			});
+
+			await test('should also adjust `wanted` when too new with `--min-age 10 --min-age-patch 3`', ['--min-age', '10', '--min-age-patch', '3', '--columns', 'package,wanted,latest'], {
+				'module-min-age-test': {
+					current: '1.0.0',
+					wanted: '1.1.2',
+					latest: '1.1.2',
+					location: 'node_modules/module-min-age-test',
+					type: 'dependencies'
+				}
+			}, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 1);
+
+				// wanted 1.1.2 (2d) is too new for --min-age 10: adjusted via two-step to 1.1.1 (5d >= 3d)
+				// latest is also adjusted: 1.1.0 qualifies, best patch >= 3d = 1.1.1
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.1');
+				expectVarNotToHaveWord(stdout, '1.1.2');
+			}, minAgeTimeData);
+		});
+
+		await describe('--min-age-patch argument', async () => {
+			await test('should filter patches with `--min-age 10 --min-age-patch 3`\n    (1.1.x line qualifies, newest patch >= 3 days is `1.1.1`)', ['--min-age', '10', '--min-age-patch', '3', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 1);
+
+				// 1.1.0 qualifies for --min-age 10. In 1.1.x, 1.1.2 (2d) < 3d, 1.1.1 (5d) >= 3d
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.1');
+				expectVarNotToHaveWord(stdout, '1.1.2');
+			}, minAgeTimeData);
+
+			await test('should fall back to base version with `--min-age 10 --min-age-patch 10`\n    (only `1.1.0` in 1.1.x is >= 10 days old)', ['--min-age', '10', '--min-age-patch', '10', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 1);
+
+				// In 1.1.x, only 1.1.0 (12d) >= 10d
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.0');
+				expectVarNotToHaveWord(stdout, '1.1.1');
+				expectVarNotToHaveWord(stdout, '1.1.2');
+			}, minAgeTimeData);
+
+			await test('should show no update with `--min-age 30 --min-age-patch 30`\n    (only `1.0.0` qualifies in 1.0.x and equals current)', ['--min-age', '30', '--min-age-patch', '30', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 0);
+
+				// --min-age 30: qualifies 1.0.0 (50d). --min-age-patch 30: only 1.0.0 (50d) in 1.0.x. Equals current.
+				expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
+			}, minAgeTimeData);
+
+			await test('should return error for invalid `--min-age-patch` value', ['--min-age', '10', '--min-age-patch', 'xyz'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Invalid value of --min-age-patch');
+			}, minAgeTimeData);
+
+			await test('should ignore `--min-age-patch` when `--min-age` is not provided', ['--min-age-patch', '5', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
+				expectVarToEqual(exitCode, 1);
+
+				// Without --min-age, --min-age-patch has no effect, original latest is shown
+				expectVarToHaveWord(stdout, 'module-min-age-test');
+				expectVarToHaveWord(stdout, '1.1.2');
+			});
+		});
+
 		const sum = getExpectResult();
 
 		/* eslint-disable no-console -- console.log() is used to output the test results */
@@ -652,3 +839,17 @@ void (async () => {
 		process.exitCode = 1;
 	}
 })();
+
+/**
+ * Helper to create ISO date strings relative to now.
+ *
+ * @param {number} days - Number of days in the past.
+ * @returns {string} ISO date string.
+ */
+function daysAgo (days) {
+	const date = new Date();
+
+	date.setDate(date.getDate() - days);
+
+	return date.toISOString();
+}

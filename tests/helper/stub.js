@@ -14,9 +14,10 @@ const proxyquire = require('proxyquire').noPreserveCache();
  * @param {MockData | undefined} mockData - Mock data to stub native modules.
  * @param {any} dependencies - Mock of the `npm outdated --json` response.
  * @param {(command: string) => void} [setUsedCommand] - Callback function which receives the used `child_process` command.
+ * @param {{ [packageName: string]: { [version: string]: string } }} [npmTimeData] - Mock time data for npm view.
  * @returns {import('../../check-outdated')} New check-outdated with stubbed native modules.
  */
-function stub (mockData, dependencies, setUsedCommand) {
+function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 	/** @type {import('../../check-outdated')} */
 	return proxyquire(path.join(process.cwd(), 'check-outdated'), {
 		'./helper/dependencies': proxyquire(path.join(process.cwd(), 'helper/dependencies'), {
@@ -34,6 +35,30 @@ function stub (mockData, dependencies, setUsedCommand) {
 					}
 
 					callback(null, (typeof dependencies === 'string' ? dependencies : JSON.stringify(dependencies)), '');
+				}
+			}
+		}),
+		'./helper/min-age': proxyquire(path.join(process.cwd(), 'helper/min-age'), {
+			child_process: {
+				/**
+				 * Mock of the child_process.exec() function, which is used by minAge to call `npm view <pkg> time --json`.
+				 *
+				 * @param {string} command - The command to run.
+				 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback - Called with the output when process terminates.
+				 * @returns {void}
+				 */
+				exec (command, callback) {
+					// Parse package name from command: npm view <pkg> time --json
+					const match = (/^npm view (\S+) time --json$/u).exec(command);
+
+					if (match && npmTimeData && match[1] in npmTimeData) {
+						callback(null, JSON.stringify(npmTimeData[match[1]]), '');
+
+						return;
+					}
+
+					// Return error if no mock data
+					callback(new Error('No mock data'), '', '');
 				}
 			}
 		}),

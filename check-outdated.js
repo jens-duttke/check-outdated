@@ -13,6 +13,7 @@ const colorize = require('./helper/colorize');
 const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
+const { applyMinAgeFilter } = require('./helper/min-age');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType, semverInRange } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
@@ -39,6 +40,8 @@ const pkg = require('./package.json');
  * @property {boolean} [preferWanted]
  * @property {string[]} [columns]
  * @property {string[]} [types]
+ * @property {number} [minAge]
+ * @property {number} [minAgePatch]
  */
 
 /** @typedef {CheckOutdatedOptions & NpmOptions} Options */
@@ -330,6 +333,24 @@ const AVAILABLE_ARGUMENTS = {
 		}
 
 		return { depth };
+	},
+	'--min-age': (value) => {
+		const minAge = Number.parseInt(value, 10);
+
+		if (!Number.isFinite(minAge) || minAge < 0) {
+			return help('Invalid value of --min-age (must be a non-negative integer)');
+		}
+
+		return { minAge };
+	},
+	'--min-age-patch': (value) => {
+		const minAgePatch = Number.parseInt(value, 10);
+
+		if (!Number.isFinite(minAgePatch) || minAgePatch < 0) {
+			return help('Invalid value of --min-age-patch (must be a non-negative integer)');
+		}
+
+		return { minAgePatch };
 	}
 };
 
@@ -377,7 +398,21 @@ async function checkOutdated (argv) {
 
 	try {
 		const outdatedDependencies = Object.values(await getOutdatedDependencies(args));
-		const filteredDependencies = getFilteredDependencies(outdatedDependencies, args);
+
+		// Apply min-age filter before other filters, as it modifies the `latest` and `wanted` fields
+		let ageFilteredDependencies = outdatedDependencies;
+
+		if (args.minAge !== undefined) {
+			const minAgeResult = await applyMinAgeFilter(outdatedDependencies, args.minAge, args.minAgePatch);
+
+			ageFilteredDependencies = minAgeResult.dependencies;
+
+			if (minAgeResult.warnings.length > 0) {
+				process.stdout.write(`${minAgeResult.warnings.map((warning) => `${colorize.yellow('Warning:')} ${warning}`).join('\n')}\n\n`);
+			}
+		}
+
+		const filteredDependencies = getFilteredDependencies(ageFilteredDependencies, args);
 
 		if (filteredDependencies.length === 0) {
 			process.stdout.write('All dependencies are up-to-date.\n');
@@ -435,7 +470,9 @@ function help (...additionalLines) {
 			'[--columns <comma-separated-list-of-columns>]',
 			'[--types <comma-separated-list-of-update-types>]',
 			'[--global]',
-			'[--depth <number>]'
+			'[--depth <number>]',
+			'[--min-age <days>]',
+			'[--min-age-patch <days>]'
 		].join(' '),
 		'',
 		'Arguments:',
@@ -485,6 +522,14 @@ function help (...additionalLines) {
 			[
 				'--depth <number>',
 				'Max depth for checking dependency tree (equal to the npm outdated-option).'
+			],
+			[
+				'--min-age <days>',
+				'Only recommend release lines (Major.Minor) with at least one version published <days> days ago.'
+			],
+			[
+				'--min-age-patch <days>',
+				'Min age for patches within the --min-age release line (default: 0). Allows newer bug fixes.'
 			]
 		]),
 		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),

@@ -19,6 +19,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally ignore dev dependencies
 - Optionally ignore specific packages
 - Optionally ignore a specific version or version range of a package (e.g. to skip a broken version)
+- Optionally filter by version age to avoid very new or potentially compromised releases
 - Supports aliased npm dependencies (e.g. `"alias-name": "npm:actual-package@1.0.0"`)
 - Optionally restrict the update type (e.g. only show minor updates, or reverted versions)
 - Optionally check globally installed packages
@@ -38,7 +39,13 @@ speeds up the dependency installation slightly.
 On command-line you can run the command like this:
 
 ```sh
-npx check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes
+npx check-outdated
+```
+
+All arguments are optional. Here is a more advanced example:
+
+```sh
+npx check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --min-age 14 --min-age-patch 3
 ```
 
 Or put it into your `package.json`:
@@ -46,7 +53,7 @@ Or put it into your `package.json`:
 ```json
 {
   "scripts": {
-    "check-outdated": "npx --yes -- check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted",
+    "check-outdated": "npx --yes -- check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted --min-age 14 --min-age-patch 3",
     "preversion": "npm run lint && npm run test && npm run check-outdated"
   }
 }
@@ -67,7 +74,7 @@ yarn add check-outdated -D
 After you've installed `check-outdated` you can run the command like this:
 
 ```sh
-node_modules/.bin/check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted
+node_modules/.bin/check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted --min-age 14 --min-age-patch 3
 ```
 
 Or put it into your `package.json`:
@@ -75,7 +82,7 @@ Or put it into your `package.json`:
 ```json
 {
   "scripts": {
-    "check-outdated": "check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted",
+    "check-outdated": "check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages package1,package2 --columns name,type,current,latest,changes --types major,minor,patch,reverted --min-age 14 --min-age-patch 3",
     "preversion": "npm run lint && npm run test && npm run check-outdated"
   }
 }
@@ -94,6 +101,8 @@ Or put it into your `package.json`:
 | --types \<comma-separated-list-of-update-types\> | Restrict the update type (e.g. only show minor updates, or reverted versions) (See [Available Types](#available-types) below) | `--types minor,reverted` |
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |
 | --depth \<number\> | Max depth for checking dependency tree (equal to the npm outdated-option) | `--depth 3` |
+| --min-age \<days\> | Only recommend release lines (Major.Minor) where at least one version was published at least \<days\> days ago. Within that line, the newest patch is recommended (controlled by `--min-age-patch`). This helps avoid unstable or compromised releases. If time data cannot be retrieved (e.g., private registry), the package is shown without the age filter along with a warning. See [Version Age Filtering](#version-age-filtering) below. | `--min-age 14` |
+| --min-age-patch \<days\> | Minimum age in days for patch versions within the release line determined by `--min-age` (default: `0`). See [Version Age Filtering](#version-age-filtering) below. | `--min-age 14 --min-age-patch 3` |
 
 ### Available Columns
 
@@ -132,3 +141,27 @@ You are able to overwrite the default by using the `--types` argument.
 | `reverted` | Latest available version is lower than the installed version | `1.2.3` -> `1.1.5` |
 | `prerelease` | Only the pre-release version has been amended or added | `1.2.3` -> `1.2.3-beta.1` |
 | `build` | Only build metadata has been amended or added | `1.2.3` -> `1.2.3+build.2` |
+
+### Version Age Filtering
+
+The `--min-age` option prevents recommending versions that were published very recently, which helps avoid unstable releases or supply-chain attacks.
+
+**Two-step version selection:** When `--min-age` is used, the version recommendation works in two steps:
+
+1. **Determine the release line:** Find the highest Major.Minor version where at least one version is old enough to satisfy `--min-age`.
+2. **Pick the best patch:** Within that Major.Minor line, select the newest patch that satisfies `--min-age-patch` (default: `0`).
+
+**Why?** If only `--min-age` were applied uniformly, a qualifying version like `1.1.0` might be recommended even though newer patches `1.1.1` and `1.1.2` exist that fix known bugs.
+Since patch releases are backward-compatible bug fixes with low risk, they should generally be included. The default `--min-age-patch 0` ensures all patches within the qualifying release line are available.
+
+If you want to also require a minimum age for patches, you can set `--min-age-patch` explicitly (e.g. `--min-age-patch 3`).
+
+**Example:** Given versions `1.0.0` (50 days old), `1.0.1` (19 days), `1.1.0` (12 days), `1.1.1` (5 days), `1.1.2` (2 days), current version `1.0.0`:
+
+| Arguments | Qualifying line | Recommended version | Explanation |
+|-|-|-|-|
+| `--min-age 10` | 1.1.x | `1.1.2` | 1.1.0 qualifies (12 days), newest patch in 1.1.x with default `--min-age-patch 0` is 1.1.2 |
+| `--min-age 10 --min-age-patch 3` | 1.1.x | `1.1.1` | 1.1.2 (2 days) is too new for `--min-age-patch 3`, so 1.1.1 (5 days) is picked |
+| `--min-age 10 --min-age-patch 10` | 1.1.x | `1.1.0` | Only 1.1.0 (12 days) in 1.1.x satisfies `--min-age-patch 10` |
+| `--min-age 30` | 1.0.x | `1.0.1` | 1.0.0 qualifies (50 days), newest patch in 1.0.x is 1.0.1 |
+| `--min-age 30 --min-age-patch 30` | 1.0.x | *(up-to-date)* | Only 1.0.0 (50 days) in 1.0.x satisfies 30 days, but it equals the current version |
