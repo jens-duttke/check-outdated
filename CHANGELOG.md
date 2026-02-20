@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.15.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.0...HEAD)
+
+## [2.16.0] - 2026-02-20
+
+### Added
+
+- Added `--min-age` and `--min-age-patch` options to filter outdated dependencies by version age. This allows skipping very recent releases that haven't been battle-tested yet.
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.15.0...v2.16.0)
 
 ## [2.15.0] - 2026-02-14
 
