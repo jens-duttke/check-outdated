@@ -537,7 +537,7 @@ void (async () => {
 
 				const headerMatches = stdout.match(/\u001B\[4mPackage\u001B\[24m/gu);
 
-				expect('`stdout` should contain the "Package" column header twice', () => assert.equal(headerMatches && headerMatches.length, 2));
+				expect('`stdout` should contain the "Package" column header twice', () => assert.equal((headerMatches ? headerMatches.length : 0), 2));
 			});
 		});
 
