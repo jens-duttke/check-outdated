@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.0...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
+
+## [2.16.1] - 2026-02-20
+
+### Fixed
+
+- Fixed `--min-age` filter incorrectly considering pre-release versions (e.g. `1.0.0-beta.0`) when determining the qualifying release line. Pre-release versions are now excluded from the age calculation.
+
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.0...v2.16.1)
 
 ## [2.16.0] - 2026-02-20
 
