@@ -216,7 +216,7 @@ async function getFileOnGitHub (repoName, fileName, directory = '', minimumConte
 			const data = [];
 
 			response.setEncoding('utf8');
-			response.on('data', (chunk) => data.push(chunk));
+			response.on('data', (chunk) => { data.push(chunk); });
 			response.on('end', () => {
 				try {
 					const json = JSON.parse(data.join(''));
