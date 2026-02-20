@@ -39,8 +39,16 @@ export default [
 			'logical-assignment-operators': 'off', // Disabled as we are supporting Node.js v10, which does not support Logical assignment operators
 			'unicorn/prefer-node-protocol': 'off', // Disabled as we are supporting Node.js v10, which does not support the node protocol
 			'unicorn/prefer-top-level-await': 'off', // Disabled as we are supporting Node.js v10, which does not support top-level await
-			'unicorn/no-array-sort': 'off', // Disabled as we are supporting Node.js v10, which does not support top-level await
-
+			'unicorn/no-array-sort': 'off' // Disabled as we are supporting Node.js v10, which does not support top-level await
+		}
+	},
+	{
+		files: [
+			'**/*.js',
+			'**/*.cjs',
+			'**/*.mjs'
+		],
+		rules: {
 			'n/no-unsupported-features/es-syntax': ['error', { ignores: ['hashbang'] }] // Hashbang is stripped by Node.js itself, works in all versions
 		}
 	}
