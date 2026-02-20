@@ -72,13 +72,3 @@
 ## Test improvements
 
 - Improve the "--depth" test by adding modules with deeper node_modules-structure.
-- Add some more tests for edge-cases
-  - `npm outdated` exec call fails with an Error object and empty stdout (triggers the `reject(error)` path in `getOutdatedDependencies`)
-  - Malformed JSON in a dependency's `package.json` inside `node_modules` (affects `JSON.parse` in `reference` column and wildcard `*` version filter)
-  - Dependency's `package.json` missing the expected dependency type field (e.g. no `dependencies` key), causing `JSON.parse(...)[dependency.type]` to be `undefined` in the `*` version filter
-  - `--ignore-packages` with leading/trailing commas (e.g. `,module1,module2,`) — creates empty strings in the array that pass validation
-  - `--columns` with duplicate column names (no deduplication, column renders twice)
-  - `semverDiff` and `semverInRange` with edge-case inputs: empty strings, missing parts, or non-numeric segments
-  - HTTP error codes from GitHub API (404, 403 rate-limit, 500)
-  - Non-parseable or missing timestamps from npm registry in min-age filtering (e.g. `new Date(value)` returns `Invalid Date`, or version key missing in `time` object)
-  - Alias regex in `prepareResponseObject` does not match (e.g. dependency name containing only `:`) — `aliasName` becomes `undefined`

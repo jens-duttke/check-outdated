@@ -34,6 +34,12 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 						setUsedCommand(command);
 					}
 
+					if (dependencies instanceof Error) {
+						callback(dependencies, '', '');
+
+						return;
+					}
+
 					callback(null, (typeof dependencies === 'string' ? dependencies : JSON.stringify(dependencies)), '');
 				}
 			}

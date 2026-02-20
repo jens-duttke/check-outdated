@@ -212,6 +212,14 @@ void (async () => {
 
 				expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
 			});
+
+			await test('should catch exec error with Error object and empty stdout', [], new Error('npm ERR! code ENOGIT'), (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
+				expectVarToHaveWord(stdout, 'npm ERR! code ENOGIT');
+			});
 		});
 
 		await describe('Invalid arguments', async () => {
@@ -345,6 +353,15 @@ void (async () => {
 
 				expectVarToHaveWord(stdout, 'Invalid value of --ignore-packages');
 			});
+
+			await test('should handle leading/trailing commas in --ignore-packages gracefully', ['--ignore-packages', ',module-major,module-minor,'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarNotToHaveWord(stdout, '\u001B[33mmodule-major\u001B[39m', false);
+				expectVarNotToHaveWord(stdout, '\u001B[36mmodule-minor\u001B[39m', false);
+				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 2);
+			});
 		});
 
 		await describe('--ignore-packages argument with aliased (npm:) dependencies', async () => {
@@ -413,6 +430,13 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/actual-broken-module');
 				expectVarNotToHaveWord(stdout, 'actual-module%40');
 				expectVarNotToHaveWord(stdout, 'actual-broken-module%40');
+			});
+
+			await test('should not crash when dependency name does not match alias regex', ['--columns', 'package,current,latest'], { ':malformed': { current: '1.0.0', wanted: '1.0.0', latest: '2.0.0', location: 'node_modules/malformed', type: 'dependencies' } }, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
 			});
 		});
 
@@ -505,6 +529,15 @@ void (async () => {
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Invalid value of --columns');
+			});
+
+			await test('should render duplicate columns when the same column is specified twice', ['--columns', 'package,package'], { 'module-major': { current: '1.0.0', wanted: '1.0.0', latest: '2.0.0', location: 'node_modules/module-major', type: 'dependencies' } }, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				const headerMatches = stdout.match(/\u001B\[4mPackage\u001B\[24m/gu);
+
+				expect('`stdout` should contain the "Package" column header twice', () => assert.equal(headerMatches && headerMatches.length, 2));
 			});
 		});
 
