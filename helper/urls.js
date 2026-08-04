@@ -196,7 +196,7 @@ async function getChangelogFromURL (url, directory) {
  */
 async function getFileOnGitHub (repoName, fileName, directory = '', minimumContentSize = 0) {
 	return new Promise((resolve) => {
-		https.get({
+		const request = https.get({
 			host: 'api.github.com',
 			path: `/repos/${repoName}/contents${directory}/${fileName}`,
 			method: 'GET',
@@ -234,6 +234,9 @@ async function getFileOnGitHub (repoName, fileName, directory = '', minimumConte
 			});
 			response.on('error', () => resolve(undefined));
 		});
+
+		// Connection-level failures (DNS, refused, reset, TLS) are emitted on the request object, not on the response stream.
+		request.on('error', () => resolve(undefined));
 	});
 }
 

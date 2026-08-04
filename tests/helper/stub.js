@@ -2,6 +2,7 @@
  * @file Assertion methods.
  */
 
+const events = require('events');
 const path = require('path');
 
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -163,13 +164,22 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 				 *     destroy: () => void;
 				 *   }
 				 * ) => void} callback - Called with the output when process terminates.
-				 * @returns {void}
+				 * @returns {import('events').EventEmitter} Mock of the request object returned by https.get().
 				 */
 				get (options, callback) {
 					const STATUS_NOT_FOUND = 404;
 
-					/** @type {{ statusCode: number; data?: string; }} */
+					const request = new events.EventEmitter();
+
+					/** @type {{ statusCode: number; data?: string; requestError?: boolean; }} */
 					const response = ((mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND });
+
+					if (response.requestError) {
+						// Connection-level failures (DNS, refused, reset, TLS) are emitted asynchronously as an `error` event on the request object, the response callback is never called.
+						setImmediate(() => { request.emit('error', new Error('getaddrinfo ENOTFOUND api.github.com')); });
+
+						return request;
+					}
 
 					callback({
 						...response,
@@ -193,6 +203,8 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 						setEncoding () { /* Do nothing */ },
 						destroy () { /* Do nothing */ }
 					});
+
+					return request;
 				}
 			}
 		})

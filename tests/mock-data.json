@@ -375,9 +375,19 @@
 				"type": "git",
 				"url": "https://github.com/jens-duttke/empty-changelog/blob/main/README.md"
 			}
+		},
+		"node_modules/module-with-connection-error/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/user/connection-error-repo.git"
+			}
 		}
 	},
 	"httpsGet": {
+		"api.github.com/repos/user/connection-error-repo/contents/CHANGELOG.md": {
+			"statusCode": 0,
+			"requestError": true
+		},
 		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
 			"statusCode": 200,
 			"data": "{\"size\":300,\"html_url\":\"https://github.com/jens-duttke/check-outdated/blob/main/CHANGELOG.md\"}"
