@@ -13,7 +13,7 @@ const colorize = require('./helper/colorize');
 const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
-const { applyMinAgeFilter } = require('./helper/min-age');
+const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType, semverInRange } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
@@ -483,7 +483,7 @@ function help (...additionalLines) {
 			],
 			[
 				'--ignore-pre-releases',
-				'Don\'t recommend to update to versions which contain a hyphen (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1").'
+				'Don\'t recommend to update to pre-release versions (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1").'
 			],
 			[
 				'--ignore-dev-dependencies',
@@ -603,9 +603,7 @@ function getFilteredDependencies (dependencies, options) {
 	}
 
 	if (options.ignorePreReleases) {
-		filteredDependencies = filteredDependencies.filter((dependency) => (
-			!dependency.current.includes('-') && !getWantedOrLatest(dependency, options).includes('-')
-		));
+		filteredDependencies = filteredDependencies.filter((dependency) => !isPrerelease(getWantedOrLatest(dependency, options)));
 	}
 
 	if (options.preferWanted) {

@@ -238,7 +238,7 @@ void (async () => {
 			});
 		});
 
-		await describe('--ignore-dev-dependencies argument', async () => {
+		await describe('--ignore-pre-releases argument', async () => {
 			await test('should return with outdated dependency message, ignoring pre-releases', ['--ignore-pre-releases'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
@@ -246,6 +246,38 @@ void (async () => {
 				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 				expectVarNotToHaveWord(stdout, 'module-prerelease');
+			});
+
+			await test('should show stable updates for installed pre-releases and not treat hyphens in build metadata as pre-releases', ['--ignore-pre-releases', '--columns', 'package,current,latest'], {
+				'module-current-prerelease': {
+					current: '2.1.0-beta',
+					wanted: '2.1.0-beta',
+					latest: '2.2.0',
+					location: 'node_modules/module-current-prerelease',
+					type: 'dependencies'
+				},
+				'module-build-metadata-hyphen': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0+exp-sha',
+					location: 'node_modules/module-build-metadata-hyphen',
+					type: 'dependencies'
+				},
+				'module-prerelease-latest': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '1.1.0-rc.1',
+					location: 'node_modules/module-prerelease-latest',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'module-current-prerelease');
+				expectVarToHaveWord(stdout, 'module-build-metadata-hyphen');
+				expectVarNotToHaveWord(stdout, 'module-prerelease-latest');
 			});
 		});
 
