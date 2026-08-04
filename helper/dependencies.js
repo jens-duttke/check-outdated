@@ -58,7 +58,7 @@ async function getOutdatedDependencies (options) {
 
 			const response = parseResponse(stdout);
 
-			if ('error' in response) {
+			if ('error' in response && !isOutdatedDependency(response.error)) {
 				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- @todo The error object could be wrapped in a custom error with additional properties
 				reject(response.error);
 
@@ -161,6 +161,25 @@ function prepareResponseObject (dependencies) {
 	}
 
 	return outdatedDependencies;
+}
+
+/**
+ * Checks if a value has the shape of an outdated dependency record.
+ *
+ * `npm outdated --json` keys its result object by dependency name, while npm's error reporting uses a top-level `error` key
+ * (an object with `code`, `summary` and `detail`). So for a dependency which is literally named "error", the key alone is
+ * not sufficient to distinguish both cases.
+ *
+ * @private
+ * @param {any} value - The value of a top-level property of the `npm outdated --json` response.
+ * @returns {boolean} `true` if `value` looks like an outdated dependency record, `false` if it looks like an error report.
+ */
+function isOutdatedDependency (value) {
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+
+	return ('current' in value || 'wanted' in value || 'latest' in value || 'location' in value);
 }
 
 /**

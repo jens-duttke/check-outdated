@@ -220,6 +220,23 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
 				expectVarToHaveWord(stdout, 'npm ERR! code ENOGIT');
 			});
+
+			await test('should not treat an outdated dependency named "error" as npm error response', ['--columns', 'package,current,latest'], {
+				error: {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/error',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, '\u001B[33merror\u001B[39m', false);
+				expectVarNotToHaveWord(stdout, 'Error while gathering outdated dependencies');
+			});
 		});
 
 		await describe('Invalid arguments', async () => {
