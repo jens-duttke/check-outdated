@@ -798,6 +798,20 @@ void (async () => {
 			});
 		});
 
+		await describe('table helper', async () => {
+			// The real helper is tested directly, since the current callers never produce rows with fewer columns than previous rows
+			const prettifyTable = require('../helper/table');
+
+			expect('`prettifyTable` should keep the column widths of previous rows for rows with fewer columns', () => assert.equal(
+				prettifyTable([
+					['head1', 'head2'],
+					['a'],
+					['bb', 'cc']
+				]),
+				'head1  head2\na    \nbb     cc   '
+			));
+		});
+
 		await describe('colorize helper', async () => {
 			// The real helper is tested directly, since the bold style is not used by any column yet
 			const realColorize = require('../helper/colorize');

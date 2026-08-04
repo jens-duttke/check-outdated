@@ -79,7 +79,16 @@ function colWidthReducer (widths, row) {
 		return widths;
 	}
 
-	return row.map((col, colIndex) => Math.max(plainLength(typeof col === 'object' ? col.text : col), (widths[colIndex] || 0)));
+	// The accumulator is merged into a copy, since mapping the row would discard the widths of previous rows with more columns
+	const updatedWidths = widths.slice();
+
+	for (let colIndex = 0; colIndex < row.length; colIndex++) {
+		const col = row[colIndex];
+
+		updatedWidths[colIndex] = Math.max(plainLength(typeof col === 'object' ? col.text : col), (updatedWidths[colIndex] || 0));
+	}
+
+	return updatedWidths;
 }
 
 /**
