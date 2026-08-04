@@ -1090,6 +1090,14 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1.1.2');
 			}); // No npmTimeData provided - triggers fallback
 
+			await test('should return with the "help" screen if `--min-age-patch` is greater than `--min-age`', ['--min-age', '10', '--min-age-patch', '30', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				// Otherwise the two-step selection would recommend a version which violates the stricter patch age requirement
+				expectVarToHaveWord(stdout, 'The value of --min-age-patch must not be greater than the value of --min-age');
+			}, minAgeTimeData);
+
 			await test('should return error for invalid `--min-age` value (non-numeric)', ['--min-age', 'abc'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);

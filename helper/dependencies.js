@@ -132,6 +132,22 @@ function compareByType (firstDependency, secondDependency) {
 }
 
 /**
+ * Depending on the `preferWanted` option, either the `wanted` or the `latest` property of a dependency is returned.
+ *
+ * @public
+ * @param {OutdatedDependency} dependency - A specific outdated dependency.
+ * @param {{ readonly preferWanted?: boolean; }} options - The arguments which the user provided.
+ * @returns {string} Either `wanted` or `latest`
+ */
+function getWantedOrLatest (dependency, options) {
+	if (options.preferWanted) {
+		return dependency.wanted;
+	}
+
+	return dependency.latest;
+}
+
+/**
  * Adds missing properties to the dependencies object.
  *
  * @private
@@ -234,6 +250,7 @@ function parseResponse (stdout) {
 module.exports = {
 	NON_REGISTRY_VERSIONS,
 	getOutdatedDependencies,
+	getWantedOrLatest,
 	compareByName,
 	compareByType
 };

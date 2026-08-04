@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the error reporting itself failing if a reported error object contains `undefined` properties, and ensured that unexpected errors always exit with code 1 (unhandled rejections exit with code 0 on Node.js 10 to 14)
 - Fixed caret ranges in `--ignore-packages` (e.g. `pkg@^2.3.4`) matching every version with the same major version: versions below the range floor are no longer ignored, and for major version zero the caret now narrows to the minor or patch line as in npm (e.g. `^0.2.3` means `>=0.2.3 <0.3.0`)
 - Fixed updates from a pre-release to a stable version (e.g. `1.0.0-beta.1` to `1.0.0`) having no update type, which hid them from `--types` filters and left the "Type" column empty
+- Fixed `--min-age-patch` values greater than `--min-age` silently recommending versions which violate the patch age requirement; this combination is now rejected with an explanatory message
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

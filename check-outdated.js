@@ -10,7 +10,7 @@
 
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
-const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
+const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, getWantedOrLatest, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
@@ -402,6 +402,12 @@ async function checkOutdated (argv) {
 		return 1;
 	}
 
+	if (args.minAge !== undefined && args.minAgePatch !== undefined && args.minAgePatch > args.minAge) {
+		process.stdout.write(help('The value of --min-age-patch must not be greater than the value of --min-age'));
+
+		return 1;
+	}
+
 	try {
 		const outdatedDependencies = Object.values(await getOutdatedDependencies(args));
 
@@ -535,7 +541,7 @@ function help (...additionalLines) {
 			],
 			[
 				'--min-age-patch <days>',
-				'Min age for patches within the --min-age release line (default: 0). Allows newer bug fixes.'
+				'Min age for patches within the --min-age release line (default: 0, must not be greater than --min-age). Allows newer bug fixes.'
 			]
 		]),
 		...[''].concat(additionalLines),
@@ -621,21 +627,6 @@ function getFilteredDependencies (dependencies, options) {
 	}
 
 	return filteredDependencies;
-}
-
-/**
- * Depending on the `preferWanted` option, either the `wanted` or the `latest` property of a dependency is returned.
- *
- * @param {OutdatedDependency} dependency - A specific outdated dependency.
- * @param {Options} options - The arguments which the user provided.
- * @returns {string} Either `wanted` or `latest`
- */
-function getWantedOrLatest (dependency, options) {
-	if (options.preferWanted) {
-		return dependency.wanted;
-	}
-
-	return dependency.latest;
 }
 
 /**
