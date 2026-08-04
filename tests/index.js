@@ -31,6 +31,8 @@ void (async () => {
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Arguments:');
+
+				expect('`stdout` should not end with a doubled blank line', () => assert.ok(!stdout.endsWith('\n\n')));
 			});
 
 			await test('should show help', ['--help'], {}, (command, exitCode, stdout) => {

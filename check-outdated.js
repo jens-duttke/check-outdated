@@ -544,7 +544,8 @@ function help (...additionalLines) {
 				'Min age for patches within the --min-age release line (requires --min-age; default: 0, must not be greater than --min-age). Allows newer bug fixes.'
 			]
 		]),
-		...[''].concat(additionalLines),
+		// The separating blank line is only needed if there are additional lines (error messages etc.)
+		...(additionalLines.length > 0 ? [''].concat(additionalLines) : []),
 		''
 	].join('\n');
 }

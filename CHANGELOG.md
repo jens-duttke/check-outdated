@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the "Changes" column discarding the whole table if the package.json of a dependency contains only `null` or another non-object value
 - Fixed the repository directory of monorepo packages not being appended to `gitlab:` shorthand repository URLs, unlike all other repository URL formats
 - Fixed the order of `--min-age` fallback warnings depending on the completion order of the npm processes; warnings are now printed in dependency order
+- Fixed the help screen ending with a doubled blank line if it is shown without an error message
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 
