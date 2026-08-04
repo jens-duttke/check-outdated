@@ -385,6 +385,32 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@^1" has no effect, the latest version is 2.3.4.');
 			});
 
+			await test('should return with outdated dependency message, ignoring package `"module-broken-version"` of version `~2.3.4`', ['--ignore-packages', 'module-broken-version@~2.3.4'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
+
+				expectVarNotToHaveWord(stdout, 'module-broken-version');
+			});
+
+			await test('should not ignore a version below the floor of a tilde range', ['--ignore-packages', 'module-tilde-floor@~2.9.1', '--columns', 'package,latest'], {
+				'module-tilde-floor': {
+					current: '2.0.0',
+					wanted: '2.0.0',
+					latest: '2.9.0',
+					location: 'node_modules/module-tilde-floor',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// 2.9.0 is below the floor of ~2.9.1, so the dependency must not be hidden
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-tilde-floor');
+			});
+
 			await test('should return with outdated dependency message, ignoring package `"@scoped/module-sub-broken-version"` of version `^2`', ['--ignore-packages', '@scoped/module-sub-broken-version@^2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);

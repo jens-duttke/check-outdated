@@ -124,7 +124,7 @@ function semverInRange (version, pattern) {
 	}
 
 	if (match[1] === '~') {
-		return (parts[0] === match[2] && (match[3] === undefined || parts[1] === match[3]) && (match[4] === undefined || Number.parseInt(parts[1], 10) >= Number.parseInt(match[4], 10)));
+		return (parts[0] === match[2] && (match[3] === undefined || parts[1] === match[3]) && (match[4] === undefined || Number.parseInt(parts[2], 10) >= Number.parseInt(match[4], 10)));
 	}
 
 	if (match[4] === '*' || match[4] === 'x') {
