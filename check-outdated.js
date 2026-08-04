@@ -292,32 +292,32 @@ const AVAILABLE_ARGUMENTS = {
 		preferWanted: true
 	},
 	'--columns': (value) => {
-		const columns = value.split(',');
+		const columns = value.split(',').filter((name) => name !== '');
 		const availableColumnsNames = Object.keys(AVAILABLE_COLUMNS);
 
-		if (columns.length === 1 && (columns[0] === '' || columns[0].startsWith('-'))) {
+		if (columns.length === 0 || (columns.length === 1 && columns[0].startsWith('-'))) {
 			return help('Invalid value of --columns');
 		}
 
 		const invalidColumn = columns.find((name) => !availableColumnsNames.includes(name));
 
-		if (invalidColumn) {
+		if (invalidColumn !== undefined) {
 			return help(`Invalid column name "${invalidColumn}" in --columns\nAvailable columns are:\n${availableColumnsNames.join(', ')}`);
 		}
 
 		return { columns };
 	},
 	'--types': (value) => {
-		const types = value.split(',');
+		const types = value.split(',').filter((name) => name !== '');
 		const availableTypesNames = ['major', 'minor', 'patch', 'prerelease', 'build', 'reverted'];
 
-		if (types.length === 1 && (types[0] === '' || types[0].startsWith('-'))) {
+		if (types.length === 0 || (types.length === 1 && types[0].startsWith('-'))) {
 			return help('Invalid value of --types');
 		}
 
 		const invalidType = types.find((name) => !availableTypesNames.includes(name));
 
-		if (invalidType) {
+		if (invalidType !== undefined) {
 			return help(`Invalid type name "${invalidType}" in --types\nAvailable types are:\n${availableTypesNames.join(', ')}`);
 		}
 

@@ -674,6 +674,21 @@ void (async () => {
 				*/
 			});
 
+			await test('should handle a trailing comma in --columns gracefully', ['--columns', 'package,'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '38 outdated dependencies found:');
+				expectVarNotToHaveWord(stdout, 'gathering');
+			});
+
+			await test('should return with the "help" screen for a comma-only --columns value', ['--columns', ','], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Invalid value of --columns');
+			});
+
 			await test('should return with the "help" screen, indicating an argument problem', ['--columns', 'INVALID'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
@@ -750,6 +765,16 @@ void (async () => {
 				expectVarToHaveWord(stdout, '\u001B[31mmodule-revert\u001B[39m', false);
 				expectVarToHaveWord(stdout, '\u001B[31mmodule-wanted-minor-revert\u001B[39m', false);
 				expectVarToHaveWord(stdout, 'reverted');
+			});
+
+			await test('should handle a trailing comma in --types gracefully, without widening the filter', ['--types', 'major,', '--columns', 'package,current,latest,type'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// A trailing comma must not additionally match dependencies without a determinable update type
+				expectVarToHaveWord(stdout, 'module-major');
+				expectVarNotToHaveWord(stdout, 'module-non-semver');
+				expectVarNotToHaveWord(stdout, 'module-sub-version');
 			});
 
 			await test('should filter the update type against the wanted version if `--prefer-wanted` is used', ['--prefer-wanted', '--types', 'patch', '--columns', 'package,current,wanted,latest,type'], mockData.defaultResponse, (command, exitCode, stdout) => {
