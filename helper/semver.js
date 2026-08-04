@@ -119,7 +119,11 @@ function semverInRange (version, pattern) {
 	const splitRegExp = /[.+-]/u;
 	const parts = version.split(splitRegExp);
 
-	if (match[1] === '^' || match[3] === '*' || match[3] === 'x') {
+	if (match[1] === '^') {
+		return caretRangeMatches(parts, match);
+	}
+
+	if (match[3] === '*' || match[3] === 'x') {
 		return (parts[0] === match[2]);
 	}
 
@@ -140,6 +144,54 @@ function semverInRange (version, pattern) {
 	}
 
 	return (version === pattern);
+}
+
+/**
+ * Checks if a caret range pattern matches a specific version.
+ *
+ * A caret range allows changes that do not modify the left-most non-zero element (e.g. `^2.3.4` means `>=2.3.4 <3.0.0`, `^0.2.3` means `>=0.2.3 <0.3.0`, `^0.0.3` means `0.0.3`).
+ *
+ * @private
+ * @param {string[]} parts - The parts of the version to check (`[major, minor, patch, ...]`).
+ * @param {(string | undefined)[]} match - The matches of `semverRangeRegExp` for the range pattern.
+ * @returns {boolean} `true` if the caret range matches, otherwise `false`.
+ */
+function caretRangeMatches (parts, match) {
+	if (parts[0] !== match[2]) {
+		return false;
+	}
+
+	if (match[3] === undefined || ['*', 'x'].includes(match[3])) {
+		return true;
+	}
+
+	// For major version zero, the caret narrows to the minor line (^0.2.3 means >=0.2.3 <0.3.0)
+	if (match[2] === '0') {
+		if (parts[1] !== match[3]) {
+			return false;
+		}
+
+		if (match[4] === undefined || ['*', 'x'].includes(match[4])) {
+			return true;
+		}
+
+		// For major and minor version zero, the caret only matches the exact version (^0.0.3 means 0.0.3)
+		if (match[3] === '0') {
+			return (parts[2] === match[4]);
+		}
+
+		return (Number.parseInt(parts[2], 10) >= Number.parseInt(match[4], 10));
+	}
+
+	if (parts[1] !== match[3]) {
+		return (Number.parseInt(parts[1], 10) > Number.parseInt(match[3], 10));
+	}
+
+	if (match[4] === undefined || ['*', 'x'].includes(match[4])) {
+		return true;
+	}
+
+	return (Number.parseInt(parts[2], 10) >= Number.parseInt(match[4], 10));
 }
 
 module.exports = {

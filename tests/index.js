@@ -403,6 +403,72 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, 'module-broken-version');
 			});
 
+			await test('should ignore a version within a caret range', ['--ignore-packages', 'module-caret-in-range@^2.3.4', '--columns', 'package,latest'], {
+				'module-caret-in-range': {
+					current: '2.0.0',
+					wanted: '2.0.0',
+					latest: '2.9.0',
+					location: 'node_modules/module-caret-in-range',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 0);
+
+				expectVarToHaveWord(stdout, 'All dependencies are up-to-date.');
+			});
+
+			await test('should not ignore a version below the floor of a caret range', ['--ignore-packages', 'module-caret-floor@^2.3.4', '--columns', 'package,latest'], {
+				'module-caret-floor': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-caret-floor',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// 2.0.0 is below the floor of ^2.3.4 (which means >=2.3.4 <3.0.0), so the dependency must not be hidden
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-caret-floor');
+			});
+
+			await test('should not ignore a version outside of a caret range below 1.0.0', ['--ignore-packages', 'module-caret-zero@^0.2.3', '--columns', 'package,latest'], {
+				'module-caret-zero': {
+					current: '0.1.0',
+					wanted: '0.1.0',
+					latest: '0.3.0',
+					location: 'node_modules/module-caret-zero',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// ^0.2.3 means >=0.2.3 <0.3.0, so 0.3.0 must not be hidden
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-caret-zero');
+			});
+
+			await test('should not ignore a version outside of a caret range below 0.1.0', ['--ignore-packages', 'module-caret-zero-zero@^0.0.3', '--columns', 'package,latest'], {
+				'module-caret-zero-zero': {
+					current: '0.0.1',
+					wanted: '0.0.1',
+					latest: '0.0.4',
+					location: 'node_modules/module-caret-zero-zero',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// ^0.0.3 only matches 0.0.3 itself, so 0.0.4 must not be hidden
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-caret-zero-zero');
+			});
+
 			await test('should not ignore a version below the floor of a tilde range', ['--ignore-packages', 'module-tilde-floor@~2.9.1', '--columns', 'package,latest'], {
 				'module-tilde-floor': {
 					current: '2.0.0',
