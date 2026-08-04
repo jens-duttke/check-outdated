@@ -812,6 +812,14 @@ void (async () => {
 			));
 		});
 
+		await describe('list helper', async () => {
+			// The real helper is tested directly, since keys with dollar sequences are not produced by the current error reporting
+			const generateKeyValueList = require('../helper/list');
+
+			expect('`generateKeyValueList` should insert keys containing dollar sequences literally', () => assert.equal(generateKeyValueList([['pre$&fix', 'value']]), 'pre$&fix value'));
+			expect('`generateKeyValueList` should prefix every line of multiline values with the key', () => assert.equal(generateKeyValueList([['key', 'line1\nline2']]), 'key line1\nkey line2'));
+		});
+
 		await describe('colorize helper', async () => {
 			// The real helper is tested directly, since the bold style is not used by any column yet
 			const realColorize = require('../helper/colorize');

@@ -18,8 +18,9 @@
  * @returns {string} A multiline string containing representing the array items.
  */
 function generateKeyValueList (entries) {
-	// JSON.stringify() returns the value `undefined` (not a string) for `undefined`, functions and symbols
-	return entries.map(([key, value]) => (typeof value === 'string' ? value : (JSON.stringify(value, null, '  ') || String(value))).replace(/^/gmu, `$&${key} `)).join('\n');
+	// JSON.stringify() returns the value `undefined` (not a string) for `undefined`, functions and symbols.
+	// The replacer function ensures that the key is used literally, since `$`-sequences are special in a replacement string.
+	return entries.map(([key, value]) => (typeof value === 'string' ? value : (JSON.stringify(value, null, '  ') || String(value))).replace(/^/gmu, () => `${key} `)).join('\n');
 }
 
 module.exports = generateKeyValueList;
