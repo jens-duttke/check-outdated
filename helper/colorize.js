@@ -52,12 +52,12 @@ const FOREGROUND_COLORS = {
 	white: 97
 };
 
+// ANSI bold-off is 22, not bold + 20, so open and close codes are defined explicitly
 const TEXT_DECORATIONS = {
-	bold: 1,
-	underline: 4
+	bold: { open: 1, close: 22 },
+	underline: { open: 4, close: 24 }
 };
 
-const RESET_OFFSET = 20;
 const DEFAULT_FOREGROUND_COLOR = 39;
 
 /**
@@ -97,8 +97,8 @@ function colorize (options) {
 			}
 
 			if (options.textDecoration) {
-				openCode.push(TEXT_DECORATIONS[options.textDecoration]);
-				closeCode.push(TEXT_DECORATIONS[options.textDecoration] + RESET_OFFSET);
+				openCode.push(TEXT_DECORATIONS[options.textDecoration].open);
+				closeCode.push(TEXT_DECORATIONS[options.textDecoration].close);
 			}
 
 			return `\u001B[${openCode.join(';')}m${text}\u001B[${closeCode.join(';')}m`;

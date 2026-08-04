@@ -798,6 +798,14 @@ void (async () => {
 			});
 		});
 
+		await describe('colorize helper', async () => {
+			// The real helper is tested directly, since the bold style is not used by any column yet
+			const realColorize = require('../helper/colorize');
+
+			expect('`colorize.bold` should close with the ANSI bold-off code 22', () => assert.equal(realColorize.bold('text'), '\u001B[1mtext\u001B[22m'));
+			expect('`colorize.underline` should close with the ANSI underline-off code 24', () => assert.equal(realColorize.underline('text'), '\u001B[4mtext\u001B[24m'));
+		});
+
 		await describe('project paths with special characters', async () => {
 			// getParentPackageJSONPath() is pure path logic, so the real helper can be used with a faked working directory
 			const path = require('path');
