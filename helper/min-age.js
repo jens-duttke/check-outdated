@@ -241,22 +241,19 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 	const minAgeMs = minAgeDays * MS_PER_DAY;
 	const minAgePatchMs = minAgePatchDays * MS_PER_DAY;
 
-	/** @type {string[]} */
-	const warnings = [];
-
+	/** @type {{ dependency: OutdatedDependency | null; warning?: string; }[]} */
 	const results = await Promise.all(dependencies.map(async (dependency) => {
 		// Git, linked and remote dependencies have no registry version; rewriting their sentinel would defeat the downstream skip filter
 		if (NON_REGISTRY_VERSIONS.includes(dependency.latest) || NON_REGISTRY_VERSIONS.includes(dependency.wanted)) {
-			return dependency;
+			return { dependency };
 		}
 
 		const timestamps = await fetchVersionTimestamps(dependency.resolvedName);
 
 		if (timestamps === null) {
-			// Fallback: cannot fetch timestamps, show dependency without age filter
-			warnings.push(`Could not retrieve time data for "${dependency.resolvedName}". Showing without age filter.`);
-
-			return dependency;
+			// Fallback: cannot fetch timestamps, show dependency without age filter.
+			// The warning is part of the result, so the printed order does not depend on the completion order of the npm view processes.
+			return { dependency, warning: `Could not retrieve time data for "${dependency.resolvedName}". Showing without age filter.` };
 		}
 
 		// The registry time document contains every published version, including versions above the "latest" dist-tag (e.g. rolled back, unpublished or published under another dist-tag), so the selection is capped at the latest version reported by npm
@@ -267,7 +264,7 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 
 		if (bestByAge === undefined) {
 			// No version qualifies at all
-			return null;
+			return { dependency: null };
 		}
 
 		// Step 2: Within that Major.Minor line, find the newest patch that satisfies --min-age-patch
@@ -284,7 +281,7 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 
 		// If the best version is not newer than current, no update available
 		if (dependency.current !== '' && semverCompare(bestLatest, dependency.current) <= 0) {
-			return null;
+			return { dependency: null };
 		}
 
 		/** @type {OutdatedDependency} */
@@ -323,11 +320,27 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 			}
 		}
 
-		return newDependency;
+		return { dependency: newDependency };
 	}));
 
+	/** @type {string[]} */
+	const warnings = [];
+
+	/** @type {OutdatedDependency[]} */
+	const filteredDependencies = [];
+
+	for (const result of results) {
+		if (result.warning !== undefined) {
+			warnings.push(result.warning);
+		}
+
+		if (result.dependency !== null) {
+			filteredDependencies.push(result.dependency);
+		}
+	}
+
 	return {
-		dependencies: /** @type {OutdatedDependency[]} */(results.filter((dependency) => dependency !== null)),
+		dependencies: filteredDependencies,
 		warnings
 	};
 }

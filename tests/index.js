@@ -1495,6 +1495,28 @@ void (async () => {
 				}
 			});
 
+			await test('should print fallback warnings in dependency order, independent of the process completion order', ['--min-age', '10', '--columns', 'package,latest'], {
+				'module-warn-a': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-warn-a',
+					type: 'dependencies'
+				},
+				'module-warn-b': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-warn-b',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expect('`stdout` should warn about module-warn-a before module-warn-b', () => assert.ok(stdout.indexOf('module-warn-a') < stdout.indexOf('module-warn-b')));
+			}); // No npmTimeData provided - both packages trigger the fallback warning
+
 			await test('should not recommend pre-release versions with `--min-age`, even if no stable version qualifies', ['--min-age', '30', '--columns', 'package,latest'], {
 				'module-prerelease-only': {
 					current: '2.0.0-beta.1',

@@ -19,6 +19,8 @@ const proxyquire = require('proxyquire').noPreserveCache();
  * @returns {import('../../check-outdated')} New check-outdated with stubbed native modules.
  */
 function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
+	let minAgeErrorCallCount = 0;
+
 	/** @type {import('../../check-outdated')} */
 	return proxyquire(path.join(process.cwd(), 'check-outdated'), {
 		'./helper/dependencies': proxyquire(path.join(process.cwd(), 'helper/dependencies'), {
@@ -69,8 +71,8 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 						return;
 					}
 
-					// Return error if no mock data
-					callback(new Error('No mock data'), '', '');
+					// Return error if no mock data; the first started process finishes last, to simulate that concurrently started processes can finish in any order
+					setTimeout(() => callback(new Error('No mock data'), '', ''), Math.max(0, 10 - ((minAgeErrorCallCount++) * 10)));
 				}
 			}
 		}),
