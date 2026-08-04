@@ -221,6 +221,14 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'npm ERR! code ENOGIT');
 			});
 
+			await test('should report an explanatory error if the npm response exceeds the maximum buffer size', [], Object.assign(new Error('stdout maxBuffer length exceeded'), { code: 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER', stdout: '{"module-major":{"current":"1.0.0","wanted":"1.0.0","late' }), (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Error while gathering outdated dependencies:');
+				expectVarToHaveWord(stdout, 'The npm response exceeds the maximum buffer size of 64 MiB.');
+			});
+
 			await test('should not treat an outdated dependency named "error" as npm error response', ['--columns', 'package,current,latest'], {
 				error: {
 					current: '1.0.0',

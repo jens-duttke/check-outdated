@@ -27,16 +27,21 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 				 * Mock of the child_process.exec() function, which is used by `check-outdated` to call `npm outdated`.
 				 *
 				 * @param {string} command - The command to run.
+				 * @param {{ maxBuffer?: number; }} _options - Options for the child process (ignored by the mock).
 				 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback - Called with the output when process terminates.
 				 * @returns {void}
 				 */
-				exec (command, callback) {
+				exec (command, _options, callback) {
 					if (typeof setUsedCommand === 'function') {
 						setUsedCommand(command);
 					}
 
 					if (dependencies instanceof Error) {
-						callback(dependencies, '', '');
+						// An Error with a `stdout` property simulates a partial output, e.g. if `maxBuffer` is exceeded.
+						/** @type {Error & { stdout?: string; }} */
+						const errorWithOutput = dependencies;
+
+						callback(errorWithOutput, (typeof errorWithOutput.stdout === 'string' ? errorWithOutput.stdout : ''), '');
 
 						return;
 					}

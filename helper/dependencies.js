@@ -4,6 +4,9 @@
 
 const childProcess = require('child_process');
 
+// The default `maxBuffer` of child_process.exec() is 200 KiB on Node.js 10, which large `npm outdated` responses can exceed
+const MAX_RESPONSE_SIZE = 64 * 1024 * 1024;
+
 /**
  * One dependency item, returned by `npm outdated --json`.
  *
@@ -48,10 +51,17 @@ async function getOutdatedDependencies (options) {
 			'--save false',
 			(options.global ? '--global' : ''),
 			(options.depth ? `--depth ${options.depth}` : '')
-		].filter((item) => item).join(' '), (error, stdout) => {
+		].filter((item) => item).join(' '), { maxBuffer: MAX_RESPONSE_SIZE }, (error, stdout) => {
 			if (error && stdout.length === 0) {
 				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- `error` is a real `Error` instance at runtime, but @types/node types `ExecException` as `Omit<NodeJS.ErrnoException, "code">`, which drops the `Error` base type
 				reject(error);
+
+				return;
+			}
+
+			// If `maxBuffer` is exceeded, the child process is killed and `stdout` is truncated but non-empty, so the empty-stdout gate above does not fire
+			if (error && error.message.includes('maxBuffer')) {
+				reject(new Error(`The npm response exceeds the maximum buffer size of ${MAX_RESPONSE_SIZE / (1024 * 1024)} MiB.`));
 
 				return;
 			}
