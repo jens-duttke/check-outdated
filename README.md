@@ -102,7 +102,7 @@ Or put it into your `package.json`:
 | --global | Check packages in the global install prefix instead of in the current project (equal to the npm outdated-option) | `--global` |
 | --depth \<number\> | Max depth for checking dependency tree (equal to the npm outdated-option) | `--depth 3` |
 | --min-age \<days\> | Only recommend release lines (Major.Minor) where at least one version was published at least \<days\> days ago. Within that line, the newest patch is recommended (controlled by `--min-age-patch`). This helps avoid unstable or compromised releases. Pre-release versions are never recommended; if no stable version newer than the installed one satisfies the age requirement, the package is not reported. If time data cannot be retrieved (e.g., private registry), the package is shown without the age filter along with a warning. See [Version Age Filtering](#version-age-filtering) below. | `--min-age 14` |
-| --min-age-patch \<days\> | Minimum age in days for patch versions within the release line determined by `--min-age` (default: `0`, must not be greater than `--min-age`). See [Version Age Filtering](#version-age-filtering) below. | `--min-age 14 --min-age-patch 3` |
+| --min-age-patch \<days\> | Minimum age in days for patch versions within the release line determined by `--min-age` (requires `--min-age`; default: `0`, must not be greater than `--min-age`). See [Version Age Filtering](#version-age-filtering) below. | `--min-age 14 --min-age-patch 3` |
 
 ### Available Columns
 

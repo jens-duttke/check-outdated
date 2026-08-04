@@ -393,6 +393,12 @@ async function checkOutdated (argv) {
 		return 1;
 	}
 
+	if (args.minAgePatch !== undefined && args.minAge === undefined) {
+		process.stdout.write(help('The argument --min-age-patch requires the argument --min-age'));
+
+		return 1;
+	}
+
 	if (args.minAge !== undefined && args.minAgePatch !== undefined && args.minAgePatch > args.minAge) {
 		process.stdout.write(help('The value of --min-age-patch must not be greater than the value of --min-age'));
 
@@ -535,7 +541,7 @@ function help (...additionalLines) {
 			],
 			[
 				'--min-age-patch <days>',
-				'Min age for patches within the --min-age release line (default: 0, must not be greater than --min-age). Allows newer bug fixes.'
+				'Min age for patches within the --min-age release line (requires --min-age; default: 0, must not be greater than --min-age). Allows newer bug fixes.'
 			]
 		]),
 		...[''].concat(additionalLines),

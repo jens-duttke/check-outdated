@@ -1223,6 +1223,14 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1.1.2');
 			}); // No npmTimeData provided - triggers fallback
 
+			await test('should return with the "help" screen if `--min-age-patch` is used without `--min-age`', ['--min-age-patch', '3', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				// Otherwise the argument is accepted but has no effect
+				expectVarToHaveWord(stdout, 'The argument --min-age-patch requires the argument --min-age');
+			}, minAgeTimeData);
+
 			await test('should return with the "help" screen if `--min-age-patch` is greater than `--min-age`', ['--min-age', '10', '--min-age-patch', '30', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
@@ -1471,14 +1479,6 @@ void (async () => {
 
 				expectVarToHaveWord(stdout, 'Invalid value of --min-age-patch');
 			}, minAgeTimeData);
-
-			await test('should ignore `--min-age-patch` when `--min-age` is not provided', ['--min-age-patch', '5', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
-				expectVarToEqual(exitCode, 1);
-
-				// Without --min-age, --min-age-patch has no effect, original latest is shown
-				expectVarToHaveWord(stdout, 'module-min-age-test');
-				expectVarToHaveWord(stdout, '1.1.2');
-			});
 
 			await test('should ignore pre-release versions when determining qualifying line with `--min-age 10`', ['--min-age', '10', '--columns', 'package,latest'], {
 				'module-prerelease-age': {
