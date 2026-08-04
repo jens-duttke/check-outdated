@@ -903,6 +903,21 @@ void (async () => {
 		});
 
 		await describe('additional repository URL formats', async () => {
+			await test('should append the repository directory to gitlab shorthand URLs', ['--columns', 'package,homepage'], {
+				'module-gitlab-directory': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-gitlab-directory',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'https://gitlab.com/user/monorepo/packages/foo');
+			});
+
 			await test('should derive the repository from git protocol, scp-style, shorthand and suffix-less URLs', ['--columns', 'package,changes'], {
 				'module-git-protocol': {
 					current: '1.0.0',

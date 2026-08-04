@@ -37,7 +37,7 @@ const REPOSITORY_URLS = [
 	},
 	{
 		regExp: /^gitlab:(.+)/u,
-		getRepositoryURL: (match) => `https://gitlab.com/${match[1]}`,
+		getRepositoryURL: (match, directory) => `https://gitlab.com/${match[1]}${directory}`,
 		getChangelogURL: (match) => `https://gitlab.com/${match[1]}/-/releases`
 	},
 	{
