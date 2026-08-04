@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed updates from a pre-release to a stable version (e.g. `1.0.0-beta.1` to `1.0.0`) having no update type, which hid them from `--types` filters and left the "Type" column empty
 - Fixed `--min-age-patch` values greater than `--min-age` silently recommending versions which violate the patch age requirement; this combination is now rejected with an explanatory message
 - Fixed `--min-age` keeping a wanted version whose registry timestamp is missing or unparseable, although the same version is treated as "not old enough" when it is considered as latest version
+- Fixed the missing `unknown` group header if the first shown dependency has no package type
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

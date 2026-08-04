@@ -665,6 +665,24 @@ void (async () => {
 			});
 		});
 
+		await describe('package type grouping with untyped dependencies only', async () => {
+			await test('should show the "unknown" group header if the first dependency has no package type', ['--columns', 'package'], {
+				'module-untyped': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-untyped'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-untyped');
+				expectVarToHaveWord(stdout, 'unknown');
+			});
+		});
+
 		await describe('dependency location without a node_modules ancestor', async () => {
 			await test('should not hang if a dependency location contains no node_modules folder', ['--columns', 'package,reference'], {
 				'module-outside-node-modules': {

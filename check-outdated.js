@@ -645,8 +645,9 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
 	];
 	const groupByPackageType = !visibleColumns.includes('packageType');
 
-	/** @type {undefined | string} */
-	let previousPackageTypeGroup;
+	// The initial value must not be undefined, since a dependency without a type would collide with it and suppress its group header
+	/** @type {undefined | string | symbol} */
+	let previousPackageTypeGroup = Symbol('none');
 
 	dependencies.sort((groupByPackageType ? compareByType : compareByName));
 
