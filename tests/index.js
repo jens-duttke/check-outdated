@@ -865,6 +865,47 @@ void (async () => {
 			});
 		});
 
+		await describe('additional repository URL formats', async () => {
+			await test('should derive the repository from git protocol, scp-style, shorthand and suffix-less URLs', ['--columns', 'package,changes'], {
+				'module-git-protocol': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-git-protocol',
+					type: 'dependencies'
+				},
+				'module-scp-style': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-scp-style',
+					type: 'dependencies'
+				},
+				'module-bare-shorthand': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-bare-shorthand',
+					type: 'dependencies'
+				},
+				'module-git-https-no-suffix': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-git-https-no-suffix',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'https://github.com/user/git-protocol-repo/releases');
+				expectVarToHaveWord(stdout, 'https://github.com/user/scp-repo/releases');
+				expectVarToHaveWord(stdout, 'https://github.com/user/bare-repo/releases');
+				expectVarToHaveWord(stdout, 'https://github.com/user/nosuffix-repo/releases');
+			});
+		});
+
 		await describe('GitHub API connection errors', async () => {
 			await test('should fall back to the releases page if the GitHub API request fails with a connection error', ['--columns', 'package,changes'], {
 				'module-with-connection-error': {

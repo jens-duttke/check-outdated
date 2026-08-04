@@ -395,6 +395,27 @@
 				"module-curly": "file:../my{lib}"
 			}
 		},
+		"node_modules/module-git-protocol/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git://github.com/user/git-protocol-repo.git"
+			}
+		},
+		"node_modules/module-scp-style/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git@github.com:user/scp-repo.git"
+			}
+		},
+		"node_modules/module-bare-shorthand/package.json": {
+			"repository": "user/bare-repo"
+		},
+		"node_modules/module-git-https-no-suffix/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/user/nosuffix-repo"
+			}
+		},
 		"node_modules/module-with-wildcard-parent/package.json": {
 			"dependencies": {
 				"module-plain-wildcard": "*",

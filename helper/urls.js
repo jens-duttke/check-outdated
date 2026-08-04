@@ -41,14 +41,31 @@ const REPOSITORY_URLS = [
 		getChangelogURL: (match) => `https://gitlab.com/${match[1]}/-/releases`
 	},
 	{
-		regExp: /^git\+(https?:\/\/.+)\.git$/u,
+		regExp: /^git\+(https?:\/\/.+?)(\.git)?$/u,
 		getRepositoryURL: (match, directory) => `${match[1]}${directory}`,
 		getChangelogURL: async (match, directory) => getChangelogFromURL(match[1], directory)
 	},
 	{
-		regExp: /^git\+ssh:\/\/git@(.+)\.git$/u,
+		regExp: /^git\+ssh:\/\/git@(.+?)(\.git)?$/u,
 		getRepositoryURL: (match, directory) => `https://${match[1]}${directory}`,
 		getChangelogURL: async (match, directory) => getChangelogFromURL(`https://${match[1]}`, directory)
+	},
+	{
+		regExp: /^git:\/\/(.+?)(\.git)?$/u,
+		getRepositoryURL: (match, directory) => `https://${match[1]}${directory}`,
+		getChangelogURL: async (match, directory) => getChangelogFromURL(`https://${match[1]}`, directory)
+	},
+	// scp-style locator (e.g. "git@github.com:user/repo.git")
+	{
+		regExp: /^git@(.+?):(.+?)(\.git)?$/u,
+		getRepositoryURL: (match, directory) => `https://${match[1]}/${match[2]}${directory}`,
+		getChangelogURL: async (match, directory) => getChangelogFromURL(`https://${match[1]}/${match[2]}`, directory)
+	},
+	// GitHub shorthand (e.g. "user/repo")
+	{
+		regExp: /^([\w.-]+\/[\w.-]+)$/u,
+		getRepositoryURL: (match, directory) => `https://github.com/${match[1]}${directory}`,
+		getChangelogURL: (match) => `https://github.com/${match[1]}/releases`
 	},
 	// Fallback (should be the last item)
 	{
