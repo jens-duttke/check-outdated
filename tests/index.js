@@ -863,6 +863,24 @@ void (async () => {
 				expect('`stdout` should contain the reference position found in the unparsable package.json', () => assert.ok(stdout.includes('package.json:1:21')));
 			});
 
+			await test('should keep the table if the package.json of a dependency contains only "null"', ['--columns', 'package,changes'], {
+				'module-null-package-json': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-null-package-json',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// JSON.parse("null") returns null without throwing; the changes column must not dereference it
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/module-null-package-json');
+				expectVarNotToHaveWord(stdout, 'gathering');
+			});
+
 			await test('should keep the table if a version specifier contains regular expression quantifier brackets', ['--columns', 'package,reference'], {
 				'module-curly': {
 					current: '1.0.0',

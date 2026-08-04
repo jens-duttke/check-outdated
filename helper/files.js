@@ -39,7 +39,8 @@ function getDependencyPackageJSON (dependencyLocation) {
 	if (fileContent !== undefined) {
 		const json = parsePackageJSON(fileContent);
 
-		if (json !== undefined) {
+		// JSON.parse() returns scalars, null and arrays without throwing, but callers dereference properties of the result
+		if (typeof json === 'object' && json !== null && !Array.isArray(json)) {
 			return json;
 		}
 	}

@@ -395,6 +395,7 @@
 				"module-curly": "file:../my{lib}"
 			}
 		},
+		"node_modules/module-null-package-json/package.json": "null",
 		"node_modules/module-git-protocol/package.json": {
 			"repository": {
 				"type": "git",
