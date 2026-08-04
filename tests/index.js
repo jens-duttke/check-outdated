@@ -1122,6 +1122,22 @@ void (async () => {
 				*/
 			});
 
+			await test('should support the deprecated `name` column as alias for `package`', ['--columns', 'name,latest'], {
+				'module-major': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-major',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, '\u001B[33mmodule-major\u001B[39m', false);
+			});
+
 			await test('should handle a trailing comma in --columns gracefully', ['--columns', 'package,'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);

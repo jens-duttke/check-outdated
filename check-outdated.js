@@ -257,8 +257,8 @@ const AVAILABLE_COLUMNS = {
 /**
  * @deprecated `name` has been replaced by `package` in version 2.8.0.
  */
-// @ts-expect-error -- That's the easiest way the clone the `package` property values
-AVAILABLE_COLUMNS.name = AVAILABLE_COLUMNS.package;
+// @ts-expect-error -- The type marks the table as readonly, but the deprecated alias must be attached after the declaration
+AVAILABLE_COLUMNS.name = { ...AVAILABLE_COLUMNS.package };
 
 /** @type {AvailableArguments} */
 const AVAILABLE_ARGUMENTS = {
