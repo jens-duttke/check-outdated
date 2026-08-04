@@ -6,6 +6,9 @@ const https = require('https');
 
 const STATUS_OK = 200;
 
+// Neither http(s).get() nor Node.js itself applies a default connect/idle timeout, so a stalled connection would block forever
+const REQUEST_TIMEOUT = 10 * 1000;
+
 /** @typedef {import('./files').PackageJSON} PackageJSON */
 
 /**
@@ -237,6 +240,12 @@ async function getFileOnGitHub (repoName, fileName, directory = '', minimumConte
 
 		// Connection-level failures (DNS, refused, reset, TLS) are emitted on the request object, not on the response stream.
 		request.on('error', () => resolve(undefined));
+
+		request.setTimeout(REQUEST_TIMEOUT, () => {
+			request.destroy();
+
+			resolve(undefined);
+		});
 	});
 }
 

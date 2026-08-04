@@ -9,7 +9,7 @@
  * @property {{ [dependencyName: string]: Partial<import('../check-outdated').OutdatedDependency>; }} defaultResponse
  * @property {{ [path: string]: boolean; }} fsExists
  * @property {{ [path: string]: string | import('../helper/files').PackageJSON; }} fsReadFile
- * @property {{ [url: string]: { statusCode: number; data?: string; requestError?: boolean; } | undefined; }} httpsGet
+ * @property {{ [url: string]: { statusCode: number; data?: string; requestError?: boolean; stall?: boolean; } | undefined; }} httpsGet
  */
 
 const assert = require('assert').strict;
@@ -568,6 +568,22 @@ void (async () => {
 
 				expectVarToHaveWord(stdout, '1 outdated dependency found:');
 				expectVarToHaveWord(stdout, 'https://github.com/user/connection-error-repo/releases');
+			});
+
+			await test('should fall back to the releases page if the GitHub API request stalls', ['--columns', 'package,changes'], {
+				'module-with-stalling-connection': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-stalling-connection',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'https://github.com/user/stalling-repo/releases');
 			});
 		});
 

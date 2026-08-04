@@ -174,15 +174,29 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 				get (options, callback) {
 					const STATUS_NOT_FOUND = 404;
 
-					const request = new events.EventEmitter();
-
-					/** @type {{ statusCode: number; data?: string; requestError?: boolean; }} */
+					/** @type {{ statusCode: number; data?: string; requestError?: boolean; stall?: boolean; }} */
 					const response = ((mockData && mockData.httpsGet[`${options.host}${options.path}`]) || { statusCode: STATUS_NOT_FOUND });
+
+					const request = /** @type {import('events').EventEmitter & { destroy: () => void; setTimeout: (ms: number, timeoutCallback: () => void) => void; }} */(/** @type {unknown} */(new events.EventEmitter()));
+
+					request.destroy = () => { /* Do nothing */ };
+
+					request.setTimeout = (_ms, timeoutCallback) => {
+						// Simulate a stalled connection (accepted, but never answered) by firing the timeout instead of the response callback.
+						if (response.stall) {
+							setImmediate(timeoutCallback);
+						}
+					};
 
 					if (response.requestError) {
 						// Connection-level failures (DNS, refused, reset, TLS) are emitted asynchronously as an `error` event on the request object, the response callback is never called.
 						setImmediate(() => { request.emit('error', new Error('getaddrinfo ENOTFOUND api.github.com')); });
 
+						return request;
+					}
+
+					if (response.stall) {
+						// Neither the response callback is called, nor an error is emitted.
 						return request;
 					}
 

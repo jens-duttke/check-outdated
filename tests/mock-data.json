@@ -382,6 +382,12 @@
 				"url": "git+https://github.com/user/connection-error-repo.git"
 			}
 		},
+		"node_modules/module-with-stalling-connection/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://github.com/user/stalling-repo.git"
+			}
+		},
 		"node_modules/module-with-broken-package-json/package.json": "{ \"dependencies\": { \"module-nested-in-broken\": \"^1.0.0\", INVALID }",
 		"node_modules/module-with-empty-package-json/package.json": ""
 	},
@@ -389,6 +395,10 @@
 		"api.github.com/repos/user/connection-error-repo/contents/CHANGELOG.md": {
 			"statusCode": 0,
 			"requestError": true
+		},
+		"api.github.com/repos/user/stalling-repo/contents/CHANGELOG.md": {
+			"statusCode": 0,
+			"stall": true
 		},
 		"api.github.com/repos/jens-duttke/check-outdated/contents/CHANGELOG.md": {
 			"statusCode": 200,
