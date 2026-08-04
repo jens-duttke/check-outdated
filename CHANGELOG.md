@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed duplicated and interleaved package type group headers if more than two package types are present (e.g. devDependencies and peerDependencies)
 - Fixed tilde ranges in `--ignore-packages` (e.g. `pkg@~2.3.4`) comparing the minor version instead of the patch version, which failed to ignore matching versions and wrongly ignored versions below the range floor
 - Fixed the "Reference" column discarding the whole table if a version specifier contains `]`, `{` or `}` (e.g. a `file:` path like `file:../my{lib}`)
+- Fixed the error reporting itself failing if a reported error object contains `undefined` properties, and ensured that unexpected errors always exit with code 1 (unhandled rejections exit with code 0 on Node.js 10 to 14)
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

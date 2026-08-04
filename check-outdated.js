@@ -362,7 +362,12 @@ if (require.main === /** @type {NodeModule} */(/** @type {any} */(module))) {
 
 	void (async () => {
 		process.exitCode = await checkOutdated(argv);
-	})();
+	})().catch((/** @type {unknown} */ error) => {
+		// A tool whose purpose is its exit code must never exit with 0 on an unexpected error (unhandled rejections do on Node.js 10 to 14)
+		process.stdout.write(`${colorize.red('Unexpected error:')} ${(error instanceof Error ? error.message : String(error))}\n`);
+
+		process.exitCode = 1;
+	});
 }
 else {
 	module.exports = checkOutdated;
