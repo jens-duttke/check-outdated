@@ -292,9 +292,10 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 
 		// Also filter wanted using the same two-step logic
 		if (dependency.wanted !== '' && dependency.wanted !== dependency.current) {
-			const wantedTimestamp = timestamps[dependency.wanted];
+			const wantedTime = (dependency.wanted in timestamps ? new Date(timestamps[dependency.wanted]).getTime() : Number.NaN);
 
-			if (wantedTimestamp && (now - new Date(wantedTimestamp).getTime()) < minAgeMs) {
+			// A version with a missing or unparseable timestamp is treated as "not old enough", consistent with the candidate filters (where comparisons with NaN are always false)
+			if (Number.isNaN(wantedTime) || (now - wantedTime) < minAgeMs) {
 				const bestWantedByAge = findBestQualifiedVersion(timestamps, minAgeMs, now, dependency.wanted);
 
 				if (bestWantedByAge !== undefined) {

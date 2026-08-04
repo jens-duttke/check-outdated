@@ -1184,6 +1184,43 @@ void (async () => {
 				}
 			});
 
+			await test('should not treat wanted versions with a missing or unparseable timestamp as old enough', ['--min-age', '30', '--columns', 'package,current,wanted,latest'], {
+				'module-unparseable-wanted-time': {
+					current: '1.0.0',
+					wanted: '2.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-unparseable-wanted-time',
+					type: 'dependencies'
+				},
+				'module-missing-wanted-time': {
+					current: '1.0.0',
+					wanted: '3.0.0',
+					latest: '3.0.0',
+					location: 'node_modules/module-missing-wanted-time',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// A version whose age is unknown must not be recommended under an age filter, neither as latest nor as wanted
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, '1.5.0');
+				expectVarToHaveWord(stdout, '2.5.0');
+				expectVarNotToHaveWord(stdout, '2.0.0');
+				expectVarNotToHaveWord(stdout, '3.0.0');
+			}, {
+				'module-unparseable-wanted-time': {
+					'1.0.0': daysAgo(100),
+					'1.5.0': daysAgo(50),
+					'2.0.0': 'INVALID DATE'
+				},
+				'module-missing-wanted-time': {
+					'1.0.0': daysAgo(100),
+					'2.5.0': daysAgo(50)
+				}
+			});
+
 			await test('should not recommend pre-release versions with `--min-age`, even if no stable version qualifies', ['--min-age', '30', '--columns', 'package,latest'], {
 				'module-prerelease-only': {
 					current: '2.0.0-beta.1',
