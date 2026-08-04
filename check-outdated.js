@@ -16,6 +16,7 @@ const { getFilteredDependencies } = require('./helper/filter');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter } = require('./helper/min-age');
 const { getOutdatedPinnedDependencies } = require('./helper/overrides');
+const splitPackageSpecifier = require('./helper/package-specifier');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType, semverInRange } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
@@ -655,19 +656,17 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
  * @returns {void}
  */
 function writeUnnecessaryIgnoredPackagesToStdout (dependencies, options) {
-	const packageVersionRegExp = /^(.+?)@(.*)$/u;
-
 	if (!options.ignorePackages) {
 		return;
 	}
 
 	for (const ignoredPackage of options.ignorePackages) {
-		const match = packageVersionRegExp.exec(ignoredPackage);
+		const specifier = splitPackageSpecifier(ignoredPackage);
 
-		if (match !== null) {
-			const dependency = dependencies.find(({ name }) => name === match[1]);
+		if (specifier !== null) {
+			const dependency = dependencies.find(({ name }) => name === specifier.name);
 
-			if (dependency && !semverInRange(getWantedOrLatest(dependency, options), /** @type {string} */(match[2]))) {
+			if (dependency && !semverInRange(getWantedOrLatest(dependency, options), specifier.version)) {
 				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, the ${(options.preferWanted ? 'wanted' : 'latest')} version is ${getWantedOrLatest(dependency, options)}.\n\n`);
 			}
 		}

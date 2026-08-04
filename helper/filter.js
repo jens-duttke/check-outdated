@@ -5,6 +5,7 @@
 const { NON_REGISTRY_VERSIONS, getWantedOrLatest } = require('./dependencies');
 const { getParentPackageJSONPath, isLinkedDependency, parsePackageJSON, readFileCached } = require('./files');
 const { isPrerelease } = require('./min-age');
+const splitPackageSpecifier = require('./package-specifier');
 const { semverDiffType, semverInRange } = require('./semver');
 
 /**
@@ -60,22 +61,19 @@ function getFilteredDependencies (dependencies, options) {
 
 	if (options.ignorePackages) {
 		const ignorePackages = options.ignorePackages;
-		const packageVersionRegExp = /^(.+?)@(.*)$/u;
 
 		filteredDependencies = filteredDependencies.filter((dependency) => {
 			for (const ignoredPackage of ignorePackages) {
-				const match = packageVersionRegExp.exec(ignoredPackage);
+				const specifier = splitPackageSpecifier(ignoredPackage);
 
-				if (match === null) {
+				if (specifier === null) {
 					if (ignoredPackage === dependency.name) {
 						return false;
 					}
 				}
-				else {
-					if (match[1] === dependency.name) {
-						if (semverInRange(getWantedOrLatest(dependency, options), match[2])) {
-							return false;
-						}
+				else if (specifier.name === dependency.name) {
+					if (semverInRange(getWantedOrLatest(dependency, options), specifier.version)) {
+						return false;
 					}
 				}
 			}
