@@ -226,6 +226,9 @@ function findBestPatchInLine (timestamps, majorMinor, minAgePatchMs, now, maxVer
  * This ensures that bug-fix patches within a qualifying release line are recommended even if they are very recent,
  * since patches typically carry low risk and fix known issues.
  *
+ * Pre-release versions are never recommended. If no stable version newer than the installed one satisfies the age
+ * requirement, the dependency is dropped, since there is no qualifying update to recommend.
+ *
  * If timestamp data cannot be fetched (e.g. private registry), the dependency is kept unmodified (fallback).
  *
  * @param {OutdatedDependency[]} dependencies - Array of outdated dependencies.

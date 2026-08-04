@@ -1176,6 +1176,27 @@ void (async () => {
 				}
 			});
 
+			await test('should not recommend pre-release versions with `--min-age`, even if no stable version qualifies', ['--min-age', '30', '--columns', 'package,latest'], {
+				'module-prerelease-only': {
+					current: '2.0.0-beta.1',
+					wanted: '2.0.0-beta.1',
+					latest: '2.0.0-beta.5',
+					location: 'node_modules/module-prerelease-only',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 0);
+
+				// --min-age only recommends stable versions: without a stable version newer than the installed one which satisfies the age requirement, the package is not reported
+				expectVarToHaveWord(stdout, 'All dependencies are up-to-date.');
+			}, {
+				'module-prerelease-only': {
+					'2.0.0-beta.1': daysAgo(100),
+					'2.0.0-beta.5': daysAgo(40)
+				}
+			});
+
 			await test('should keep git dependencies hidden with `--min-age`', ['--min-age', '10', '--columns', 'package,latest'], {
 				'module-git-fork': {
 					current: '4.17.20',
