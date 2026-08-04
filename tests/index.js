@@ -798,44 +798,53 @@ void (async () => {
 			});
 		});
 
-		await describe('table helper', async () => {
-			// The real helper is tested directly, since the current callers never produce rows with fewer columns than previous rows
-			const prettifyTable = require('../helper/table');
+		await describe('unit tests of the internal helpers', async () => {
+			await describe('table helper', async () => {
+				// The real helper is tested directly, since the current callers never produce rows with fewer columns than previous rows
+				const prettifyTable = require('../helper/table');
 
-			expect('`prettifyTable` should keep the column widths of previous rows for rows with fewer columns', () => assert.equal(
-				prettifyTable([
-					['head1', 'head2'],
-					['a'],
-					['bb', 'cc']
-				]),
-				'head1  head2\na    \nbb     cc   '
-			));
-		});
+				expect('`prettifyTable` should keep the column widths of previous rows for rows with fewer columns', () => assert.equal(
+					prettifyTable([
+						['head1', 'head2'],
+						['a'],
+						['bb', 'cc']
+					]),
+					'head1  head2\na    \nbb     cc   '
+				));
+			});
 
-		await describe('regexp helper', async () => {
-			const { getRegExpPosition } = require('../helper/regexp');
+			await describe('semver helper', async () => {
+				const { semverDiffType } = require('../helper/semver');
 
-			expect('`getRegExpPosition` should determine the line and column of a match', () => assert.deepEqual(getRegExpPosition('line1\nline2\nline3', /line3/u), [3, 1]));
-			expect('`getRegExpPosition` should determine the position of a match at the very end of the string', () => assert.deepEqual(getRegExpPosition('line1\nline2', /2/u), [2, 5]));
-			expect('`getRegExpPosition` should return [0, 0] if there is no match', () => assert.deepEqual(getRegExpPosition('line1\nline2', /missing/u), [0, 0]));
-		});
+				expect('`semverDiffType` should return undefined for malformed version strings', () => assert.equal(semverDiffType('1x2y3', '2.0.0'), undefined));
+				expect('`semverDiffType` should still accept versions with a sub-version suffix', () => assert.equal(semverDiffType('1.0.0', '1.0.1.2'), 'patch'));
+			});
 
-		await describe('list helper', async () => {
-			// The real helper is tested directly, since keys with dollar sequences are not produced by the current error reporting
-			const generateKeyValueList = require('../helper/list');
+			await describe('regexp helper', async () => {
+				const { getRegExpPosition } = require('../helper/regexp');
 
-			expect('`generateKeyValueList` should insert keys containing dollar sequences literally', () => assert.equal(generateKeyValueList([['pre$&fix', 'value']]), 'pre$&fix value'));
-			expect('`generateKeyValueList` should prefix every line of multiline values with the key', () => assert.equal(generateKeyValueList([['key', 'line1\nline2']]), 'key line1\nkey line2'));
-		});
+				expect('`getRegExpPosition` should determine the line and column of a match', () => assert.deepEqual(getRegExpPosition('line1\nline2\nline3', /line3/u), [3, 1]));
+				expect('`getRegExpPosition` should determine the position of a match at the very end of the string', () => assert.deepEqual(getRegExpPosition('line1\nline2', /2/u), [2, 5]));
+				expect('`getRegExpPosition` should return [0, 0] if there is no match', () => assert.deepEqual(getRegExpPosition('line1\nline2', /missing/u), [0, 0]));
+			});
 
-		await describe('colorize helper', async () => {
-			// The real helper is tested directly, since the bold style is not used by any column yet
-			const realColorize = require('../helper/colorize');
+			await describe('list helper', async () => {
+				// The real helper is tested directly, since keys with dollar sequences are not produced by the current error reporting
+				const generateKeyValueList = require('../helper/list');
 
-			expect('`colorize.bold` should close with the ANSI bold-off code 22', () => assert.equal(realColorize.bold('text'), '\u001B[1mtext\u001B[22m'));
-			expect('`colorize.underline` should close with the ANSI underline-off code 24', () => assert.equal(realColorize.underline('text'), '\u001B[4mtext\u001B[24m'));
-			expect('`colorize` should restore the outer color after nested colored text', () => assert.equal(realColorize.red(`a${realColorize.green('b')}c`), '\u001B[31ma\u001B[32mb\u001B[31mc\u001B[39m'));
-			expect('`colorize` should combine chained text decorations', () => assert.equal(realColorize.bold.underline('text'), '\u001B[1;4mtext\u001B[22;24m'));
+				expect('`generateKeyValueList` should insert keys containing dollar sequences literally', () => assert.equal(generateKeyValueList([['pre$&fix', 'value']]), 'pre$&fix value'));
+				expect('`generateKeyValueList` should prefix every line of multiline values with the key', () => assert.equal(generateKeyValueList([['key', 'line1\nline2']]), 'key line1\nkey line2'));
+			});
+
+			await describe('colorize helper', async () => {
+				// The real helper is tested directly, since the bold style is not used by any column yet
+				const realColorize = require('../helper/colorize');
+
+				expect('`colorize.bold` should close with the ANSI bold-off code 22', () => assert.equal(realColorize.bold('text'), '\u001B[1mtext\u001B[22m'));
+				expect('`colorize.underline` should close with the ANSI underline-off code 24', () => assert.equal(realColorize.underline('text'), '\u001B[4mtext\u001B[24m'));
+				expect('`colorize` should restore the outer color after nested colored text', () => assert.equal(realColorize.red(`a${realColorize.green('b')}c`), '\u001B[31ma\u001B[32mb\u001B[31mc\u001B[39m'));
+				expect('`colorize` should combine chained text decorations', () => assert.equal(realColorize.bold.underline('text'), '\u001B[1;4mtext\u001B[22;24m'));
+			});
 		});
 
 		await describe('project paths with special characters', async () => {

@@ -45,7 +45,7 @@ function semverDiffType (v1, v2) {
 		return undefined;
 	}
 
-	const semverRegExp = /^(\d+).(\d+).(\d+).*?(?:([-+]).+)?$/u;
+	const semverRegExp = /^(\d+)\.(\d+)\.(\d+).*?(?:([-+]).+)?$/u;
 
 	const match1 = semverRegExp.exec(v1);
 
