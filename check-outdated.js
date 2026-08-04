@@ -39,6 +39,7 @@ const pkg = require('./package.json');
  * @property {string[]} [ignorePackages]
  * @property {boolean} [ignoreDevDependencies]
  * @property {boolean} [ignoreResolutionDependencies]
+ * @property {boolean} [ignoreLinkedPackages]
  * @property {boolean} [ignorePreReleases]
  * @property {boolean} [preferWanted]
  * @property {string[]} [columns]
@@ -282,6 +283,9 @@ const AVAILABLE_ARGUMENTS = {
 	'--ignore-resolution-dependencies': {
 		ignoreResolutionDependencies: true
 	},
+	'--ignore-linked-packages': {
+		ignoreLinkedPackages: true
+	},
 	'--ignore-packages': (value) => {
 		const ignorePackages = value.split(',');
 
@@ -502,6 +506,7 @@ function help (...additionalLines) {
 			'[--ignore-pre-releases]',
 			'[--ignore-dev-dependencies]',
 			'[--ignore-resolution-dependencies]',
+			'[--ignore-linked-packages]',
 			'[--ignore-packages <comma-separated-list-of-package-names>]',
 			'[--prefer-wanted]',
 			'[--columns <comma-separated-list-of-columns>]',
@@ -529,6 +534,10 @@ function help (...additionalLines) {
 			[
 				'--ignore-resolution-dependencies',
 				'Do not check the version pins in the "overrides" and "resolutions" fields of the package.json.'
+			],
+			[
+				'--ignore-linked-packages',
+				'Do not warn if linked packages are outdated (e.g. workspaces of a monorepo, or packages added with npm link).'
 			],
 			[
 				'--ignore-packages <comma-separated-list-of-package-names>',

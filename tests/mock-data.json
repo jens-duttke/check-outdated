@@ -285,6 +285,11 @@
 	"fsExists": {
 		"node_modules/module-with-changelog/CHANGELOG.md": true
 	},
+	"fsSymlink": {
+		"node_modules/module-workspace-link": "D:/WebDev/check-outdated/packages/module-workspace-link",
+		"node_modules/module-store-link": "D:/WebDev/check-outdated/node_modules/.store/module-store-link@1.0.0/node_modules/module-store-link",
+		"node_modules/module-installed": false
+	},
 	"fsReadFile": {
 		"package.json": {
 			"devDependencies": {

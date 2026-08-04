@@ -89,6 +89,29 @@ function getParentPackageJSONPath (dependencyLocation) {
 }
 
 /**
+ * Checks if a dependency is linked to a local package (e.g. a workspace of a monorepo, a package added with `npm link`, or a package bootstrapped by Lerna), instead of being installed from a registry.
+ *
+ * @public
+ * @param {string} dependencyLocation - The folder where the dependency is located.
+ * @returns {boolean} `true` if the location is a symbolic link to a folder outside of any "node_modules" folder.
+ */
+function isLinkedDependency (dependencyLocation) {
+	const filePath = getRelativeDependencyPath(dependencyLocation);
+
+	try {
+		if (!fs.lstatSync(filePath).isSymbolicLink()) {
+			return false;
+		}
+
+		// `npm install --install-strategy=linked` symlinks every dependency into "node_modules/.store", therefore a link which points into a "node_modules" folder is an installed package, not a local one
+		return !(/(?:^|[\\/])node_modules[\\/]/u).test(fs.realpathSync(filePath));
+	}
+	catch { /* Do nothing here, but return false in the next step */ }
+
+	return false;
+}
+
+/**
  * Returns the file path to the CHANGELOG.md of a given dependency.
  *
  * @public
@@ -171,6 +194,7 @@ module.exports = {
 	getChangelogPath,
 	getDependencyPackageJSON,
 	getParentPackageJSONPath,
+	isLinkedDependency,
 	parsePackageJSON,
 	readFile,
 	readFileCached

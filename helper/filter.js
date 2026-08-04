@@ -3,7 +3,7 @@
  */
 
 const { NON_REGISTRY_VERSIONS, getWantedOrLatest } = require('./dependencies');
-const { getParentPackageJSONPath, parsePackageJSON, readFileCached } = require('./files');
+const { getParentPackageJSONPath, isLinkedDependency, parsePackageJSON, readFileCached } = require('./files');
 const { isPrerelease } = require('./min-age');
 const { semverDiffType, semverInRange } = require('./semver');
 
@@ -17,6 +17,7 @@ const { semverDiffType, semverInRange } = require('./semver');
  * @typedef {object} FilterOptions
  * @property {string[]} [ignorePackages]
  * @property {boolean} [ignoreDevDependencies]
+ * @property {boolean} [ignoreLinkedPackages]
  * @property {boolean} [ignorePreReleases]
  * @property {boolean} [preferWanted]
  * @property {string[]} [types]
@@ -91,6 +92,11 @@ function getFilteredDependencies (dependencies, options) {
 
 	if (options.ignorePreReleases) {
 		filteredDependencies = filteredDependencies.filter((dependency) => !isPrerelease(getWantedOrLatest(dependency, options)));
+	}
+
+	// The check accesses the file system, therefore it runs after the filters which only look at the dependency data
+	if (options.ignoreLinkedPackages) {
+		filteredDependencies = filteredDependencies.filter((dependency) => !isLinkedDependency(dependency.location));
 	}
 
 	if (options.preferWanted) {

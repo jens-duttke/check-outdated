@@ -8,6 +8,7 @@
  * @typedef {object} MockData
  * @property {{ [dependencyName: string]: Partial<import('../check-outdated').OutdatedDependency>; }} defaultResponse
  * @property {{ [path: string]: boolean; }} fsExists
+ * @property {{ [path: string]: string | false; }} fsSymlink - The target of a symbolic link, or `false` for a path which is no symbolic link. Paths which are not listed do not exist.
  * @property {{ [path: string]: string | import('../helper/files').PackageJSON; }} fsReadFile
  * @property {{ [url: string]: { statusCode: number; data?: string; requestError?: boolean; stall?: boolean; } | undefined; }} httpsGet
  */
@@ -347,6 +348,63 @@ void (async () => {
 				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 1);
 
 				expectVarNotToHaveWord(stdout, 'module-dev-major');
+			});
+		});
+
+		await describe('--ignore-linked-packages argument', async () => {
+			const linkedResponse = {
+				'module-workspace-link': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-workspace-link',
+					type: 'dependencies'
+				},
+				'module-store-link': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-store-link',
+					type: 'dependencies'
+				},
+				'module-installed': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-installed',
+					type: 'dependencies'
+				},
+				'module-unknown-location': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-unknown-location',
+					type: 'dependencies'
+				}
+			};
+
+			await test('should ignore packages which are linked to a folder outside of node_modules', ['--ignore-linked-packages', '--columns', 'package'], linkedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '3 outdated dependencies found:');
+
+				expectVarNotToHaveWord(stdout, 'module-workspace-link');
+
+				// `npm install --install-strategy=linked` symlinks installed packages into "node_modules/.store", which are not local packages
+				expectVarToHaveWord(stdout, 'module-store-link');
+				expectVarToHaveWord(stdout, 'module-installed');
+
+				// A location which cannot be accessed is no reason to hide a dependency
+				expectVarToHaveWord(stdout, 'module-unknown-location');
+			});
+
+			await test('should show all packages without the argument', ['--columns', 'package'], linkedResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '4 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'module-workspace-link');
 			});
 		});
 
@@ -839,6 +897,7 @@ void (async () => {
 			const cacheMockData = /** @type {MockData} */({
 				defaultResponse: {},
 				fsExists: {},
+				fsSymlink: {},
 				fsReadFile: {
 					'package.json': '{\n  "dependencies": {\n    "module-major": "^1.0.0"\n  }\n}'
 				},

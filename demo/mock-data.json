@@ -74,6 +74,7 @@
 	"fsExists": {
 		"M:/my-project/node_modules/react/CHANGELOG.md": true
 	},
+	"fsSymlink": {},
 	"fsReadFile": {
 		"M:/my-project/package.json": {
 			"devDependencies": {

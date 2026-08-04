@@ -218,6 +218,56 @@ function getFilesStub (mockData) {
 			},
 
 			/**
+			 * Mock of the fs.lstatSync() function, which is used by `check-outdated` to figure out if a dependency is a symbolic link.
+			 *
+			 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
+			 * @returns {{ isSymbolicLink: () => boolean; }} Returns the stats of the `filePath`, without following symbolic links.
+			 * @throws {TypeError | Error} Error if no mock data for the file exist.
+			 */
+			lstatSync (filePath) {
+				if (typeof filePath !== 'string') {
+					throw new TypeError('fs.lstatSync(): Mock only support strings as path.');
+				}
+
+				const normalizedPath = filePath.replace(/\\/gu, '/');
+
+				if (mockData === undefined || !(normalizedPath in mockData.fsSymlink)) {
+					throw new Error(`fs.lstatSync(): Mocked data for "${normalizedPath}" not found.`);
+				}
+
+				const target = mockData.fsSymlink[normalizedPath];
+
+				return { isSymbolicLink: () => (target !== false) };
+			},
+
+			/**
+			 * Mock of the fs.realpathSync() function, which is used by `check-outdated` to resolve the target of a symbolic link.
+			 *
+			 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
+			 * @returns {string} Returns the resolved path.
+			 * @throws {TypeError | Error} Error if no mock data for the file exist.
+			 */
+			realpathSync (filePath) {
+				if (typeof filePath !== 'string') {
+					throw new TypeError('fs.realpathSync(): Mock only support strings as path.');
+				}
+
+				const normalizedPath = filePath.replace(/\\/gu, '/');
+
+				if (mockData === undefined || !(normalizedPath in mockData.fsSymlink)) {
+					throw new Error(`fs.realpathSync(): Mocked data for "${normalizedPath}" not found.`);
+				}
+
+				const target = mockData.fsSymlink[normalizedPath];
+
+				if (target === false) {
+					return normalizedPath;
+				}
+
+				return target;
+			},
+
+			/**
 			 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files.
 			 *
 			 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
