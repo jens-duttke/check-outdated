@@ -937,6 +937,32 @@ void (async () => {
 				}
 			});
 
+			await test('should not recommend versions above the latest version reported by npm', ['--min-age', '30', '--columns', 'package,latest'], {
+				'module-rolled-back': {
+					current: '2.0.0',
+					wanted: '2.0.0',
+					latest: '2.3.3',
+					location: 'node_modules/module-rolled-back',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// The registry time document also contains the old-enough versions 2.3.4 and 2.4.0 (e.g. rolled back or published under another dist-tag), but npm reports 2.3.3 as latest
+				expectVarToHaveWord(stdout, 'module-rolled-back');
+				expectVarToHaveWord(stdout, '2.3.3');
+				expectVarNotToHaveWord(stdout, '2.3.4');
+				expectVarNotToHaveWord(stdout, '2.4.0');
+			}, {
+				'module-rolled-back': {
+					'2.0.0': daysAgo(300),
+					'2.3.3': daysAgo(100),
+					'2.3.4': daysAgo(60),
+					'2.4.0': daysAgo(50)
+				}
+			});
+
 			await test('should not affect output when `--min-age` is not provided', ['--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);

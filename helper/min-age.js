@@ -249,8 +249,11 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 			return dependency;
 		}
 
+		// The registry time document contains every published version, including versions above the "latest" dist-tag (e.g. rolled back, unpublished or published under another dist-tag), so the selection is capped at the latest version reported by npm
+		const maxVersion = ((/^\d+\.\d+\.\d+/u).test(dependency.latest) ? dependency.latest : undefined);
+
 		// Step 1: Find the highest version that satisfies --min-age (determines the Major.Minor line)
-		const bestByAge = findBestQualifiedVersion(timestamps, minAgeMs, now);
+		const bestByAge = findBestQualifiedVersion(timestamps, minAgeMs, now, maxVersion);
 
 		if (bestByAge === undefined) {
 			// No version qualifies at all
@@ -262,7 +265,7 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 		const majorMinor = extractMajorMinor(bestByAge);
 
 		if (majorMinor !== null) {
-			const bestPatch = findBestPatchInLine(timestamps, majorMinor, minAgePatchMs, now);
+			const bestPatch = findBestPatchInLine(timestamps, majorMinor, minAgePatchMs, now, maxVersion);
 
 			if (bestPatch !== undefined) {
 				bestLatest = bestPatch;
