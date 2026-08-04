@@ -524,6 +524,46 @@ void (async () => {
 			});
 		});
 
+		await describe('package type grouping', async () => {
+			await test('should keep package type groups contiguous with more than two package types', ['--columns', 'package'], {
+				'module-group-a': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-group-a',
+					type: 'devDependencies'
+				},
+				'module-group-b': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-group-b',
+					type: 'peerDependencies'
+				},
+				'module-group-c': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-group-c',
+					type: 'devDependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '3 outdated dependencies found:');
+
+				expect('`stdout` should contain each package type group header exactly once', () => {
+					assert.equal((stdout.match(/devDependencies/gu) || []).length, 1);
+					assert.equal((stdout.match(/peerDependencies/gu) || []).length, 1);
+				});
+
+				expect('`stdout` should list both devDependencies before the peerDependencies group', () => {
+					assert.ok(stdout.indexOf('module-group-c') < stdout.indexOf('module-group-b'));
+				});
+			});
+		});
+
 		await describe('dependency location without a node_modules ancestor', async () => {
 			await test('should not hang if a dependency location contains no node_modules folder', ['--columns', 'package,reference'], {
 				'module-outside-node-modules': {

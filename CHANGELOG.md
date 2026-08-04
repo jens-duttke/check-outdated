@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `--min-age` making git, linked and remote dependencies visible with a bogus registry version, although they are normally skipped
 - Fixed `--types` always classifying the update type against the latest version, contradicting the recommended update and the shown "Type" column if `--prefer-wanted` is used
 - Fixed empty elements in `--columns` and `--types` bypassing the validation: a trailing comma in `--columns` aborted the run with an error dump, and a trailing comma in `--types` silently widened the filter to dependencies without a determinable update type; empty elements are now ignored like in `--ignore-packages`
+- Fixed duplicated and interleaved package type group headers if more than two package types are present (e.g. devDependencies and peerDependencies)
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

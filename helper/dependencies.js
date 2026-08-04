@@ -117,17 +117,18 @@ function compareByName (firstDependency, secondDependency) {
  * @returns {-1 | 0 | 1} - Defines the sorting order.
  */
 function compareByType (firstDependency, secondDependency) {
-	const first = `${(firstDependency.type === 'dependencies' ? 'A' : 'B')}${firstDependency.name}`;
-	const second = `${(secondDependency.type === 'dependencies' ? 'A' : 'B')}${secondDependency.name}`;
+	// Package types sort alphabetically ("dependencies" first), dependencies without a type sort last
+	const firstType = (firstDependency.type || '\uFFFF');
+	const secondType = (secondDependency.type || '\uFFFF');
 
-	if (first < second) {
+	if (firstType < secondType) {
 		return -1;
 	}
-	else if (first > second) {
+	else if (firstType > secondType) {
 		return 1;
 	}
 
-	return 0;
+	return compareByName(firstDependency, secondDependency);
 }
 
 /**
