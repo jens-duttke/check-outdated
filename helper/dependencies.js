@@ -240,9 +240,12 @@ function parseResponse (stdout) {
 			};
 		}
 
+		// Unreachable today (the try block only throws Error instances), but the branch is required for type narrowing and must use the same error envelope
 		return {
-			message: (typeof error === 'string' ? error : 'Unknown error'),
-			source: stdout
+			error: {
+				message: (typeof error === 'string' ? error : 'Unknown error'),
+				source: stdout
+			}
 		};
 	}
 }
