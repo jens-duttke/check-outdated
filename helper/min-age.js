@@ -143,7 +143,8 @@ function findBestQualifiedVersion (timestamps, minAgeMs, now, maxVersion) {
 
 			return (semverCompare(version, maxVersion) <= 0);
 		})
-		.sort(semverCompare);
+		// Versions with equal precedence (e.g. differing only in build metadata) are tie-broken deterministically, so that the plain version sorts last and wins (Node.js 10 does not guarantee a stable sort)
+		.sort((versionA, versionB) => (semverCompare(versionA, versionB) || (versionA < versionB ? 1 : -1)));
 
 	if (qualifiedVersions.length > 0) {
 		return qualifiedVersions[qualifiedVersions.length - 1];
@@ -207,7 +208,8 @@ function findBestPatchInLine (timestamps, majorMinor, minAgePatchMs, now, maxVer
 
 			return (semverCompare(version, maxVersion) <= 0);
 		})
-		.sort(semverCompare);
+		// Versions with equal precedence (e.g. differing only in build metadata) are tie-broken deterministically, so that the plain version sorts last and wins (Node.js 10 does not guarantee a stable sort)
+		.sort((versionA, versionB) => (semverCompare(versionA, versionB) || (versionA < versionB ? 1 : -1)));
 
 	if (patchVersions.length > 0) {
 		return patchVersions[patchVersions.length - 1];

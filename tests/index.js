@@ -820,6 +820,16 @@ void (async () => {
 				expect('`semverDiffType` should still accept versions with a sub-version suffix', () => assert.equal(semverDiffType('1.0.0', '1.0.1.2'), 'patch'));
 			});
 
+			await describe('min-age helper', async () => {
+				const { findBestQualifiedVersion } = require('../helper/min-age');
+
+				// Versions which only differ in their build metadata have the same precedence, so the selection needs a deterministic tie-breaker
+				expect('`findBestQualifiedVersion` should prefer the plain version over an equal version with build metadata', () => assert.equal(findBestQualifiedVersion({
+					'1.2.3': '2020-01-01T00:00:00.000Z',
+					'1.2.3+build': '2020-01-02T00:00:00.000Z'
+				}, 0, Date.parse('2021-01-01T00:00:00.000Z')), '1.2.3'));
+			});
+
 			await describe('regexp helper', async () => {
 				const { getRegExpPosition } = require('../helper/regexp');
 
