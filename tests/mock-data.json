@@ -389,7 +389,12 @@
 			}
 		},
 		"node_modules/module-with-broken-package-json/package.json": "{ \"dependencies\": { \"module-nested-in-broken\": \"^1.0.0\", INVALID }",
-		"node_modules/module-with-empty-package-json/package.json": ""
+		"node_modules/module-with-empty-package-json/package.json": "",
+		"node_modules/module-with-curly-version-parent/package.json": {
+			"dependencies": {
+				"module-curly": "file:../my{lib}"
+			}
+		}
 	},
 	"httpsGet": {
 		"api.github.com/repos/user/connection-error-repo/contents/CHANGELOG.md": {

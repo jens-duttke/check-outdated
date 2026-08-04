@@ -45,12 +45,14 @@ function getRegExpPosition (string, regexp) {
 /**
  * Escape strings for use in regular expressions.
  *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
+ *
  * @public
  * @param {string} string - The input string.
  * @returns {string} The escaped output string.
  */
 function escapeRegExp (string) {
-	return string.replace(/([[\\^$.|?*+()])/gu, String.raw`\$1`);
+	return string.replace(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
 }
 
 module.exports = {

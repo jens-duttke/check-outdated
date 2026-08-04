@@ -635,6 +635,26 @@ void (async () => {
 
 				expect('`stdout` should contain the reference position found in the unparsable package.json', () => assert.ok(stdout.includes('package.json:1:21')));
 			});
+
+			await test('should keep the table if a version specifier contains regular expression quantifier brackets', ['--columns', 'package,reference'], {
+				'module-curly': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-curly-version-parent/node_modules/module-curly',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// The raw version specifier "file:../my{lib}" contains characters which are invalid in an unescaped unicode-mode regular expression
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-curly');
+				expectVarNotToHaveWord(stdout, 'gathering');
+
+				expect('`stdout` should contain the reference position of the dependency', () => assert.ok(stdout.includes('package.json:3:5')));
+			});
 		});
 
 		await describe('GitHub API connection errors', async () => {
