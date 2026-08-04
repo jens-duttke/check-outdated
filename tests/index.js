@@ -798,6 +798,25 @@ void (async () => {
 			});
 		});
 
+		await describe('project paths with special characters', async () => {
+			// getParentPackageJSONPath() is pure path logic, so the real helper can be used with a faked working directory
+			const path = require('path');
+			const { getParentPackageJSONPath } = require('../helper/files');
+
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- The original function is restored afterwards
+			const originalCwd = process.cwd;
+			const fakeCwd = path.join(originalCwd(), 'cash$$flow');
+
+			process.cwd = () => fakeCwd;
+
+			try {
+				expect('`getParentPackageJSONPath` should resolve dependency paths in a project directory containing `"$$"`', () => assert.equal(getParentPackageJSONPath('node_modules/module-major'), path.join(fakeCwd, 'package.json')));
+			}
+			finally {
+				process.cwd = originalCwd;
+			}
+		});
+
 		await describe('dependency location without a node_modules ancestor', async () => {
 			await test('should not hang if a dependency location contains no node_modules folder', ['--columns', 'package,reference'], {
 				'module-outside-node-modules': {

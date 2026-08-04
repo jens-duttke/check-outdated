@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed stray command line tokens (e.g. a second value after `--ignore-packages`) and duplicated value arguments (e.g. two `--columns`) being silently ignored; they are now rejected with an explanatory message
 - Fixed `--min-age-patch` without `--min-age` being accepted although it has no effect; this combination is now rejected with an explanatory message
 - Fixed the "Changes" column not deriving the repository from `git://` URLs, scp-style locators (e.g. `git@github.com:user/repo.git`), the GitHub shorthand (e.g. `user/repo`) and `git+http(s)` URLs without a `.git` suffix
+- Fixed dependency paths resolving incorrectly if the absolute project path contains `$`-sequences like `$$` (e.g. `D:\projects\cash$$flow`), which silently broke the "Reference" and local "Changes" columns
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

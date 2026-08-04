@@ -161,7 +161,8 @@ function readFileCached (filePath) {
  * @returns {string} The path to a dependency.
  */
 function getRelativeDependencyPath (dependencyLocation) {
-	return path.relative(process.cwd(), dependencyLocation.replace(/^node_modules[\\/]/u, path.join(process.cwd(), 'node_modules/'))).replace(/\\/gu, '/');
+	// The replacer function ensures that the path is used literally, since `$`-sequences are special in a replacement string
+	return path.relative(process.cwd(), dependencyLocation.replace(/^node_modules[\\/]/u, () => path.join(process.cwd(), 'node_modules/'))).replace(/\\/gu, '/');
 }
 
 module.exports = {
