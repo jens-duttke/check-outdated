@@ -10,7 +10,7 @@
 
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
-const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
+const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
 const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
@@ -548,7 +548,7 @@ function help (...additionalLines) {
  */
 function getFilteredDependencies (dependencies, options) {
 	let filteredDependencies = dependencies.filter((dependency) => {
-		if (['git', 'linked', 'remote'].includes(getWantedOrLatest(dependency, options))) {
+		if (NON_REGISTRY_VERSIONS.includes(getWantedOrLatest(dependency, options))) {
 			return false;
 		}
 

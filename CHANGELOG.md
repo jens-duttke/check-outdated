@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the CLI hanging forever if the GitHub API accepts the connection but never responds while resolving the "Changes" column; such requests now time out after 10 seconds and degrade gracefully to the releases page link
 - Fixed an infinite loop if a dependency location contains no `node_modules` folder, which froze the CLI at full CPU load
 - Fixed `--min-age` recommending versions above the latest version reported by npm (e.g. versions which were rolled back, unpublished or published under another dist-tag like `next`)
+- Fixed `--min-age` making git, linked and remote dependencies visible with a bogus registry version, although they are normally skipped
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

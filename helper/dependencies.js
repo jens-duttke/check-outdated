@@ -7,6 +7,9 @@ const childProcess = require('child_process');
 // The default `maxBuffer` of child_process.exec() is 200 KiB on Node.js 10, which large `npm outdated` responses can exceed
 const MAX_RESPONSE_SIZE = 64 * 1024 * 1024;
 
+// Instead of a version, `npm outdated` reports these sentinels for dependencies which are not installed from the registry
+const NON_REGISTRY_VERSIONS = ['git', 'linked', 'remote'];
+
 /**
  * One dependency item, returned by `npm outdated --json`.
  *
@@ -228,6 +231,7 @@ function parseResponse (stdout) {
 }
 
 module.exports = {
+	NON_REGISTRY_VERSIONS,
 	getOutdatedDependencies,
 	compareByName,
 	compareByType

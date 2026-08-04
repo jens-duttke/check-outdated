@@ -4,6 +4,8 @@
 
 const childProcess = require('child_process');
 
+const { NON_REGISTRY_VERSIONS } = require('./dependencies');
+
 /**
  * Version timestamps as returned by `npm view <package> time --json`.
  *
@@ -240,6 +242,11 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 	const warnings = [];
 
 	const results = await Promise.all(dependencies.map(async (dependency) => {
+		// Git, linked and remote dependencies have no registry version; rewriting their sentinel would defeat the downstream skip filter
+		if (NON_REGISTRY_VERSIONS.includes(dependency.latest) || NON_REGISTRY_VERSIONS.includes(dependency.wanted)) {
+			return dependency;
+		}
+
 		const timestamps = await fetchVersionTimestamps(dependency.resolvedName);
 
 		if (timestamps === null) {

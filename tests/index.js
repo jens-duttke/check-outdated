@@ -963,6 +963,40 @@ void (async () => {
 				}
 			});
 
+			await test('should keep git dependencies hidden with `--min-age`', ['--min-age', '10', '--columns', 'package,latest'], {
+				'module-git-fork': {
+					current: '4.17.20',
+					wanted: 'git',
+					latest: 'git',
+					location: 'node_modules/module-git-fork',
+					type: 'dependencies'
+				},
+				'module-min-age-normal': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-min-age-normal',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// The git dependency has no registry latest; rewriting it would defeat the git/linked/remote skip filter
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-min-age-normal');
+				expectVarNotToHaveWord(stdout, 'module-git-fork');
+			}, {
+				'module-git-fork': {
+					'4.17.20': daysAgo(100),
+					'4.17.21': daysAgo(50)
+				},
+				'module-min-age-normal': {
+					'1.0.0': daysAgo(100),
+					'2.0.0': daysAgo(50)
+				}
+			});
+
 			await test('should not affect output when `--min-age` is not provided', ['--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
