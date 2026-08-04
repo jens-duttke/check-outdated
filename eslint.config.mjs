@@ -35,11 +35,11 @@ export default [
 		],
 		rules: {
 			'@typescript-eslint/prefer-nullish-coalescing': 'off', // Disabled as we are supporting Node.js v10, which does not support Nullish Coalescing
-			'@typescript-eslint/prefer-optional-chain': 'off', // Disabled as we are supporting Node.js v10, which does not support Nullish Coalescing
+			'@typescript-eslint/prefer-optional-chain': 'off', // Disabled as we are supporting Node.js v10, which does not support Optional Chaining
 			'logical-assignment-operators': 'off', // Disabled as we are supporting Node.js v10, which does not support Logical assignment operators
 			'unicorn/prefer-node-protocol': 'off', // Disabled as we are supporting Node.js v10, which does not support the node protocol
 			'unicorn/prefer-top-level-await': 'off', // Disabled as we are supporting Node.js v10, which does not support top-level await
-			'unicorn/no-array-sort': 'off' // Disabled as we are supporting Node.js v10, which does not support top-level await
+			'unicorn/no-array-sort': 'off' // Disabled as we are supporting Node.js v10, which does not support Array.prototype.toSorted()
 		}
 	},
 	{
