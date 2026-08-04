@@ -812,6 +812,14 @@ void (async () => {
 			));
 		});
 
+		await describe('regexp helper', async () => {
+			const { getRegExpPosition } = require('../helper/regexp');
+
+			expect('`getRegExpPosition` should determine the line and column of a match', () => assert.deepEqual(getRegExpPosition('line1\nline2\nline3', /line3/u), [3, 1]));
+			expect('`getRegExpPosition` should determine the position of a match at the very end of the string', () => assert.deepEqual(getRegExpPosition('line1\nline2', /2/u), [2, 5]));
+			expect('`getRegExpPosition` should return [0, 0] if there is no match', () => assert.deepEqual(getRegExpPosition('line1\nline2', /missing/u), [0, 0]));
+		});
+
 		await describe('list helper', async () => {
 			// The real helper is tested directly, since keys with dollar sequences are not produced by the current error reporting
 			const generateKeyValueList = require('../helper/list');

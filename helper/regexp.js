@@ -18,6 +18,7 @@ function getRegExpPosition (string, regexp) {
 		let line;
 		let count = 0;
 
+		// This loop always breaks before running out of lines, since `String.search()` never returns an index beyond the string length
 		for (line = 0; line < lines.length; line++) {
 			const lineLength = lines[line].length;
 
@@ -31,12 +32,10 @@ function getRegExpPosition (string, regexp) {
 			pos--;
 		}
 
-		if (line < lines.length) {
-			return [
-				line + 1,
-				(pos - count) + 1
-			];
-		}
+		return [
+			line + 1,
+			(pos - count) + 1
+		];
 	}
 
 	return [0, 0];
