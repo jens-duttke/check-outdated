@@ -532,7 +532,7 @@ function help (...additionalLines) {
 				'Min age for patches within the --min-age release line (default: 0). Allows newer bug fixes.'
 			]
 		]),
-		...(Array.isArray(additionalLines) ? [''].concat(additionalLines) : []),
+		...[''].concat(additionalLines),
 		''
 	].join('\n');
 }

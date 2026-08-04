@@ -3,6 +3,7 @@
 demo/
 tests/
 .editorconfig
+.markdownlint.json
 *.log
 eslint.config.mjs
 npm-debug.log*

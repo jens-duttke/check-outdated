@@ -50,6 +50,7 @@ async function getOutdatedDependencies (options) {
 			(options.depth ? `--depth ${options.depth}` : '')
 		].filter((item) => item).join(' '), (error, stdout) => {
 			if (error && stdout.length === 0) {
+				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- `error` is a real `Error` instance at runtime, but @types/node types `ExecException` as `Omit<NodeJS.ErrnoException, "code">`, which drops the `Error` base type
 				reject(error);
 
 				return;

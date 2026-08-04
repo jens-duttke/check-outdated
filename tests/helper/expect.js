@@ -31,7 +31,7 @@ function getExpectResult () {
  *
  * @public
  * @param {string} message - The message which shall be shown if an assertion fails.
- * @param {() => void | never} assertion - A function which throws an error to indicate that an assertion fails.
+ * @param {() => unknown} assertion - A function which throws an error to indicate that an assertion fails. Its return value is ignored.
  */
 function expect (message, assertion) {
 	const styledMessage = message.replace(/\n/gu, String.raw`\n`).replace(/`(.+?)`/gu, colorize.underline('$1'));
@@ -152,7 +152,7 @@ function expectVariableNotToHaveWord (variable, value, ignoreEscapeSequences = t
  * @returns {string} Either the first argument or in red colored "[unknown argument]".
  */
 function getFirstArgument () {
-	const match = (/^\s+at\s(.+?):(\d+):(\d+)$/u).exec((new Error('dummy').stack || '').split('\n')[3]);
+	const match = (/^\s+at\s(.+?):(\d+):(\d+)$/u).exec((new Error('dummy').stack || '').split('\n', 4)[3]);
 
 	if (match !== null) {
 		const [, file, line, col] = match;
