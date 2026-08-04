@@ -27,9 +27,9 @@ const NON_REGISTRY_VERSIONS = ['git', 'linked', 'remote'];
  */
 
 /**
- * Original npm-outdated object, returned by `npm outdated --json`.
+ * The outdated dependencies of the `npm outdated --json` response, in the order in which npm reported them.
  *
- * @typedef {{ [dependencyName: string]: OutdatedDependency; }} OutdatedDependencies
+ * @typedef {OutdatedDependency[]} OutdatedDependencies
  */
 
 /**
@@ -45,7 +45,7 @@ const NON_REGISTRY_VERSIONS = ['git', 'linked', 'remote'];
  *
  * @public
  * @param {NpmOptions} options - Options which shall be appended to the `npm outdated` command-line call.
- * @returns {Promise<OutdatedDependencies>} The original object returned by `npm outdated --json`.
+ * @returns {Promise<OutdatedDependencies>} The outdated dependencies of the `npm outdated --json` response.
  */
 async function getOutdatedDependencies (options) {
 	return new Promise((resolve, reject) => {
@@ -87,13 +87,13 @@ async function getOutdatedDependencies (options) {
 				return;
 			}
 
-			resolve(prepareResponseObject(response));
+			resolve(prepareResponse(response));
 		});
 	});
 }
 
 /**
- * Compare function used with `Array.sort()` to sort outdated dependencies by their name.
+ * Compare function used with `Array.sort()` to sort outdated dependencies primary by their name, secondary by their location.
  *
  * @public
  * @param {OutdatedDependency} firstDependency - First dependency objects.
@@ -105,6 +105,14 @@ function compareByName (firstDependency, secondDependency) {
 		return -1;
 	}
 	else if (firstDependency.name > secondDependency.name) {
+		return 1;
+	}
+
+	// The same package can be reported once per workspace, so the name alone is not a unique criterion, and `Array.prototype.sort()` is not stable on Node.js 10
+	if (firstDependency.location < secondDependency.location) {
+		return -1;
+	}
+	else if (firstDependency.location > secondDependency.location) {
 		return 1;
 	}
 
@@ -151,15 +159,21 @@ function getWantedOrLatest (dependency, options) {
 }
 
 /**
- * Adds missing properties to the dependencies object.
+ * Adds missing properties to the dependencies of the response and flattens them into an array.
+ *
+ * Since npm 10.9.0, the value of a property is an array of dependency objects, if the same package is reported multiple times,
+ * which happens in monorepos where several workspaces depend on the same package.
  *
  * @private
- * @param {{ readonly [dependencyName: string]: Partial<OutdatedDependency>; }} dependencies - The partial filled outdated dependency object.
- * @returns {{ [dependencyName: string]: OutdatedDependency; }} The enriched outdated dependency object.
+ * @param {{ readonly [dependencyName: string]: Partial<OutdatedDependency> | Partial<OutdatedDependency>[]; }} dependencies - The partial filled outdated dependency object.
+ * @returns {OutdatedDependencies} The enriched outdated dependencies.
  */
-function prepareResponseObject (dependencies) {
-	/** @type {{ [dependencyName: string]: OutdatedDependency; }} */
-	const outdatedDependencies = {};
+function prepareResponse (dependencies) {
+	/** @type {OutdatedDependencies} */
+	const outdatedDependencies = [];
+
+	/** @type {Set<string>} */
+	const knownDependencies = new Set();
 
 	for (const [name, dependency] of Object.entries(dependencies)) {
 		// npm reports aliased dependencies (e.g. "alias": "npm:real-pkg@1.0.0") as "alias:real-pkg@1.0.0".
@@ -167,33 +181,62 @@ function prepareResponseObject (dependencies) {
 		// We normalize the name to the alias and store the real package name (without version) separately.
 		const [, aliasName = name, resolvedName = aliasName] = ((/^([^:]+)(?::(.+?)(?:@[^@]+)?)?$/u).exec(name) || []);
 
-		// Adding the name, makes it easier to work with the dependency object.
-		const outdatedDependency = {
-			...dependency,
-			name: aliasName,
-			resolvedName
-		};
+		for (const item of (Array.isArray(dependency) ? dependency : [dependency])) {
+			const outdatedDependency = prepareDependency(item, aliasName, resolvedName);
 
-		outdatedDependency.current = (outdatedDependency.current || '');
-		outdatedDependency.wanted = (outdatedDependency.wanted || '');
-		outdatedDependency.latest = (outdatedDependency.latest || '');
+			/**
+			 * npm reports one entry per dependent, while a row of the output represents one installed package.
+			 * Therefore entries which are equal in everything this tool shows are reported once, instead of once per dependent workspace.
+			 */
+			const identifier = JSON.stringify([outdatedDependency.name, outdatedDependency.current, outdatedDependency.wanted, outdatedDependency.latest, outdatedDependency.location, outdatedDependency.type]);
 
-		/**
-		 * Sometimes, npm returns an empty `location` string. So we add it.
-		 *
-		 * @todo We should try to resolve the path on the same way as npm is doing it.
-		 *
-		 * @see path.relative(process.cwd(), require.resolve(name));
-		 * @see module.path
-		 */
-		if (!outdatedDependency.location) {
-			outdatedDependency.location = `node_modules/${aliasName}`;
+			if (knownDependencies.has(identifier)) {
+				continue;
+			}
+
+			knownDependencies.add(identifier);
+
+			outdatedDependencies.push(outdatedDependency);
 		}
-
-		outdatedDependencies[aliasName] = /** @type {OutdatedDependency} */(outdatedDependency);
 	}
 
 	return outdatedDependencies;
+}
+
+/**
+ * Adds missing properties to one dependency object of the response.
+ *
+ * @private
+ * @param {Partial<OutdatedDependency>} dependency - The partial filled outdated dependency object.
+ * @param {string} name - The name of the dependency, which is the alias name for aliased dependencies.
+ * @param {string} resolvedName - The real package name of an aliased dependency, otherwise equal to `name`.
+ * @returns {OutdatedDependency} The enriched outdated dependency object.
+ */
+function prepareDependency (dependency, name, resolvedName) {
+	// Adding the name, makes it easier to work with the dependency object.
+	const outdatedDependency = {
+		...dependency,
+		name,
+		resolvedName
+	};
+
+	outdatedDependency.current = (outdatedDependency.current || '');
+	outdatedDependency.wanted = (outdatedDependency.wanted || '');
+	outdatedDependency.latest = (outdatedDependency.latest || '');
+
+	/**
+	 * Sometimes, npm returns an empty `location` string. So we add it.
+	 *
+	 * @todo We should try to resolve the path on the same way as npm is doing it.
+	 *
+	 * @see path.relative(process.cwd(), require.resolve(name));
+	 * @see module.path
+	 */
+	if (!outdatedDependency.location) {
+		outdatedDependency.location = `node_modules/${name}`;
+	}
+
+	return /** @type {OutdatedDependency} */(outdatedDependency);
 }
 
 /**
@@ -210,6 +253,11 @@ function prepareResponseObject (dependencies) {
 function isOutdatedDependency (value) {
 	if (typeof value !== 'object' || value === null) {
 		return false;
+	}
+
+	// Since npm 10.9.0, the value is an array of dependency objects, if the same package is reported multiple times
+	if (Array.isArray(value)) {
+		return value.every((item) => isOutdatedDependency(item));
 	}
 
 	return ('current' in value || 'wanted' in value || 'latest' in value || 'location' in value);

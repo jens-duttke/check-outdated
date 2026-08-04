@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the order of `--min-age` fallback warnings depending on the completion order of the npm processes; warnings are now printed in dependency order
 - Fixed the help screen ending with a doubled blank line if it is shown without an error message
 - Fixed negative `--depth` values being forwarded to npm instead of being rejected, and an explicit `--depth 0` being silently dropped
+- Fixed a package which `npm outdated` reports multiple times (since npm 10.9.0, if several workspaces depend on the same package) being shown as a single row without any version information; every reported version is now shown as its own row, and its time data is requested only once by `--min-age`
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

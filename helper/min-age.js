@@ -101,6 +101,26 @@ async function fetchVersionTimestamps (packageName) {
 }
 
 /**
+ * Fetches version timestamps from the npm registry, reusing the request of a package which is reported multiple times.
+ *
+ * @param {Map<string, Promise<VersionTimestamps | null>>} cache - The requests which have already been started within the current filter run.
+ * @param {string} packageName - The npm package name (may be scoped, e.g. `@scope/pkg`).
+ * @returns {Promise<VersionTimestamps | null>} The version timestamps, or `null` if unavailable.
+ */
+async function fetchVersionTimestampsCached (cache, packageName) {
+	let timestamps = cache.get(packageName);
+
+	if (timestamps === undefined) {
+		// All dependencies are processed up to their first `await` before any of them continues, therefore the lookup above cannot miss an already started request
+		timestamps = fetchVersionTimestamps(packageName);
+
+		cache.set(packageName, timestamps);
+	}
+
+	return timestamps;
+}
+
+/**
  * Checks whether a version string is a pre-release (contains `-` after major.minor.patch).
  *
  * @param {string} version - A semantic version string (e.g. "1.0.0-beta.1").
@@ -243,6 +263,10 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 	const minAgeMs = minAgeDays * MS_PER_DAY;
 	const minAgePatchMs = minAgePatchDays * MS_PER_DAY;
 
+	// The same package can be reported once per workspace, so its time data is only requested once. The cache is per run, to not keep stale data in a long-running module consumer.
+	/** @type {Map<string, Promise<VersionTimestamps | null>>} */
+	const timestampsCache = new Map();
+
 	/** @type {{ dependency: OutdatedDependency | null; warning?: string; }[]} */
 	const results = await Promise.all(dependencies.map(async (dependency) => {
 		// Git, linked and remote dependencies have no registry version; rewriting their sentinel would defeat the downstream skip filter
@@ -250,7 +274,7 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 			return { dependency };
 		}
 
-		const timestamps = await fetchVersionTimestamps(dependency.resolvedName);
+		const timestamps = await fetchVersionTimestampsCached(timestampsCache, dependency.resolvedName);
 
 		if (timestamps === null) {
 			// Fallback: cannot fetch timestamps, show dependency without age filter.
@@ -332,7 +356,8 @@ async function applyMinAgeFilter (dependencies, minAgeDays, minAgePatchDays = 0)
 	const filteredDependencies = [];
 
 	for (const result of results) {
-		if (result.warning !== undefined) {
+		// A package which is reported once per workspace would otherwise be warned about repeatedly
+		if (result.warning !== undefined && !warnings.includes(result.warning)) {
 			warnings.push(result.warning);
 		}
 

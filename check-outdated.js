@@ -427,8 +427,9 @@ async function checkOutdated (argv) {
 		]);
 
 		// Version pins of packages which are also reported by `npm outdated` (e.g. direct dependencies with a matching override) are not reported twice
-		const pinnedDependencies = pinnedResult.dependencies.filter((dependency) => !(dependency.name in outdatedResponse));
-		const outdatedDependencies = Object.values(outdatedResponse).concat(pinnedDependencies);
+		const reportedNames = new Set(outdatedResponse.map(({ name }) => name));
+		const pinnedDependencies = pinnedResult.dependencies.filter((dependency) => !reportedNames.has(dependency.name));
+		const outdatedDependencies = outdatedResponse.concat(pinnedDependencies);
 
 		if (pinnedResult.warnings.length > 0) {
 			process.stdout.write(`${pinnedResult.warnings.map((warning) => `${colorize.yellow('Warning:')} ${warning}`).join('\n')}\n\n`);

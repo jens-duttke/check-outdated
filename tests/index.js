@@ -703,6 +703,100 @@ void (async () => {
 			});
 		});
 
+		await describe('packages which are reported multiple times', async () => {
+			// Since npm 10.9.0, the value of a response property is an array, if the same package is outdated in multiple workspaces of a monorepo
+			await test('should show one row per reported version of the same package', ['--columns', 'package,current,wanted,latest,location'], {
+				'module-multi': [
+					{
+						current: '1.0.0',
+						wanted: '1.0.0',
+						latest: '2.0.0',
+						location: 'packages/app-b/node_modules/module-multi',
+						type: 'dependencies',
+						dependent: 'app-b'
+					},
+					{
+						current: '1.1.0',
+						wanted: '1.1.0',
+						latest: '2.0.0',
+						location: 'node_modules/module-multi',
+						type: 'dependencies',
+						dependent: 'app-a'
+					}
+				]
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'node_modules/module-multi');
+				expectVarToHaveWord(stdout, 'packages/app-b/node_modules/module-multi');
+
+				// Packages with the same name are sorted by their location, since `Array.prototype.sort()` is not stable on Node.js 10
+				expect('`stdout` should list the locations in alphabetical order', () => {
+					assert.ok(stdout.indexOf(' node_modules/module-multi') < stdout.indexOf('packages/app-b/node_modules/module-multi'));
+				});
+			});
+
+			await test('should show one row for a package which only differs in its dependent', ['--columns', 'package,current,wanted,latest,location'], {
+				'module-multi': [
+					{
+						current: '1.0.0',
+						wanted: '1.0.0',
+						latest: '2.0.0',
+						location: 'node_modules/module-multi',
+						type: 'dependencies',
+						dependent: 'app-a'
+					},
+					{
+						current: '1.0.0',
+						wanted: '1.0.0',
+						latest: '2.0.0',
+						location: 'node_modules/module-multi',
+						type: 'dependencies',
+						dependent: 'app-b'
+					}
+				]
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// The dependent is not part of the output, therefore both entries describe the same row
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+
+				expect('`stdout` should contain the package only once', () => {
+					assert.equal((stdout.match(/module-multi/gu) || []).length, 2);
+				});
+			});
+
+			await test('should not treat an array of dependencies named "error" as npm error response', ['--columns', 'package,current,latest'], {
+				error: [
+					{
+						current: '1.0.0',
+						wanted: '1.0.0',
+						latest: '2.0.0',
+						location: 'node_modules/error',
+						type: 'dependencies',
+						dependent: 'app-a'
+					},
+					{
+						current: '1.1.0',
+						wanted: '1.1.0',
+						latest: '2.0.0',
+						location: 'packages/app-b/node_modules/error',
+						type: 'dependencies',
+						dependent: 'app-b'
+					}
+				]
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarNotToHaveWord(stdout, 'Error while gathering outdated dependencies');
+			});
+		});
+
 		await describe('dependencies with "*" as version specifier', async () => {
 			await test('should also skip aliased dependencies with "*" as version specifier', ['--columns', 'package'], {
 				'module-plain-wildcard': {
