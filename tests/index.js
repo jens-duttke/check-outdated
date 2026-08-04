@@ -928,6 +928,23 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'reverted');
 			});
 
+			await test('should classify an update from a pre-release to a stable version as prerelease', ['--types', 'prerelease', '--columns', 'package,current,latest,type'], {
+				'module-prerelease-to-stable': {
+					current: '1.0.0-beta.1',
+					wanted: '1.0.0-beta.1',
+					latest: '1.0.0',
+					location: 'node_modules/module-prerelease-to-stable',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-prerelease-to-stable');
+				expectVarToHaveWord(stdout, 'prerelease');
+			});
+
 			await test('should handle a trailing comma in --types gracefully, without widening the filter', ['--types', 'major,', '--columns', 'package,current,latest,type'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);

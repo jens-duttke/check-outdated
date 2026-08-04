@@ -83,11 +83,12 @@ function semverDiffType (v1, v2) {
 		return 'reverted';
 	}
 
-	if (match2[4] === '-') {
+	// The pre-release or build marker of either version makes the difference (e.g. "1.0.0-beta.1" to "1.0.0" is a prerelease update)
+	if (match2[4] === '-' || match1[4] === '-') {
 		return 'prerelease';
 	}
 
-	if (match2[4] === '+') {
+	if (match2[4] === '+' || match1[4] === '+') {
 		return 'build';
 	}
 
