@@ -319,8 +319,8 @@ const AVAILABLE_ARGUMENTS = {
 	'--depth': (value) => {
 		const depth = Number.parseInt(value, 10);
 
-		if (!Number.isFinite(depth)) {
-			return help('Invalid value of --depth');
+		if (!Number.isFinite(depth) || depth < 0) {
+			return help('Invalid value of --depth (must be a non-negative integer)');
 		}
 
 		return { depth };

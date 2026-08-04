@@ -1326,6 +1326,21 @@ void (async () => {
 				expectNoOfAffectedDependencies(stdout, mockData.defaultResponse, 0);
 			});
 
+			await test('should forward an explicit `--depth 0` to npm', ['--depth', '0'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false --depth 0');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '38 outdated dependencies found:');
+			});
+
+			await test('should return with the "help" screen for a negative `--depth` value', ['--depth', ' -5'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				// A leading space bypasses the check for unknown arguments, but parseInt() still consumes the sign
+				expectVarToHaveWord(stdout, 'Invalid value of --depth');
+			});
+
 			await test('should return with the "help" screen, indicating an argument problem', ['--depth', 'INVALID'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);

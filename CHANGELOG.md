@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the repository directory of monorepo packages not being appended to `gitlab:` shorthand repository URLs, unlike all other repository URL formats
 - Fixed the order of `--min-age` fallback warnings depending on the completion order of the npm processes; warnings are now printed in dependency order
 - Fixed the help screen ending with a doubled blank line if it is shown without an error message
+- Fixed negative `--depth` values being forwarded to npm instead of being rejected, and an explicit `--depth 0` being silently dropped
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 
