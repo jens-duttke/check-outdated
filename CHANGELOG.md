@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an infinite loop if a dependency location contains no `node_modules` folder, which froze the CLI at full CPU load
 - Fixed `--min-age` recommending versions above the latest version reported by npm (e.g. versions which were rolled back, unpublished or published under another dist-tag like `next`)
 - Fixed `--min-age` making git, linked and remote dependencies visible with a bogus registry version, although they are normally skipped
+- Fixed `--types` always classifying the update type against the latest version, contradicting the recommended update and the shown "Type" column if `--prefer-wanted` is used
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

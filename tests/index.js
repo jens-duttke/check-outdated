@@ -752,6 +752,16 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'reverted');
 			});
 
+			await test('should filter the update type against the wanted version if `--prefer-wanted` is used', ['--prefer-wanted', '--types', 'patch', '--columns', 'package,current,wanted,latest,type'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// In prefer-wanted mode, the recommended update of module-wanted-patch-major is the patch 2.0.1, not the major 3.0.0
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-wanted-patch-major');
+				expectVarNotToHaveWord(stdout, 'module-wanted-major-major');
+			});
+
 			await test('should return with the "help" screen, indicating an argument problem', ['--types', 'INVALID'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);

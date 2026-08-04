@@ -612,7 +612,7 @@ function getFilteredDependencies (dependencies, options) {
 	}
 
 	if (options.types) {
-		filteredDependencies = filteredDependencies.filter(({ current, latest }) => (options.types && options.types.includes(semverDiffType(current, latest) || '')));
+		filteredDependencies = filteredDependencies.filter((dependency) => (options.types && options.types.includes(semverDiffType(dependency.current, getWantedOrLatest(dependency, options)) || '')));
 	}
 
 	return filteredDependencies;
