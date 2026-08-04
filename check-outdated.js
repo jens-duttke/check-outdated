@@ -443,7 +443,7 @@ async function checkOutdated (argv) {
 
 		await writeOutdatedDependenciesToStdout(visibleColumns, filteredDependencies, args);
 
-		writeUnnecessaryIgnoredPackagesToStdout(filteredDependencies, args);
+		writeUnnecessaryIgnoredPackagesToStdout(ageFilteredDependencies, args);
 	}
 	catch (error) {
 		if (typeof error === 'object' && error !== null) {
@@ -681,7 +681,7 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
 }
 
 /**
- * Show information about packages which are ignored by `--ignore-packages` with version number, but where the `latest` version differs.
+ * Show information about packages which are ignored by `--ignore-packages` with version number, but where the recommended version differs.
  *
  * Example:
  * Current "module" version: 2.0.0
@@ -691,11 +691,11 @@ async function writeOutdatedDependenciesToStdout (visibleColumns, dependencies, 
  * In these cases, the ignore-statements have no effect, because version ^1 and 2.0.1 are outdated. That means, the ignore-statement can be removed.
  *
  * @private
- * @param {Dependencies} filteredDependencies - Array of dependency objects, which will be shown in the terminal.
+ * @param {Dependencies} dependencies - Array of outdated dependency objects, before the filters are applied.
  * @param {Options} options - The arguments which the user provided.
  * @returns {void}
  */
-function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, options) {
+function writeUnnecessaryIgnoredPackagesToStdout (dependencies, options) {
 	const packageVersionRegExp = /^(.+?)@(.*)$/u;
 
 	if (!options.ignorePackages) {
@@ -706,10 +706,10 @@ function writeUnnecessaryIgnoredPackagesToStdout (filteredDependencies, options)
 		const match = packageVersionRegExp.exec(ignoredPackage);
 
 		if (match !== null) {
-			const dependency = filteredDependencies.find(({ name }) => name === match[1]);
+			const dependency = dependencies.find(({ name }) => name === match[1]);
 
-			if (dependency) {
-				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, the latest version is ${dependency.latest}.\n\n`);
+			if (dependency && !semverInRange(getWantedOrLatest(dependency, options), /** @type {string} */(match[2]))) {
+				process.stdout.write(`The --ignore-packages filter "${ignoredPackage}" has no effect, the ${(options.preferWanted ? 'wanted' : 'latest')} version is ${getWantedOrLatest(dependency, options)}.\n\n`);
 			}
 		}
 	}

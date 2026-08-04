@@ -505,6 +505,20 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'The --ignore-packages filter "@scoped/module-sub-broken-version@2.3.3" has no effect, the latest version is 2.3.4.');
 			});
 
+			await test('should inform about an unnecessary versioned ignore even if another filter also removes the package', ['--ignore-packages', 'module-broken-version@^1,module-broken-version'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-broken-version@^1" has no effect, the latest version is 2.3.4.');
+			});
+
+			await test('should inform about an unnecessary versioned ignore based on the wanted version if `--prefer-wanted` is used', ['--prefer-wanted', '--ignore-packages', 'module-wanted-major-major@2.0.0'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'The --ignore-packages filter "module-wanted-major-major@2.0.0" has no effect, the wanted version is 3.1.0.');
+			});
+
 			await test('should return with the "help" screen, indicating an argument problem', ['--ignore-packages'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
