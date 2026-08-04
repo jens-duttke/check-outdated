@@ -3,12 +3,12 @@
  */
 
 /**
- * Escape strings for use in regular expressions.
+ * Determines the line and column of the first match of a regular expression in a multiline string.
  *
  * @public
  * @param {string} string - The input string.
  * @param {RegExp} regexp - The regular expression used for the search.
- * @returns {[number, number]} The first value represents the line, the second value the column.
+ * @returns {[number, number]} The first value represents the line, the second value the column (both starting at 1), or `[0, 0]` if there is no match.
  */
 function getRegExpPosition (string, regexp) {
 	let pos = string.search(regexp);
