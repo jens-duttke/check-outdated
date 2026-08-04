@@ -37,7 +37,7 @@
 /**
  * @typedef {object} ColorizeOptions
  * @property {keyof FOREGROUND_COLORS} [fgColor]
- * @property {keyof TEXT_DECORATIONS} [textDecoration]
+ * @property {(keyof TEXT_DECORATIONS)[]} [textDecorations]
  * @property {boolean} [disabled]
  */
 
@@ -84,7 +84,7 @@ function colorize (options) {
 		 * @returns {string} Input `text` wrapped by ANSI escape sequences.
 		 */
 		(text) => {
-			if (options.disabled || (!options.fgColor && !options.textDecoration)) {
+			if (options.disabled || (!options.fgColor && (!options.textDecorations || options.textDecorations.length === 0))) {
 				return text;
 			}
 
@@ -102,9 +102,11 @@ function colorize (options) {
 				styledText = styledText.split(`\u001B[${DEFAULT_FOREGROUND_COLOR}m`).join(`\u001B[${foregroundColor}m`);
 			}
 
-			if (options.textDecoration) {
-				openCode.push(TEXT_DECORATIONS[options.textDecoration].open);
-				closeCode.push(TEXT_DECORATIONS[options.textDecoration].close);
+			if (options.textDecorations) {
+				for (const textDecoration of options.textDecorations) {
+					openCode.push(TEXT_DECORATIONS[textDecoration].open);
+					closeCode.push(TEXT_DECORATIONS[textDecoration].close);
+				}
 			}
 
 			return `\u001B[${openCode.join(';')}m${styledText}\u001B[${closeCode.join(';')}m`;
@@ -127,7 +129,8 @@ function colorize (options) {
 			.../** @type {(keyof TEXT_DECORATIONS)[]} */(Object.keys(TEXT_DECORATIONS)).map((key) => ({
 				[key]: {
 					get () {
-						return colorize({ ...options, textDecoration: key });
+						// Chained text decorations are combined, so every decoration is appended once
+						return colorize({ ...options, textDecorations: [...(options.textDecorations || []).filter((textDecoration) => textDecoration !== key), key] });
 					}
 				}
 			}))
