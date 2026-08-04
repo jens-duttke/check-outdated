@@ -71,15 +71,16 @@ async function getOutdatedDependencies (options) {
 
 			const response = parseResponse(stdout);
 
-			if ('error' in response && !isOutdatedDependency(response.error)) {
-				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- @todo The error object could be wrapped in a custom error with additional properties
-				reject(response.error);
+			// Unreachable today (parseResponse always returns a non-null object), but the guard must run before the "in" operator below, which throws for primitives
+			if (typeof response !== 'object' || response === null) {
+				reject(new TypeError('npm did not respond with an object.'));
 
 				return;
 			}
 
-			if (typeof response !== 'object' || response === null) {
-				reject(new TypeError('npm did not respond with an object.'));
+			if ('error' in response && !isOutdatedDependency(response.error)) {
+				// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- @todo The error object could be wrapped in a custom error with additional properties
+				reject(response.error);
 
 				return;
 			}
