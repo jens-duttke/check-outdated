@@ -826,6 +826,7 @@ void (async () => {
 
 			expect('`colorize.bold` should close with the ANSI bold-off code 22', () => assert.equal(realColorize.bold('text'), '\u001B[1mtext\u001B[22m'));
 			expect('`colorize.underline` should close with the ANSI underline-off code 24', () => assert.equal(realColorize.underline('text'), '\u001B[4mtext\u001B[24m'));
+			expect('`colorize` should restore the outer color after nested colored text', () => assert.equal(realColorize.red(`a${realColorize.green('b')}c`), '\u001B[31ma\u001B[32mb\u001B[31mc\u001B[39m'));
 		});
 
 		await describe('project paths with special characters', async () => {

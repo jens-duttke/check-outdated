@@ -90,10 +90,16 @@ function colorize (options) {
 
 			const openCode = [];
 			const closeCode = [];
+			let styledText = text;
 
 			if (options.fgColor) {
-				openCode.push(FOREGROUND_COLORS[options.fgColor]);
+				const foregroundColor = FOREGROUND_COLORS[options.fgColor];
+
+				openCode.push(foregroundColor);
 				closeCode.push(DEFAULT_FOREGROUND_COLOR);
+
+				// Nested colored text resets the foreground to the terminal default, so such resets are replaced by the enclosing color
+				styledText = styledText.split(`\u001B[${DEFAULT_FOREGROUND_COLOR}m`).join(`\u001B[${foregroundColor}m`);
 			}
 
 			if (options.textDecoration) {
@@ -101,7 +107,7 @@ function colorize (options) {
 				closeCode.push(TEXT_DECORATIONS[options.textDecoration].close);
 			}
 
-			return `\u001B[${openCode.join(';')}m${text}\u001B[${closeCode.join(';')}m`;
+			return `\u001B[${openCode.join(';')}m${styledText}\u001B[${closeCode.join(';')}m`;
 		},
 		Object.assign(
 			{
