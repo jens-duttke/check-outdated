@@ -403,6 +403,12 @@
 				"directory": "packages/foo"
 			}
 		},
+		"node_modules/module-fake-github-host/package.json": {
+			"repository": {
+				"type": "git",
+				"url": "git+https://githubXcom/user/fakehost-repo.git"
+			}
+		},
 		"node_modules/module-git-protocol/package.json": {
 			"repository": {
 				"type": "git",

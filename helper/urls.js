@@ -177,7 +177,7 @@ async function getPackageRepository (packageJSON, linkToChangelog) {
  * @returns {Promise<string>} Either returns an URL to the changelog for a specific service, or it returns `url`.
  */
 async function getChangelogFromURL (url, directory) {
-	const githubMatch = (/^https?:\/\/github.com\/([^/]+?\/[^/#?]+)/u).exec(url);
+	const githubMatch = (/^https?:\/\/github\.com\/([^/]+?\/[^/#?]+)/u).exec(url);
 
 	if (githubMatch !== null) {
 		const linkToChangelog = await getFileOnGitHub(githubMatch[1], 'CHANGELOG.md', directory, 256);
@@ -189,13 +189,13 @@ async function getChangelogFromURL (url, directory) {
 		return `https://github.com/${githubMatch[1]}/releases`;
 	}
 
-	const gistMatch = (/^https?:\/\/gist.github.com\/([^/]+?\/)?[^/#?]+/u).exec(url);
+	const gistMatch = (/^https?:\/\/gist\.github\.com\/([^/]+?\/)?[^/#?]+/u).exec(url);
 
 	if (gistMatch !== null) {
 		return `${gistMatch[0]}/revisions`;
 	}
 
-	const gitlabMatch = (/^https?:\/\/gitlab.com\/[^/]+?\/[^/#?]+/u).exec(url);
+	const gitlabMatch = (/^https?:\/\/gitlab\.com\/[^/]+?\/[^/#?]+/u).exec(url);
 
 	if (gitlabMatch !== null) {
 		return `${gitlabMatch[0]}/-/releases`;

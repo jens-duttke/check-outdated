@@ -979,6 +979,23 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'https://gitlab.com/user/monorepo/packages/foo');
 			});
 
+			await test('should not treat hosts which only resemble known services as such', ['--columns', 'package,changes'], {
+				'module-fake-github-host': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-fake-github-host',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// The host "githubXcom" must not be treated as github.com, which would even rewrite the link to the real GitHub host
+				expectVarToHaveWord(stdout, 'https://githubXcom/user/fakehost-repo');
+				expectVarNotToHaveWord(stdout, 'https://github.com/user/fakehost-repo/releases');
+			});
+
 			await test('should derive the repository from git protocol, scp-style, shorthand and suffix-less URLs', ['--columns', 'package,changes'], {
 				'module-git-protocol': {
 					current: '1.0.0',
