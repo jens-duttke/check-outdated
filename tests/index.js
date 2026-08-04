@@ -524,6 +524,24 @@ void (async () => {
 			});
 		});
 
+		await describe('dependency location without a node_modules ancestor', async () => {
+			await test('should not hang if a dependency location contains no node_modules folder', ['--columns', 'package,reference'], {
+				'module-outside-node-modules': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: '/opt/apps/module-outside-node-modules',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-outside-node-modules');
+			});
+		});
+
 		await describe('reference column with unparsable parent package.json', async () => {
 			await test('should keep the table if a parent package.json is unparsable or empty', ['--columns', 'package,reference'], {
 				'module-nested-in-broken': {

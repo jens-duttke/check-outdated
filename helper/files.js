@@ -64,17 +64,24 @@ function parsePackageJSON (fileContent) {
 }
 
 /**
- * Returns the content of the package.json of a given dependency.
+ * Returns the path to the package.json of the parent package of a given dependency.
  *
  * @public
  * @param {string} dependencyLocation - The folder where the dependency is located.
- * @returns {string} Either the content of the package.json or an empty object.
+ * @returns {string} Either the path to the package.json, or an empty string if the location has no "node_modules" ancestor.
  */
 function getParentPackageJSONPath (dependencyLocation) {
 	let filePath = path.resolve(process.cwd(), getRelativeDependencyPath(dependencyLocation));
 
-	while (filePath !== '' && path.basename(filePath) !== 'node_modules') {
-		filePath = path.dirname(filePath);
+	while (path.basename(filePath) !== 'node_modules') {
+		const parentPath = path.dirname(filePath);
+
+		// path.dirname() stabilizes at the filesystem root (it never returns an empty string), so without this guard, a location without a "node_modules" ancestor would loop forever
+		if (parentPath === filePath) {
+			return '';
+		}
+
+		filePath = parentPath;
 	}
 
 	return path.join(path.dirname(filePath), 'package.json');

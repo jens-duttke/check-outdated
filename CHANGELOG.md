@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the "Reference" column discarding the whole table if a parent package.json is unparsable (e.g. empty, malformed or BOM-prefixed); the reference is now still resolved by text search, without the version part
 - Fixed large `npm outdated` responses failing with a cryptic JSON parse error, because the default `maxBuffer` of the child process (200 KiB on Node.js 10) was exceeded; the limit is now 64 MiB and exceeding it reports an explanatory error
 - Fixed the CLI hanging forever if the GitHub API accepts the connection but never responds while resolving the "Changes" column; such requests now time out after 10 seconds and degrade gracefully to the releases page link
+- Fixed an infinite loop if a dependency location contains no `node_modules` folder, which froze the CLI at full CPU load
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 
