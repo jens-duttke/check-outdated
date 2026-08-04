@@ -11,7 +11,7 @@
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
 const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, getWantedOrLatest, compareByName, compareByType } = require('./helper/dependencies');
-const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFileCached } = require('./helper/files');
+const { clearFileCache, getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFileCached } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
@@ -398,6 +398,9 @@ async function checkOutdated (argv) {
 
 		return 1;
 	}
+
+	// The cache shall only avoid repeated reads within one run, not across multiple runs of a long-running module consumer
+	clearFileCache();
 
 	try {
 		const outdatedDependencies = Object.values(await getOutdatedDependencies(args));

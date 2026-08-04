@@ -124,7 +124,17 @@ function readFile (filePath) {
 }
 
 /** @type {{ [filePath: string]: string | undefined }} */
-const fileCache = {};
+let fileCache = {};
+
+/**
+ * Clears the file cache, so that subsequent reads return fresh content.
+ *
+ * @public
+ * @returns {void}
+ */
+function clearFileCache () {
+	fileCache = {};
+}
 
 /**
  * Returns the content of a file, cached across multiple reads of the same file.
@@ -155,6 +165,7 @@ function getRelativeDependencyPath (dependencyLocation) {
 }
 
 module.exports = {
+	clearFileCache,
 	getChangelogPath,
 	getDependencyPackageJSON,
 	getParentPackageJSONPath,

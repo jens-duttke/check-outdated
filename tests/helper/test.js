@@ -52,7 +52,7 @@ async function test (title, argv, dependencies, expectedCallback, npmTimeData) {
 /**
  * Start capturing the output to process.stdout.
  *
- * @private
+ * @public
  * @returns {() => string} A callback function to stop the capturing, which returns the captured output as string.
  */
 function captureStdout () {
@@ -76,6 +76,7 @@ function captureStdout () {
 }
 
 module.exports = {
+	captureStdout,
 	setMocks,
 	test
 };

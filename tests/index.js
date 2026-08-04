@@ -17,7 +17,8 @@ const assert = require('assert').strict;
 const colorize = require('./helper/colorize');
 const { describe } = require('./helper/describe');
 const { expect, expectNoOfAffectedDependencies, expectVarToEqual, expectVarToHaveWord, expectVarNotToHaveWord, getExpectResult } = require('./helper/expect');
-const { setMocks, test } = require('./helper/test');
+const { stub } = require('./helper/stub');
+const { captureStdout, setMocks, test } = require('./helper/test');
 const mockData = /** @type {MockData} */(require('./mock-data.json'));
 
 void (async () => {
@@ -712,6 +713,50 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, 'module-plain-wildcard');
 				expectVarNotToHaveWord(stdout, 'module-aliased-wildcard');
 			});
+		});
+
+		await describe('file cache invalidation between checkOutdated() runs', async () => {
+			// eslint-disable-next-line no-console -- console.log() is used to output the test results, analogous to the `test()` helper
+			console.log('\n  Repeated module usage should reflect package.json changes between two runs\n');
+
+			const cacheMockData = /** @type {MockData} */({
+				defaultResponse: {},
+				fsExists: {},
+				fsReadFile: {
+					'package.json': '{\n  "dependencies": {\n    "module-major": "^1.0.0"\n  }\n}'
+				},
+				httpsGet: {}
+			});
+
+			const dependenciesResponse = {
+				'module-major': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-major',
+					type: 'dependencies'
+				}
+			};
+
+			const checkOutdatedInstance = stub(cacheMockData, dependenciesResponse);
+
+			let unhookCapture = captureStdout();
+
+			await checkOutdatedInstance(['--columns', 'package,reference']);
+
+			const firstStdout = unhookCapture();
+
+			// The dependency entry moves one line down before the second run of the same module instance
+			cacheMockData.fsReadFile['package.json'] = '{\n  "name": "parent",\n  "dependencies": {\n    "module-major": "^1.0.0"\n  }\n}';
+
+			unhookCapture = captureStdout();
+
+			await checkOutdatedInstance(['--columns', 'package,reference']);
+
+			const secondStdout = unhookCapture();
+
+			expect('`firstStdout` should contain the reference position of the initial package.json', () => assert.ok(firstStdout.includes('package.json:3:5')));
+			expect('`secondStdout` should contain the reference position of the changed package.json', () => assert.ok(secondStdout.includes('package.json:4:5')));
 		});
 
 		await describe('package type grouping with untyped dependencies only', async () => {
