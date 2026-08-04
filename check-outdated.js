@@ -11,7 +11,7 @@
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
 const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, getWantedOrLatest, compareByName, compareByType } = require('./helper/dependencies');
-const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFile } = require('./helper/files');
+const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFileCached } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
@@ -68,9 +68,6 @@ const DEFAULT_COLUMNS = ['package', 'current', 'wanted', 'latest', 'reference', 
  * @property {TableColumn | string} caption;
  * @property {(dependency: OutdatedDependency, options: Options, detailsCache: DependencyDetailsCache) => Promise<TableColumn | string>} getValue
  */
-
-/** @type {{ [filePath: string]: string }} */
-const packageJsonCache = {};
 
 /** @type {{ readonly [columnName: string]: Column; }} */
 const AVAILABLE_COLUMNS = {
@@ -186,15 +183,9 @@ const AVAILABLE_COLUMNS = {
 		caption: colorize.underline('Reference'),
 		getValue: async (dependency) => {
 			const filePath = getParentPackageJSONPath(dependency.location);
-			let fileContent = (filePath in packageJsonCache ? packageJsonCache[filePath] : readFile(filePath));
+			const fileContent = readFileCached(filePath);
 
 			if (fileContent !== undefined) {
-				fileContent = fileContent.replace(/\r\n|\r/gu, '\n');
-
-				if (!('filePath' in packageJsonCache)) {
-					packageJsonCache[filePath] = fileContent;
-				}
-
 				// If the file is unparsable (e.g. empty, malformed or BOM-prefixed), the text search below still works without the version
 				const json = parsePackageJSON(fileContent);
 				const actualVersion = ((json !== undefined && dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
@@ -565,18 +556,20 @@ function getFilteredDependencies (dependencies, options) {
 
 		// Ignore this dependency if package.json specifies "*" as the version, meaning any version is acceptable
 		if (dependency.type) {
-			try {
-				const packageJSONContent = readFile(getParentPackageJSONPath(dependency.location));
+			const packageJSONContent = readFileCached(getParentPackageJSONPath(dependency.location));
 
-				if (packageJSONContent) {
-					const versionString = JSON.parse(packageJSONContent)[dependency.type][dependency.name];
+			if (packageJSONContent) {
+				const json = parsePackageJSON(packageJSONContent);
+				const section = ((json !== undefined && dependency.type in json) ? json[dependency.type] : undefined);
+				const versionString = ((section && typeof section === 'object') ? section[dependency.name] : undefined);
 
-					if (versionString === '*') {
-						return false;
-					}
+				// Unwrap the range part of an aliased version specifier (e.g. "npm:pkg@*")
+				const aliasMatch = ((typeof versionString === 'string') ? (/^npm:.+@([^@]+)$/u).exec(versionString) : null);
+
+				if ((aliasMatch !== null ? aliasMatch[1] : versionString) === '*') {
+					return false;
 				}
 			}
-			catch { /* Do nothing */ }
 		}
 
 		return true;

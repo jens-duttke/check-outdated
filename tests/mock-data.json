@@ -394,6 +394,13 @@
 			"dependencies": {
 				"module-curly": "file:../my{lib}"
 			}
+		},
+		"node_modules/module-with-wildcard-parent/package.json": {
+			"dependencies": {
+				"module-plain-wildcard": "*",
+				"module-aliased-wildcard": "npm:actual-module@*",
+				"module-normal-in-wildcard-parent": "^1.0.0"
+			}
 		}
 	},
 	"httpsGet": {

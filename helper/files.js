@@ -123,6 +123,26 @@ function readFile (filePath) {
 	return undefined;
 }
 
+/** @type {{ [filePath: string]: string | undefined }} */
+const fileCache = {};
+
+/**
+ * Returns the content of a file, cached across multiple reads of the same file.
+ *
+ * @public
+ * @param {string} filePath - The path/file name.
+ * @returns {string | undefined} The content of the file with normalized line endings, or `undefined` if an error occurs.
+ */
+function readFileCached (filePath) {
+	if (!(filePath in fileCache)) {
+		const fileContent = readFile(filePath);
+
+		fileCache[filePath] = (fileContent === undefined ? undefined : fileContent.replace(/\r\n|\r/gu, '\n'));
+	}
+
+	return fileCache[filePath];
+}
+
 /**
  * Returns the relative path to dependency to the current working directory.
  *
@@ -139,5 +159,6 @@ module.exports = {
 	getDependencyPackageJSON,
 	getParentPackageJSONPath,
 	parsePackageJSON,
-	readFile
+	readFile,
+	readFileCached
 };

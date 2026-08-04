@@ -679,6 +679,41 @@ void (async () => {
 			});
 		});
 
+		await describe('dependencies with "*" as version specifier', async () => {
+			await test('should also skip aliased dependencies with "*" as version specifier', ['--columns', 'package'], {
+				'module-plain-wildcard': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-wildcard-parent/node_modules/module-plain-wildcard',
+					type: 'dependencies'
+				},
+				'module-aliased-wildcard:actual-module@1.0.0': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-wildcard-parent/node_modules/module-aliased-wildcard',
+					type: 'dependencies'
+				},
+				'module-normal-in-wildcard-parent': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-wildcard-parent/node_modules/module-normal-in-wildcard-parent',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// Any version is acceptable for both wildcard dependencies, so only the normal dependency is outdated
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-normal-in-wildcard-parent');
+				expectVarNotToHaveWord(stdout, 'module-plain-wildcard');
+				expectVarNotToHaveWord(stdout, 'module-aliased-wildcard');
+			});
+		});
+
 		await describe('package type grouping with untyped dependencies only', async () => {
 			await test('should show the "unknown" group header if the first dependency has no package type', ['--columns', 'package'], {
 				'module-untyped': {

@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `--min-age` keeping a wanted version whose registry timestamp is missing or unparseable, although the same version is treated as "not old enough" when it is considered as latest version
 - Fixed the missing `unknown` group header if the first shown dependency has no package type
 - Fixed the hint about ineffective versioned `--ignore-packages` filters being suppressed if another filter also removes the package, and reporting the latest version although the filter was matched against the wanted version with `--prefer-wanted`
+- Fixed aliased dependencies with `*` as version specifier (e.g. `"alias": "npm:pkg@*"`) not being skipped like plain `*` dependencies, and the parent package.json being re-read for every dependency instead of using the existing cache
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 
