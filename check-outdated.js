@@ -87,7 +87,7 @@ const AVAILABLE_COLUMNS = {
 				case 'patch':
 					return colorize.green(dependency.name);
 
-				case 'revert':
+				case 'reverted':
 					return colorize.red(dependency.name);
 
 				default:

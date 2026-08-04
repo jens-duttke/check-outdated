@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed a crash when an aliased dependency is declared without a version (e.g. `"alias": "npm:real-pkg"`), which aborted the whole report with a TypeError
 - Fixed a process crash when the GitHub API is unreachable (e.g. offline, DNS failure, blocking proxy) while resolving the "Changes" column; such failures now degrade gracefully to the releases page link
+- Fixed `--types reverted` never matching any dependency, because the internal update type was named `revert`; the "Type" column now also shows `reverted` as documented
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

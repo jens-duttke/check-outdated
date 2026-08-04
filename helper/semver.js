@@ -38,7 +38,7 @@ function semverDiff (versions, equalColorizers, diffColorizers) {
  * @public
  * @param {string} v1 - First version.
  * @param {string} v2 - Second version.
- * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | 'revert' | undefined} The type as `string`, or `undefined` on same version or invalid semver formats.
+ * @returns {'major' | 'minor' | 'patch' | 'prerelease' | 'build' | 'reverted' | undefined} The type as `string`, or `undefined` on same version or invalid semver formats.
  */
 function semverDiffType (v1, v2) {
 	if (v1 === v2) {
@@ -64,7 +64,7 @@ function semverDiffType (v1, v2) {
 	}
 
 	if (Number.parseInt(match2[1], 10) < Number.parseInt(match1[1], 10)) {
-		return 'revert';
+		return 'reverted';
 	}
 
 	if (Number.parseInt(match2[2], 10) > Number.parseInt(match1[2], 10)) {
@@ -72,7 +72,7 @@ function semverDiffType (v1, v2) {
 	}
 
 	if (Number.parseInt(match2[2], 10) < Number.parseInt(match1[2], 10)) {
-		return 'revert';
+		return 'reverted';
 	}
 
 	if (Number.parseInt(match2[3], 10) > Number.parseInt(match1[3], 10)) {
@@ -80,7 +80,7 @@ function semverDiffType (v1, v2) {
 	}
 
 	if (Number.parseInt(match2[3], 10) < Number.parseInt(match1[3], 10)) {
-		return 'revert';
+		return 'reverted';
 	}
 
 	if (match2[4] === '-') {
