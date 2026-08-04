@@ -36,7 +36,7 @@
 		"publish:patch": "npm version patch",
 		"preversion": "npm whoami && npm run lint && npm run test && npm run check-outdated",
 		"postversion": "npm publish && git push && git push --tags",
-		"check-outdated": "node check-outdated.js --ignore-pre-releases --ignore-packages typescript@7.0.2"
+		"check-outdated": "node check-outdated.js --ignore-pre-releases --ignore-resolution-dependencies --ignore-packages typescript@7.0.2"
 	},
 	"engines": {
 		"node": ">=10.0.0"
