@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the hint about ineffective versioned `--ignore-packages` filters being suppressed if another filter also removes the package, and reporting the latest version although the filter was matched against the wanted version with `--prefer-wanted`
 - Fixed aliased dependencies with `*` as version specifier (e.g. `"alias": "npm:pkg@*"`) not being skipped like plain `*` dependencies, and the parent package.json being re-read for every dependency instead of using the existing cache
 - Fixed the file cache being kept across multiple runs when `check-outdated` is used as a module, so long-running consumers received stale package.json content
+- Fixed stray command line tokens (e.g. a second value after `--ignore-packages`) and duplicated value arguments (e.g. two `--columns`) being silently ignored; they are now rejected with an explanatory message
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 

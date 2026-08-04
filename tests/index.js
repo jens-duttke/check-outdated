@@ -265,6 +265,27 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'Unknown argument: --unknown-argument');
 			});
 
+			await test('should return with an "Unexpected argument" message for a stray token', ['--ignore-packages', 'module-major', 'stray-token'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Unexpected argument: stray-token');
+			});
+
+			await test('should return with a "Duplicate argument" message if a value argument is given twice', ['--columns', 'package', '--columns', 'current'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, undefined);
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Duplicate argument: --columns');
+			});
+
+			await test('should tolerate duplicated flag arguments', ['--global', '--global'], mockData.defaultResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false --global');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '38 outdated dependencies found:');
+			});
+
 			await test('should return with an "Unknown argument"  message, for multiple arguments', ['--unknown-argument1', '--unknown-argument2'], mockData.defaultResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
