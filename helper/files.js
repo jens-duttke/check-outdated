@@ -37,13 +37,30 @@ function getDependencyPackageJSON (dependencyLocation) {
 	const fileContent = readFile(filePath);
 
 	if (fileContent !== undefined) {
-		try {
-			return JSON.parse(fileContent);
+		const json = parsePackageJSON(fileContent);
+
+		if (json !== undefined) {
+			return json;
 		}
-		catch { /* We ignore errors here */ }
 	}
 
 	return {};
+}
+
+/**
+ * Parses the content of a package.json, tolerating invalid content.
+ *
+ * @public
+ * @param {string} fileContent - The content of a package.json.
+ * @returns {any} The parsed content, or `undefined` if the content is not valid JSON.
+ */
+function parsePackageJSON (fileContent) {
+	try {
+		return JSON.parse(fileContent);
+	}
+	catch { /* Do nothing here, but return undefined in the next step */ }
+
+	return undefined;
 }
 
 /**
@@ -114,5 +131,6 @@ module.exports = {
 	getChangelogPath,
 	getDependencyPackageJSON,
 	getParentPackageJSONPath,
+	parsePackageJSON,
 	readFile
 };

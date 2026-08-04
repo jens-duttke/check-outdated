@@ -11,7 +11,7 @@
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
 const { getOutdatedDependencies, compareByName, compareByType } = require('./helper/dependencies');
-const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, readFile } = require('./helper/files');
+const { getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFile } = require('./helper/files');
 const generateKeyValueList = require('./helper/list');
 const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
@@ -186,7 +186,7 @@ const AVAILABLE_COLUMNS = {
 		caption: colorize.underline('Reference'),
 		getValue: async (dependency) => {
 			const filePath = getParentPackageJSONPath(dependency.location);
-			let fileContent = (packageJsonCache[filePath] || readFile(filePath));
+			let fileContent = (filePath in packageJsonCache ? packageJsonCache[filePath] : readFile(filePath));
 
 			if (fileContent !== undefined) {
 				fileContent = fileContent.replace(/\r\n|\r/gu, '\n');
@@ -195,8 +195,9 @@ const AVAILABLE_COLUMNS = {
 					packageJsonCache[filePath] = fileContent;
 				}
 
-				const json = JSON.parse(fileContent);
-				const actualVersion = ((dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
+				// If the file is unparsable (e.g. empty, malformed or BOM-prefixed), the text search below still works without the version
+				const json = parsePackageJSON(fileContent);
+				const actualVersion = ((json !== undefined && dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
 
 				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
 				const [line, column] = getRegExpPosition(fileContent, needle);

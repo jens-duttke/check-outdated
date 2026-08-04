@@ -516,6 +516,35 @@ void (async () => {
 			});
 		});
 
+		await describe('reference column with unparsable parent package.json', async () => {
+			await test('should keep the table if a parent package.json is unparsable or empty', ['--columns', 'package,reference'], {
+				'module-nested-in-broken': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-broken-package-json/node_modules/module-nested-in-broken',
+					type: 'dependencies'
+				},
+				'module-nested-in-empty': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-with-empty-package-json/node_modules/module-nested-in-empty',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'module-nested-in-broken');
+				expectVarToHaveWord(stdout, 'module-nested-in-empty');
+				expectVarNotToHaveWord(stdout, 'gathering');
+
+				expect('`stdout` should contain the reference position found in the unparsable package.json', () => assert.ok(stdout.includes('package.json:1:21')));
+			});
+		});
+
 		await describe('GitHub API connection errors', async () => {
 			await test('should fall back to the releases page if the GitHub API request fails with a connection error', ['--columns', 'package,changes'], {
 				'module-with-connection-error': {

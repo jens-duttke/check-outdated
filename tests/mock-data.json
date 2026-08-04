@@ -381,7 +381,9 @@
 				"type": "git",
 				"url": "git+https://github.com/user/connection-error-repo.git"
 			}
-		}
+		},
+		"node_modules/module-with-broken-package-json/package.json": "{ \"dependencies\": { \"module-nested-in-broken\": \"^1.0.0\", INVALID }",
+		"node_modules/module-with-empty-package-json/package.json": ""
 	},
 	"httpsGet": {
 		"api.github.com/repos/user/connection-error-repo/contents/CHANGELOG.md": {

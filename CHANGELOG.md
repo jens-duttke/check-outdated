@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `--types reverted` never matching any dependency, because the internal update type was named `revert`; the "Type" column now also shows `reverted` as documented
 - Fixed `--ignore-pre-releases` hiding packages whose installed version is a pre-release, even if the recommended update is a stable version, and misclassifying versions with a hyphen in the build metadata (e.g. `2.0.0+exp-sha`) as pre-releases
 - Fixed an outdated dependency literally named `error` being misinterpreted as an npm error report, which discarded the whole result
+- Fixed the "Reference" column discarding the whole table if a parent package.json is unparsable (e.g. empty, malformed or BOM-prefixed); the reference is now still resolved by text search, without the version part
 
 [Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
 
