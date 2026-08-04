@@ -130,8 +130,9 @@ function prepareResponseObject (dependencies) {
 
 	for (const [name, dependency] of Object.entries(dependencies)) {
 		// npm reports aliased dependencies (e.g. "alias": "npm:real-pkg@1.0.0") as "alias:real-pkg@1.0.0".
+		// The version part is optional, since aliases can be defined without a version (e.g. "alias": "npm:real-pkg").
 		// We normalize the name to the alias and store the real package name (without version) separately.
-		const [, aliasName, resolvedName = aliasName] = ((/^([^:]+)(?::(.+)@[^@]+)?$/u).exec(name) || []);
+		const [, aliasName = name, resolvedName = aliasName] = ((/^([^:]+)(?::(.+?)(?:@[^@]+)?)?$/u).exec(name) || []);
 
 		// Adding the name, makes it easier to work with the dependency object.
 		const outdatedDependency = {

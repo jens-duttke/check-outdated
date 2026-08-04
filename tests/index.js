@@ -432,6 +432,33 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, 'actual-broken-module%40');
 			});
 
+			await test('should handle aliased dependencies without a version in the alias definition (e.g. "alias-name": "npm:actual-lib")', ['--columns', 'package,reference,npmjs'], {
+				'module-aliased-versionless:actual-versionless-module': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-aliased-versionless',
+					type: 'dependencies'
+				},
+				'module-aliased-versionless-scoped:@scoped/actual-versionless-module': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '2.0.0',
+					location: 'node_modules/module-aliased-versionless-scoped',
+					type: 'dependencies'
+				}
+			}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'module-aliased-versionless');
+				expectVarToHaveWord(stdout, 'module-aliased-versionless-scoped');
+				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/actual-versionless-module');
+				expectVarToHaveWord(stdout, 'https://www.npmjs.com/package/%40scoped%2Factual-versionless-module');
+				expectVarNotToHaveWord(stdout, 'undefined');
+			});
+
 			await test('should not crash when dependency name does not match alias regex', ['--columns', 'package,current,latest'], { ':malformed': { current: '1.0.0', wanted: '1.0.0', latest: '2.0.0', location: 'node_modules/malformed', type: 'dependencies' } }, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
 				expectVarToEqual(exitCode, 1);
