@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v3.0.0...HEAD)
+
+## [3.0.0] - 2026-08-04
+
 ### Added
 
 - The version pins in the "overrides" (npm) and "resolutions" (Yarn) fields of the package.json are now checked against the npm registry and reported like regular dependencies, since `npm outdated` does not cover them
@@ -55,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed negative `--depth` values being forwarded to npm instead of being rejected, and an explicit `--depth 0` being silently dropped
 - Fixed a package which `npm outdated` reports multiple times (since npm 10.9.0, if several workspaces depend on the same package) being shown as a single row without any version information; every reported version is now shown as its own row, and its time data is requested only once by `--min-age`
 
-[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...HEAD)
+[Show all code changes](https://github.com/jens-duttke/check-outdated/compare/v2.16.1...v3.0.0)
 
 ## [2.16.1] - 2026-02-20
 
