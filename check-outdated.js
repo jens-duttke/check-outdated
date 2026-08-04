@@ -10,10 +10,12 @@
 
 const parseArguments = require('./helper/args');
 const colorize = require('./helper/colorize');
-const { NON_REGISTRY_VERSIONS, getOutdatedDependencies, getWantedOrLatest, compareByName, compareByType } = require('./helper/dependencies');
+const { getOutdatedDependencies, getWantedOrLatest, compareByName, compareByType } = require('./helper/dependencies');
 const { clearFileCache, getChangelogPath, getDependencyPackageJSON, getParentPackageJSONPath, parsePackageJSON, readFileCached } = require('./helper/files');
+const { getFilteredDependencies } = require('./helper/filter');
 const generateKeyValueList = require('./helper/list');
-const { applyMinAgeFilter, isPrerelease } = require('./helper/min-age');
+const { applyMinAgeFilter } = require('./helper/min-age');
+const { getOutdatedPinnedDependencies } = require('./helper/overrides');
 const { getRegExpPosition, escapeRegExp } = require('./helper/regexp');
 const { semverDiff, semverDiffType, semverInRange } = require('./helper/semver');
 const prettifyTable = require('./helper/table');
@@ -36,6 +38,7 @@ const pkg = require('./package.json');
  * @typedef {object} CheckOutdatedOptions
  * @property {string[]} [ignorePackages]
  * @property {boolean} [ignoreDevDependencies]
+ * @property {boolean} [ignoreResolutionDependencies]
  * @property {boolean} [ignorePreReleases]
  * @property {boolean} [preferWanted]
  * @property {string[]} [columns]
@@ -185,11 +188,18 @@ const AVAILABLE_COLUMNS = {
 			const fileContent = readFileCached(filePath);
 
 			if (fileContent !== undefined) {
-				// If the file is unparsable (e.g. empty, malformed or BOM-prefixed), the text search below still works without the version
-				const json = parsePackageJSON(fileContent);
-				const actualVersion = ((json !== undefined && dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
+				// For "overrides"/"resolutions" entries, the literal key and value are known, which also resolves keys that differ from the package name (e.g. the glob path of a Yarn resolution)
+				const searchKey = (dependency.specKey !== undefined ? dependency.specKey : dependency.name);
+				let actualVersion = dependency.spec;
 
-				const needle = new RegExp(`"${escapeRegExp(dependency.name)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
+				if (actualVersion === undefined) {
+					// If the file is unparsable (e.g. empty, malformed or BOM-prefixed), the text search below still works without the version
+					const json = parsePackageJSON(fileContent);
+
+					actualVersion = ((json !== undefined && dependency.type && dependency.type in json) ? json[dependency.type][dependency.name] : undefined);
+				}
+
+				const needle = new RegExp(`"${escapeRegExp(searchKey)}"[^:]*:[^"]*"[^"]*${(actualVersion ? escapeRegExp(actualVersion) : '')}"`, 'u');
 				const [line, column] = getRegExpPosition(fileContent, needle);
 
 				if (line && column) {
@@ -268,6 +278,9 @@ const AVAILABLE_ARGUMENTS = {
 	},
 	'--ignore-dev-dependencies': {
 		ignoreDevDependencies: true
+	},
+	'--ignore-resolution-dependencies': {
+		ignoreResolutionDependencies: true
 	},
 	'--ignore-packages': (value) => {
 		const ignorePackages = value.split(',');
@@ -408,7 +421,18 @@ async function checkOutdated (argv) {
 	clearFileCache();
 
 	try {
-		const outdatedDependencies = Object.values(await getOutdatedDependencies(args));
+		const [outdatedResponse, pinnedResult] = await Promise.all([
+			getOutdatedDependencies(args),
+			getOutdatedPinnedDependencies(args)
+		]);
+
+		// Version pins of packages which are also reported by `npm outdated` (e.g. direct dependencies with a matching override) are not reported twice
+		const pinnedDependencies = pinnedResult.dependencies.filter((dependency) => !(dependency.name in outdatedResponse));
+		const outdatedDependencies = Object.values(outdatedResponse).concat(pinnedDependencies);
+
+		if (pinnedResult.warnings.length > 0) {
+			process.stdout.write(`${pinnedResult.warnings.map((warning) => `${colorize.yellow('Warning:')} ${warning}`).join('\n')}\n\n`);
+		}
 
 		// Apply min-age filter before other filters, as it modifies the `latest` and `wanted` fields
 		let ageFilteredDependencies = outdatedDependencies;
@@ -476,6 +500,7 @@ function help (...additionalLines) {
 		[
 			'[--ignore-pre-releases]',
 			'[--ignore-dev-dependencies]',
+			'[--ignore-resolution-dependencies]',
 			'[--ignore-packages <comma-separated-list-of-package-names>]',
 			'[--prefer-wanted]',
 			'[--columns <comma-separated-list-of-columns>]',
@@ -499,6 +524,10 @@ function help (...additionalLines) {
 			[
 				'--ignore-dev-dependencies',
 				'Do not warn if devDependencies are outdated.'
+			],
+			[
+				'--ignore-resolution-dependencies',
+				'Do not check the version pins in the "overrides" and "resolutions" fields of the package.json.'
 			],
 			[
 				'--ignore-packages <comma-separated-list-of-package-names>',
@@ -547,88 +576,6 @@ function help (...additionalLines) {
 		...(additionalLines.length > 0 ? [''].concat(additionalLines) : []),
 		''
 	].join('\n');
-}
-
-/**
- * Filters dependencies by the given filter `options`.
- *
- * @private
- * @param {Dependencies} dependencies - Array of dependency objects which shall be filtered.
- * @param {Options} options - Options to configure the filtering.
- * @returns {Dependencies} Array with of the filtered dependency objects.
- */
-function getFilteredDependencies (dependencies, options) {
-	let filteredDependencies = dependencies.filter((dependency) => {
-		if (NON_REGISTRY_VERSIONS.includes(getWantedOrLatest(dependency, options))) {
-			return false;
-		}
-
-		// Ignore this dependency if package.json specifies "*" as the version, meaning any version is acceptable
-		if (dependency.type) {
-			const packageJSONContent = readFileCached(getParentPackageJSONPath(dependency.location));
-
-			if (packageJSONContent) {
-				const json = parsePackageJSON(packageJSONContent);
-				const section = ((json !== undefined && dependency.type in json) ? json[dependency.type] : undefined);
-				const versionString = ((section && typeof section === 'object') ? section[dependency.name] : undefined);
-
-				// Unwrap the range part of an aliased version specifier (e.g. "npm:pkg@*")
-				const aliasMatch = ((typeof versionString === 'string') ? (/^npm:.+@([^@]+)$/u).exec(versionString) : null);
-
-				if ((aliasMatch !== null ? aliasMatch[1] : versionString) === '*') {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	});
-
-	if (options.ignorePackages) {
-		const ignorePackages = options.ignorePackages;
-		const packageVersionRegExp = /^(.+?)@(.*)$/u;
-
-		filteredDependencies = filteredDependencies.filter((dependency) => {
-			for (const ignoredPackage of ignorePackages) {
-				const match = packageVersionRegExp.exec(ignoredPackage);
-
-				if (match === null) {
-					if (ignoredPackage === dependency.name) {
-						return false;
-					}
-				}
-				else {
-					if (match[1] === dependency.name) {
-						if (semverInRange(getWantedOrLatest(dependency, options), match[2])) {
-							return false;
-						}
-					}
-				}
-			}
-
-			return true;
-		});
-	}
-
-	if (options.ignoreDevDependencies) {
-		filteredDependencies = filteredDependencies.filter(({ type }) => (
-			type !== 'devDependencies'
-		));
-	}
-
-	if (options.ignorePreReleases) {
-		filteredDependencies = filteredDependencies.filter((dependency) => !isPrerelease(getWantedOrLatest(dependency, options)));
-	}
-
-	if (options.preferWanted) {
-		filteredDependencies = filteredDependencies.filter(({ current, wanted }) => current !== wanted);
-	}
-
-	if (options.types) {
-		filteredDependencies = filteredDependencies.filter((dependency) => (options.types && options.types.includes(semverDiffType(dependency.current, getWantedOrLatest(dependency, options)) || '')));
-	}
-
-	return filteredDependencies;
 }
 
 /**

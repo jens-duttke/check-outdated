@@ -21,6 +21,7 @@ This is an improved version of `npm outdated`, which can be used in build-pipeli
 - Optionally ignore a specific version or version range of a package (e.g. to skip a broken version)
 - Optionally filter by version age to avoid very new or potentially compromised releases
 - Supports aliased npm dependencies (e.g. `"alias-name": "npm:actual-package@1.0.0"`)
+- Checks version pins in the `overrides` (npm) and `resolutions` (Yarn) fields of the package.json, which are not covered by `npm outdated`
 - Optionally restrict the update type (e.g. only show minor updates, or reverted versions)
 - Optionally check globally installed packages
 - Optionally set depth for checking dependency tree
@@ -95,6 +96,7 @@ Or put it into your `package.json`:
 | --help, -h | Show the help | `--help` |
 | --ignore-pre-releases | Don't recommend to update to pre-release versions (e.g. "2.1.0-alpha", "2.1.0-beta", "2.1.0-rc.1") | `--ignore-pre-releases` |
 | --ignore-dev-dependencies | Do not warn if devDependencies are outdated. | `--ignore-dev-dependencies` |
+| --ignore-resolution-dependencies | Do not check the version pins in the `overrides` and `resolutions` fields of the package.json. (See [Version Pins](#version-pins-overrides-and-resolutions) below) | `--ignore-resolution-dependencies` |
 | --ignore-packages \<comma-separated-list-of-package-names\> | Ignore the listed packages, even if they are outdated.<br />Using the `@` syntax (`<package>@<version>`) you can also, only ignore a specific version, or a semver range (like `^2`, `~2.3.4`, `2.*`, `2.3.x`) of a package (e.g. if it's broken).<br />For aliased dependencies (`"alias": "npm:package@version"`), use the alias name. | `--ignore-packages typescript,terser-webpack-plugin@3.0.0,got@^12` |
 | --prefer-wanted | Compare the `Current` version to the `Wanted` version, instead of the `Latest` version. | `--prefer-wanted` |
 | --columns \<comma-separated-list-of-columns\> | Defines which columns should be shown in which order. (See [Available Columns](#available-columns) below) | `--columns name,current,latest,changes` |
@@ -122,7 +124,7 @@ You are able to overwrite the default by using the `--columns` argument.
 | Changes | `changesPreferLocal` | Same as `changes`, but first check for a CHANGELOG<span>.</span>md in the package folder.<br />Keep in mind, you'll only see the changelog of the currently installed version, not of the version which is recommended. | node_modules/fs-extra/CHANGELOG.md |
 | Type | `type` | Shows if the difference between **Current** and **Latest** is a `major`, `minor`, `patch`, `prerelease`, `build` or `reverted` update, in [Semantic Versioning](https://semver.org/spec/v2.0.0.html). For more details see [Available Types](#available-types) below. | minor |
 | Location | `location` | Shows where in the dependency tree the package is located. Note that **check-outdated** defaults to a depth of 0, so unless you override that, you'll always be seeing only top-level dependencies that are outdated. | node_modules/typescript |
-| Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
+| Package Type | `packageType` | Tells you whether this package is a `dependency` or a `devDependency`, or a version pin from the `overrides` or `resolutions` field. Packages not included in **package.json** are always marked dependencies. If this column is not activated, the packages are grouped by their type, otherwise they are ordered by their name. | devDependencies |
 | Homepage | `homepage` | An URL with additional information to the package. The following places are considered in the given order:<ol><li>{package}/package.json > "homepage"</li><li>{package}/package.json > "repository"</li><li>{package}/package.json > "author"</li><li>`https://www.npmjs.com/package/{name}`</li></ol> | https<span>:</span>//www<span>.</span>typescriptlang<span>.</span>org/ |
 | npmjs<span>.</span>com | `npmjs` | A link to the package on the npmjs.com website. | https<span>:</span>//www<span>.</span>npmjs<span>.</span>com/package/typescript |
 
@@ -141,6 +143,26 @@ You are able to overwrite the default by using the `--types` argument.
 | `reverted` | Latest available version is lower than the installed version | `1.2.3` -> `1.1.5` |
 | `prerelease` | Only the pre-release version has been amended or added | `1.2.3` -> `1.2.3-beta.1` |
 | `build` | Only build metadata has been amended or added | `1.2.3` -> `1.2.3+build.2` |
+
+### Version Pins (overrides and resolutions)
+
+Version pins in the `overrides` field (npm) and the `resolutions` field (Yarn) of the package.json force specific versions of (usually transitive) dependencies. Since `npm outdated` does not report such pins, they tend to silently become outdated.
+
+**check-outdated** checks these pins against the npm registry by default and reports them like regular dependencies, grouped as `overrides` and `resolutions`:
+
+- **Wanted** is the highest published version which satisfies the pinned version or version range.
+- **Latest** is the version tagged as latest in the npm registry.
+- **Current** is the installed version, if the pinned package is currently installed.
+
+Nested overrides (e.g. `"pkg": { "sub-pkg": "1.0.0" }`), `"."` keys, version-qualified keys (e.g. `"pkg@2.x": "1.0.0"`), glob-prefixed resolutions (e.g. `"pkg/**/sub-pkg": "1.0.0"`) and aliased pins (e.g. `"npm:pkg@1.0.0"`) are supported.
+
+The following entries don't manage an own version number, so they are skipped:
+
+- References to other dependencies (e.g. `"$pkg"`)
+- Wildcard specifiers (`"*"`)
+- Non-registry specifiers (e.g. `git:`, `file:`, URLs) and complex ranges (e.g. `">=1.2.3 <2"`)
+
+To exclude single packages use `--ignore-packages`, to disable the checking of version pins completely use `--ignore-resolution-dependencies`. With `--global`, version pins are never checked, since the pins of the local package.json don't apply to globally installed packages.
 
 ### Version Age Filtering
 

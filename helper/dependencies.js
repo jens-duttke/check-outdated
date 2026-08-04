@@ -20,8 +20,10 @@ const NON_REGISTRY_VERSIONS = ['git', 'linked', 'remote'];
  * @property {string} wanted
  * @property {string} latest
  * @property {string} location
- * @property {'dependencies' | 'devDependencies' | 'peerDependencies'} [type]
+ * @property {'dependencies' | 'devDependencies' | 'peerDependencies' | 'overrides' | 'resolutions'} [type]
  * @property {string} [homepage]
+ * @property {string} [specKey] - The literal key in the package.json; only set for "overrides"/"resolutions" entries (e.g. the glob path of a Yarn resolution).
+ * @property {string} [spec] - The literal value in the package.json; only set for "overrides"/"resolutions" entries.
  */
 
 /**

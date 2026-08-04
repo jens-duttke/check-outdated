@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The version pins in the "overrides" (npm) and "resolutions" (Yarn) fields of the package.json are now checked against the npm registry and reported like regular dependencies, since `npm outdated` does not cover them
+- Added the `--ignore-resolution-dependencies` argument to disable the version pin check; single packages can be excluded with `--ignore-packages`. Note that the new check can report outdated pins (and therefore exit with code 1) in existing setups
+
 ### Changed
 
 - Updated dependencies

@@ -15,11 +15,15 @@ const proxyquire = require('proxyquire').noPreserveCache();
  * @param {MockData | undefined} mockData - Mock data to stub native modules.
  * @param {any} dependencies - Mock of the `npm outdated --json` response.
  * @param {(command: string) => void} [setUsedCommand] - Callback function which receives the used `child_process` command.
- * @param {{ [packageName: string]: { [version: string]: string } }} [npmTimeData] - Mock time data for npm view.
+ * @param {{ [packageName: string]: { [version: string]: string } }} [npmTimeData] - Mock time data for `npm view <pkg> time`.
+ * @param {{ [packageName: string]: { latest: string; versions: string[] | string } }} [npmViewData] - Mock version data for `npm view <pkg> dist-tags.latest versions`.
  * @returns {import('../../check-outdated')} New check-outdated with stubbed native modules.
  */
-function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
+function stub (mockData, dependencies, setUsedCommand, npmTimeData, npmViewData) {
 	let minAgeErrorCallCount = 0;
+
+	// The stubbed `files` helper is shared, so that `check-outdated` and the `overrides` helper work on the same mocked file system (including the file cache)
+	const filesStub = getFilesStub(mockData);
 
 	/** @type {import('../../check-outdated')} */
 	return proxyquire(path.join(process.cwd(), 'check-outdated'), {
@@ -76,87 +80,36 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 				}
 			}
 		}),
-		'./helper/files': proxyquire(path.join(process.cwd(), 'helper/files'), {
-			fs: {
+		'./helper/overrides': proxyquire(path.join(process.cwd(), 'helper/overrides'), {
+			'child_process': {
 				/**
-				 * Mock of the fs.existsSync() function, which is used by `check-outdated` to figure out of CHANGELOG.md in the package folder exists.
+				 * Mock of the child_process.exec() function, which is used by the `overrides` helper to call `npm view <pkg> dist-tags.latest versions --json`.
 				 *
-				 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
-				 * @returns {boolean} Returns true if the `filePath` exists, false otherwise.
-				 * @throws {TypeError | Error} Error if no mock data for the file exist.
+				 * @param {string} command - The command to run.
+				 * @param {(error: Error | null, stdout: string, stderr: string) => void} callback - Called with the output when process terminates.
+				 * @returns {void}
 				 */
-				existsSync (filePath) {
-					if (typeof filePath !== 'string') {
-						throw new TypeError('fs.existsSync(): Mock only support strings as path.');
+				exec (command, callback) {
+					// Parse package name from command: npm view <pkg> dist-tags.latest versions --json
+					const match = (/^npm view (\S+) dist-tags\.latest versions --json$/u).exec(command);
+
+					if (match && npmViewData && match[1] in npmViewData) {
+						const info = npmViewData[match[1]];
+
+						callback(null, JSON.stringify({ 'dist-tags.latest': info.latest, 'versions': info.versions }), '');
+
+						return;
 					}
 
-					if (mockData === undefined) { return false; }
-
-					const normalizedPath = filePath.replace(/\\/gu, '/');
-
-					if (!(normalizedPath in mockData.fsExists)) {
-						throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`);
-					}
-
-					return mockData.fsExists[normalizedPath];
-				},
-
-				/**
-				 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files.
-				 *
-				 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
-				 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
-				 * @returns {string | Buffer} Returns the contents of the `filePath`.
-				 * @throws {TypeError | Error} Error if no mock data for the file exist.
-				 */
-				readFileSync (filePath, options) {
-					if (typeof filePath !== 'string') {
-						throw new TypeError('fs.readFileSync(): Mock only support strings as path.');
-					}
-
-					if (options !== 'utf8') {
-						throw new Error('fs.readFileSync(): Mock only support "utf8" encoding.');
-					}
-
-					if (mockData === undefined) { return ''; }
-
-					const normalizedPath = filePath.replace(/\\/gu, '/');
-
-					if (!(normalizedPath in mockData.fsReadFile)) {
-						throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`);
-					}
-
-					const content = mockData.fsReadFile[normalizedPath];
-
-					if (typeof content === 'string') {
-						return content;
-					}
-
-					return JSON.stringify(content, null, '  ');
+					callback(new Error('No mock data'), '', '');
 				}
 			},
-			path: {
-				/**
-				 * Mock of the path.resolve() function, which is used by `check-outdated` to get the absolute path of the referencing package.json.
-				 *
-				 * @param {string[]} pathSegments - A sequence of paths or path segments.
-				 * @returns {string} Returns an absolute path.
-				 * @throws {RangeError | TypeError} Error if the number of arguments is not 2, or if if the second argument is not a string.
-				 */
-				resolve (...pathSegments) {
-					if (pathSegments.length !== 2) {
-						throw new RangeError('path.resolve(): Mock expects exactly 2 path segments.');
-					}
-
-					// eslint-disable-next-line linter-bundle/no-unnecessary-typeof -- From the Node.js documentation: "A `TypeError` is thrown if any of the arguments is not a string.""
-					if (typeof pathSegments[1] !== 'string') {
-						throw new TypeError('path.resolve(): Mock expects the second path segment to be an string.');
-					}
-
-					return pathSegments[1];
-				}
-			}
+			'./files': filesStub
 		}),
+		'./helper/filter': proxyquire(path.join(process.cwd(), 'helper/filter'), {
+			'./files': filesStub
+		}),
+		'./helper/files': filesStub,
 		'./helper/urls': proxyquire(path.join(process.cwd(), 'helper/urls'), {
 			https: {
 				/**
@@ -229,6 +182,96 @@ function stub (mockData, dependencies, setUsedCommand, npmTimeData) {
 				}
 			}
 		})
+	});
+}
+
+/**
+ * Creates a stubbed `files` helper module, which is backed by the mock data instead of the real file system.
+ *
+ * @param {MockData | undefined} mockData - Mock data to stub native modules.
+ * @returns {import('../../helper/files')} The `files` helper with stubbed `fs` and `path` modules.
+ */
+function getFilesStub (mockData) {
+	return proxyquire(path.join(process.cwd(), 'helper/files'), {
+		fs: {
+			/**
+			 * Mock of the fs.existsSync() function, which is used by `check-outdated` to figure out of CHANGELOG.md in the package folder exists.
+			 *
+			 * @param {string | Buffer | URL} filePath - Filename or file descriptor.
+			 * @returns {boolean} Returns true if the `filePath` exists, false otherwise.
+			 * @throws {TypeError | Error} Error if no mock data for the file exist.
+			 */
+			existsSync (filePath) {
+				if (typeof filePath !== 'string') {
+					throw new TypeError('fs.existsSync(): Mock only support strings as path.');
+				}
+
+				if (mockData === undefined) { return false; }
+
+				const normalizedPath = filePath.replace(/\\/gu, '/');
+
+				if (!(normalizedPath in mockData.fsExists)) {
+					throw new Error(`fs.existsSync(): Mocked data for "${normalizedPath}" not found.`);
+				}
+
+				return mockData.fsExists[normalizedPath];
+			},
+
+			/**
+			 * Mock of the fs.readFileSync() function, which is used by `check-outdated` to read package.json files.
+			 *
+			 * @param {string | Buffer | URL | number} filePath - Filename or file descriptor.
+			 * @param {{ encoding?: string | null; flag?: string; } | string} options - Either an object, or an string representing the encoding.
+			 * @returns {string | Buffer} Returns the contents of the `filePath`.
+			 * @throws {TypeError | Error} Error if no mock data for the file exist.
+			 */
+			readFileSync (filePath, options) {
+				if (typeof filePath !== 'string') {
+					throw new TypeError('fs.readFileSync(): Mock only support strings as path.');
+				}
+
+				if (options !== 'utf8') {
+					throw new Error('fs.readFileSync(): Mock only support "utf8" encoding.');
+				}
+
+				if (mockData === undefined) { return ''; }
+
+				const normalizedPath = filePath.replace(/\\/gu, '/');
+
+				if (!(normalizedPath in mockData.fsReadFile)) {
+					throw new Error(`fs.readFileSync(): Mocked data for "${normalizedPath}" not found.`);
+				}
+
+				const content = mockData.fsReadFile[normalizedPath];
+
+				if (typeof content === 'string') {
+					return content;
+				}
+
+				return JSON.stringify(content, null, '  ');
+			}
+		},
+		path: {
+			/**
+			 * Mock of the path.resolve() function, which is used by `check-outdated` to get the absolute path of the referencing package.json.
+			 *
+			 * @param {string[]} pathSegments - A sequence of paths or path segments.
+			 * @returns {string} Returns an absolute path.
+			 * @throws {RangeError | TypeError} Error if the number of arguments is not 2, or if if the second argument is not a string.
+			 */
+			resolve (...pathSegments) {
+				if (pathSegments.length !== 2) {
+					throw new RangeError('path.resolve(): Mock expects exactly 2 path segments.');
+				}
+
+				// eslint-disable-next-line linter-bundle/no-unnecessary-typeof -- From the Node.js documentation: "A `TypeError` is thrown if any of the arguments is not a string.""
+				if (typeof pathSegments[1] !== 'string') {
+					throw new TypeError('path.resolve(): Mock expects the second path segment to be an string.');
+				}
+
+				return pathSegments[1];
+			}
+		}
 	});
 }
 

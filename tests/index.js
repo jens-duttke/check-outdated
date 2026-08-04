@@ -1401,7 +1401,7 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1 outdated dependency found:');
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.1.2');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should include patch `1.0.1` in qualifying 1.0.x line with `--min-age 30`', ['--min-age', '30', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
@@ -1411,7 +1411,7 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1 outdated dependency found:');
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.0.1');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should show warning and fallback when time data is not available', ['--min-age', '10', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
@@ -1431,7 +1431,7 @@ void (async () => {
 
 				// Otherwise the argument is accepted but has no effect
 				expectVarToHaveWord(stdout, 'The argument --min-age-patch requires the argument --min-age');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should return with the "help" screen if `--min-age-patch` is greater than `--min-age`', ['--min-age', '10', '--min-age-patch', '30', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
@@ -1439,21 +1439,21 @@ void (async () => {
 
 				// Otherwise the two-step selection would recommend a version which violates the stricter patch age requirement
 				expectVarToHaveWord(stdout, 'The value of --min-age-patch must not be greater than the value of --min-age');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should return error for invalid `--min-age` value (non-numeric)', ['--min-age', 'abc'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Invalid value of --min-age');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should return error for missing `--min-age` value', ['--min-age'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Invalid value of --min-age');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should show all outdated dependencies with `--min-age 0` (no effective filtering)', ['--min-age', '0', '--columns', 'package,latest'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, 'npm outdated --json --long --save false');
@@ -1463,7 +1463,7 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1 outdated dependency found:');
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.1.2');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should filter multiple packages independently with `--min-age 10`', ['--min-age', '10', '--columns', 'package,latest'], {
 				'module-age-a': {
@@ -1490,14 +1490,16 @@ void (async () => {
 				// module-age-b: 3.0.0 is too new (5 days), no other version > current -> not shown
 				expectVarNotToHaveWord(stdout, 'module-age-b');
 			}, {
-				'module-age-a': {
-					'1.0.0': daysAgo(100),
-					'1.5.0': daysAgo(15),
-					'2.0.0': daysAgo(3)
-				},
-				'module-age-b': {
-					'1.0.0': daysAgo(100),
-					'3.0.0': daysAgo(5)
+				npmTimeData: {
+					'module-age-a': {
+						'1.0.0': daysAgo(100),
+						'1.5.0': daysAgo(15),
+						'2.0.0': daysAgo(3)
+					},
+					'module-age-b': {
+						'1.0.0': daysAgo(100),
+						'3.0.0': daysAgo(5)
+					}
 				}
 			});
 
@@ -1519,11 +1521,13 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, '2.3.4');
 				expectVarNotToHaveWord(stdout, '2.4.0');
 			}, {
-				'module-rolled-back': {
-					'2.0.0': daysAgo(300),
-					'2.3.3': daysAgo(100),
-					'2.3.4': daysAgo(60),
-					'2.4.0': daysAgo(50)
+				npmTimeData: {
+					'module-rolled-back': {
+						'2.0.0': daysAgo(300),
+						'2.3.3': daysAgo(100),
+						'2.3.4': daysAgo(60),
+						'2.4.0': daysAgo(50)
+					}
 				}
 			});
 
@@ -1553,14 +1557,16 @@ void (async () => {
 				expectVarNotToHaveWord(stdout, '2.0.0');
 				expectVarNotToHaveWord(stdout, '3.0.0');
 			}, {
-				'module-unparseable-wanted-time': {
-					'1.0.0': daysAgo(100),
-					'1.5.0': daysAgo(50),
-					'2.0.0': 'INVALID DATE'
-				},
-				'module-missing-wanted-time': {
-					'1.0.0': daysAgo(100),
-					'2.5.0': daysAgo(50)
+				npmTimeData: {
+					'module-unparseable-wanted-time': {
+						'1.0.0': daysAgo(100),
+						'1.5.0': daysAgo(50),
+						'2.0.0': 'INVALID DATE'
+					},
+					'module-missing-wanted-time': {
+						'1.0.0': daysAgo(100),
+						'2.5.0': daysAgo(50)
+					}
 				}
 			});
 
@@ -1601,9 +1607,11 @@ void (async () => {
 				// --min-age only recommends stable versions: without a stable version newer than the installed one which satisfies the age requirement, the package is not reported
 				expectVarToHaveWord(stdout, 'All dependencies are up-to-date.');
 			}, {
-				'module-prerelease-only': {
-					'2.0.0-beta.1': daysAgo(100),
-					'2.0.0-beta.5': daysAgo(40)
+				npmTimeData: {
+					'module-prerelease-only': {
+						'2.0.0-beta.1': daysAgo(100),
+						'2.0.0-beta.5': daysAgo(40)
+					}
 				}
 			});
 
@@ -1631,13 +1639,15 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'module-min-age-normal');
 				expectVarNotToHaveWord(stdout, 'module-git-fork');
 			}, {
-				'module-git-fork': {
-					'4.17.20': daysAgo(100),
-					'4.17.21': daysAgo(50)
-				},
-				'module-min-age-normal': {
-					'1.0.0': daysAgo(100),
-					'2.0.0': daysAgo(50)
+				npmTimeData: {
+					'module-git-fork': {
+						'4.17.20': daysAgo(100),
+						'4.17.21': daysAgo(50)
+					},
+					'module-min-age-normal': {
+						'1.0.0': daysAgo(100),
+						'2.0.0': daysAgo(50)
+					}
 				}
 			});
 
@@ -1667,7 +1677,7 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.1.1');
 				expectVarNotToHaveWord(stdout, '1.1.2');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 		});
 
 		await describe('--min-age-patch argument', async () => {
@@ -1678,7 +1688,7 @@ void (async () => {
 				expectVarToHaveWord(stdout, 'module-min-age-test');
 				expectVarToHaveWord(stdout, '1.1.1');
 				expectVarNotToHaveWord(stdout, '1.1.2');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should fall back to base version with `--min-age 10 --min-age-patch 10`\n    (only `1.1.0` in 1.1.x is >= 10 days old)', ['--min-age', '10', '--min-age-patch', '10', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
 				expectVarToEqual(exitCode, 1);
@@ -1688,21 +1698,21 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1.1.0');
 				expectVarNotToHaveWord(stdout, '1.1.1');
 				expectVarNotToHaveWord(stdout, '1.1.2');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should show no update with `--min-age 30 --min-age-patch 30`\n    (only `1.0.0` qualifies in 1.0.x and equals current)', ['--min-age', '30', '--min-age-patch', '30', '--columns', 'package,latest'], minAgeResponse, (_command, exitCode, stdout) => {
 				expectVarToEqual(exitCode, 0);
 
 				// --min-age 30: qualifies 1.0.0 (50d). --min-age-patch 30: only 1.0.0 (50d) in 1.0.x. Equals current.
 				expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should return error for invalid `--min-age-patch` value', ['--min-age', '10', '--min-age-patch', 'xyz'], minAgeResponse, (command, exitCode, stdout) => {
 				expectVarToEqual(command, undefined);
 				expectVarToEqual(exitCode, 1);
 
 				expectVarToHaveWord(stdout, 'Invalid value of --min-age-patch');
-			}, minAgeTimeData);
+			}, { npmTimeData: minAgeTimeData });
 
 			await test('should ignore pre-release versions when determining qualifying line with `--min-age 10`', ['--min-age', '10', '--columns', 'package,latest'], {
 				'module-prerelease-age': {
@@ -1722,14 +1732,221 @@ void (async () => {
 				expectVarToHaveWord(stdout, '1.5.0');
 				expectVarNotToHaveWord(stdout, '2.0.0');
 			}, {
-				'module-prerelease-age': {
-					'1.0.0': daysAgo(100),
-					'1.5.0': daysAgo(20),
-					'2.0.0-alpha.0': daysAgo(30),
-					'2.0.0-beta.0': daysAgo(15),
-					'2.0.0': daysAgo(5)
+				npmTimeData: {
+					'module-prerelease-age': {
+						'1.0.0': daysAgo(100),
+						'1.5.0': daysAgo(20),
+						'2.0.0-alpha.0': daysAgo(30),
+						'2.0.0-beta.0': daysAgo(15),
+						'2.0.0': daysAgo(5)
+					}
 				}
 			});
+		});
+
+		await describe('"overrides" and "resolutions" version pins (--ignore-resolution-dependencies argument)', async () => {
+			const pinsMockData = /** @type {MockData} */({
+				...mockData,
+				fsExists: {},
+				httpsGet: {},
+				fsReadFile: {
+					'package.json': {
+						dependencies: {
+							'module-direct': '1.0.0'
+						},
+						overrides: {
+							'module-direct': '1.0.0',
+							'module-pinned': '2.0.0',
+							'module-uptodate': '3.0.0',
+							'module-range-pin': '^1.2.0',
+							'module-reference': '$module-direct',
+							'module-any-version': '*',
+							'module-git-pin': 'git+https://github.com/user/repo.git',
+							'module-parent': {
+								'.': '1.0.0',
+								'module-nested': '1.5.0'
+							},
+							'module-qualified@1.x': '1.0.0'
+						},
+						resolutions: {
+							'module-res/**/module-glob-pinned': '1.0.0',
+							'@scope/module-res-scoped': '0.5.0'
+						}
+					},
+					'node_modules/module-pinned/package.json': { version: '2.0.0' },
+					'node_modules/module-uptodate/package.json': { version: '3.0.0' },
+					'node_modules/module-range-pin/package.json': { version: '1.2.5' },
+					'node_modules/module-parent/package.json': { version: '1.0.0' },
+					'node_modules/module-nested/package.json': { version: '1.5.0' },
+					'node_modules/module-qualified/package.json': { version: '1.0.0' },
+					'node_modules/module-glob-pinned/package.json': { version: '1.0.0' }
+				}
+			});
+
+			const pinsResponse = {
+				'module-direct': {
+					current: '1.0.0',
+					wanted: '1.0.0',
+					latest: '1.4.0',
+					location: 'node_modules/module-direct',
+					type: 'dependencies'
+				}
+			};
+
+			/** @type {{ [packageName: string]: { latest: string; versions: string[] | string } }} */
+			const pinsViewData = {
+				'module-direct': { latest: '1.4.0', versions: ['1.0.0', '1.4.0'] },
+				'module-pinned': { latest: '2.1.3', versions: ['1.0.0', '2.0.0', '2.1.0', '2.1.3'] },
+				'module-uptodate': { latest: '3.0.0', versions: ['2.0.0', '3.0.0'] },
+				'module-range-pin': { latest: '2.0.0', versions: ['1.2.0', '1.2.5', '1.3.0-beta.1', '1.3.0', '2.0.0'] },
+				'module-parent': { latest: '1.1.0', versions: ['1.0.0', '1.1.0'] },
+				'module-nested': { latest: '1.6.0', versions: ['1.5.0', '1.6.0'] },
+				'module-qualified': { latest: '1.2.0', versions: ['1.0.0', '1.2.0'] },
+				'module-glob-pinned': { latest: '1.1.0', versions: ['1.0.0', '1.1.0'] },
+				// For packages with exactly one published version, `npm view` returns the version list as a plain string instead of an array
+				'@scope/module-res-scoped': { latest: '0.5.0', versions: '0.5.0' }
+			};
+
+			setMocks(pinsMockData);
+
+			await test('should report outdated version pins from "overrides" and "resolutions"', [], pinsResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '7 outdated dependencies found:');
+
+				// Flat, nested, "." and version-qualified overrides, as well as glob-prefixed resolutions
+				expectVarToHaveWord(stdout, 'module-pinned');
+				expectVarToHaveWord(stdout, '2.1.3');
+				expectVarToHaveWord(stdout, 'module-range-pin');
+				expectVarToHaveWord(stdout, '1.3.0');
+				expectVarToHaveWord(stdout, 'module-parent');
+				expectVarToHaveWord(stdout, 'module-nested');
+				expectVarToHaveWord(stdout, 'module-qualified');
+				expectVarToHaveWord(stdout, 'module-glob-pinned');
+
+				// Up-to-date pins, references, wildcards, non-registry specifiers and not-installed up-to-date pins are not reported
+				expectVarNotToHaveWord(stdout, 'module-uptodate');
+				expectVarNotToHaveWord(stdout, 'module-reference');
+				expectVarNotToHaveWord(stdout, 'module-any-version');
+				expectVarNotToHaveWord(stdout, 'module-git-pin');
+				expectVarNotToHaveWord(stdout, 'module-res-scoped');
+
+				// The pins are grouped below the regular dependencies, by their package.json field
+				expectVarToHaveWord(stdout, 'overrides');
+				expectVarToHaveWord(stdout, 'resolutions');
+				expect('`stdout` should group "dependencies" before "overrides" before "resolutions"', () => assert.ok(stdout.indexOf('module-direct') < stdout.indexOf('module-pinned') && stdout.indexOf('module-pinned') < stdout.indexOf('module-glob-pinned')));
+
+				// No warnings, since version data is available for all pinned packages
+				expectVarNotToHaveWord(stdout, 'Warning:');
+			}, { npmViewData: pinsViewData });
+
+			await test('should not check version pins with `--ignore-resolution-dependencies`', ['--ignore-resolution-dependencies'], pinsResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-direct');
+				expectVarNotToHaveWord(stdout, 'module-pinned');
+				expectVarNotToHaveWord(stdout, 'module-glob-pinned');
+			}, { npmViewData: pinsViewData });
+
+			await test('should ignore specific version pins with `--ignore-packages`', ['--ignore-packages', 'module-pinned,module-glob-pinned'], pinsResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, '5 outdated dependencies found:');
+				expectVarNotToHaveWord(stdout, 'module-pinned');
+				expectVarNotToHaveWord(stdout, 'module-glob-pinned');
+			}, { npmViewData: pinsViewData });
+
+			await test('should only report version pins whose installed version differs from the wanted version with `--prefer-wanted`', ['--prefer-wanted'], pinsResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// Only module-range-pin has an installed version (1.2.5) below the wanted version (1.3.0)
+				expectVarToHaveWord(stdout, '1 outdated dependency found:');
+				expectVarToHaveWord(stdout, 'module-range-pin');
+				expectVarNotToHaveWord(stdout, 'module-pinned');
+			}, { npmViewData: pinsViewData });
+
+			await test('should show warning if version data is not available', [], pinsResponse, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				expectVarToHaveWord(stdout, 'Warning:');
+				expectVarToHaveWord(stdout, 'Could not retrieve version data for "module-glob-pinned". Ignoring the version pins of this package.');
+
+				// The unavailable pin is not reported, all other pins are unaffected; without the only reported "resolutions" pin, its group header disappears as well
+				expectVarToHaveWord(stdout, '6 outdated dependencies found:');
+				expectVarNotToHaveWord(stdout, 'resolutions');
+			}, {
+				npmViewData: (() => {
+					const viewData = { ...pinsViewData };
+
+					delete viewData['module-glob-pinned'];
+
+					return viewData;
+				})()
+			});
+
+			await test('should not check version pins with `--global`', ['--global'], {}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false --global');
+				expectVarToEqual(exitCode, 0);
+
+				// Version pins in the local package.json don't apply to globally installed packages; without the mocked version data, checking them would show warnings
+				expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
+			});
+
+			setMocks(/** @type {MockData} */({
+				...pinsMockData,
+				fsReadFile: {
+					'package.json': {
+						overrides: {
+							'module-alias-pin': 'npm:module-alias-target@1.0.0',
+							'module-not-installed': '2.0.0'
+						}
+					}
+				}
+			}));
+
+			await test('should report aliased and not-installed version pins', ['--columns', 'package,current,wanted,latest'], {}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 1);
+
+				// module-alias-pin is checked against the registry versions of module-alias-target; module-not-installed has no installed version, but the pin is outdated
+				expectVarToHaveWord(stdout, '2 outdated dependencies found:');
+				expectVarToHaveWord(stdout, 'module-alias-pin');
+				expectVarToHaveWord(stdout, '1.2.0');
+				expectVarToHaveWord(stdout, 'module-not-installed');
+				expectVarToHaveWord(stdout, '2.5.0');
+			}, {
+				npmViewData: {
+					'module-alias-target': { latest: '1.2.0', versions: ['1.0.0', '1.2.0'] },
+					'module-not-installed': { latest: '2.5.0', versions: ['2.0.0', '2.5.0'] }
+				}
+			});
+
+			setMocks(/** @type {MockData} */({
+				...pinsMockData,
+				fsReadFile: {
+					'package.json': {
+						overrides: {
+							'module-uptodate': '3.0.0'
+						}
+					},
+					'node_modules/module-uptodate/package.json': { version: '3.0.0' }
+				}
+			}));
+
+			await test('should return without outdated dependency message if all version pins are up-to-date', [], {}, (command, exitCode, stdout) => {
+				expectVarToEqual(command, 'npm outdated --json --long --save false');
+				expectVarToEqual(exitCode, 0);
+
+				expectVarToEqual(stdout, 'All dependencies are up-to-date.\n');
+			}, { npmViewData: pinsViewData });
+
+			setMocks(mockData);
 		});
 
 		const sum = getExpectResult();
