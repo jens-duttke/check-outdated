@@ -14,11 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The version pins in the "overrides" (npm) and "resolutions" (Yarn) fields of the package.json are now checked against the npm registry and reported like regular dependencies, since `npm outdated` does not cover them
-- Added the `--ignore-resolution-dependencies` argument to disable the version pin check; single packages can be excluded with `--ignore-packages`. Note that the new check can report outdated pins (and therefore exit with code 1) in existing setups
+- Added the `--ignore-resolution-dependencies` argument to disable the version pin check; single packages can be excluded with `--ignore-packages`
 - Added the `--ignore-linked-packages` argument to skip packages which are linked to a local folder outside of any `node_modules` folder (e.g. workspaces of a monorepo, packages bootstrapped by Lerna, or packages added with `npm link`), since npm does not update them ([#5](https://github.com/jens-duttke/check-outdated/issues/5))
 
 ### Changed
 
+- **Breaking change:** The version pins in the "overrides" and "resolutions" fields are now part of the check, so a pipeline which passed with 2.x fails with exit code 1 if a pin is outdated. Use `--ignore-resolution-dependencies` to disable it, or `--ignore-packages` to exclude single pins
 - Updated dependencies
 
 ### Fixed
